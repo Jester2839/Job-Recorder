@@ -164,28 +164,54 @@ document.getElementById('clear-filter-btn').addEventListener('click', () => {
 
 
 
-//export zaznomu do excelu
-document.getElementById('export-btn').addEventListener('click', () => {
+// --- EXPORT POMOCÍ ŠABLONY ---
+document.getElementById('export-btn').addEventListener('click', async () => {
     if (!window.currentlyFilteredData || window.currentlyFilteredData.length === 0) {
         alert("Žádná data k exportu!");
         return;
     }
 
-    // 1. Příprava dat (vyhodíme nepotřebné věci jako ID a userId)
-    const dataToExport = window.currentlyFilteredData.map(record => ({
-        "Datum": record.date,
-        "Počet hodin": record.hours,
-        "Činnost": record.description
-    }));
+    try {
+        // 1. Načteme tvůj soubor se šablonou
+        const response = await fetch('sablona.xlsx'); // Musí být ve stejné složce
+        const arrayBuffer = await response.arrayBuffer();
 
-    // 2. Vytvoření listu (worksheet)
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        // 2. Otevřeme ho pomocí ExcelJS
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(arrayBuffer);
+        const worksheet = workbook.getWorksheet(1); // Vybereme první list
 
-    // 3. Vytvoření sešitu (workbook)
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Záznamy brigády");
+        // 3. Zapisujeme data (předpokládáme, že hlavička končí na řádku 3)
+        // Takže začneme zapisovat od řádku 4. 
+        // Pokud máš v šabloně pod tím hned součty, použijeme "insertRow", 
+        // aby se součty posunuly dolů a nepřepsali jsme je.
+        let currentRowIndex = 4;
 
-    // 4. Vygenerování a stažení souboru
-    const fileName = `Brigada_Export_${new Date().toISOString().slice(0, 10)}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+        window.currentlyFilteredData.forEach(record => {
+            // Vložíme nový prázdný řádek na danou pozici (ostatní řádky se posunou dolů)
+            // worksheet.insertRow(currentRowIndex, []); //přidává novyrádek a ty pod ním posouvá dolů
+            const row = worksheet.getRow(currentRowIndex);
+
+            // Vyplníme jen ty buňky, které chceme (A=1, B=2, ... E=5, J=10, K=11)
+            row.getCell(1).value = record.date;                  // A: Datum
+            row.getCell(5).value = 'ostatní';                    // E: Činnost
+            row.getCell(10).value = record.description;          // J: Poznámka
+            row.getCell(11).value = Number(record.hours);        // K: Hodiny
+
+            row.commit(); // Potvrdíme zápis do řádku
+            currentRowIndex++; // Posuneme se na další řádek pro další záznam
+        });
+
+        // 4. Uložíme a stáhneme
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        
+        // Získáme název měsíce z filtru (pokud je) pro hezčí název souboru
+        const monthValue = document.getElementById('monthFilter').value || "Vsechno";
+        saveAs(blob, `${monthValue} - vykaz zahradnika.xlsx`);
+
+    } catch (error) {
+        console.error("Chyba při exportu:", error);
+        alert("Nepodařilo se načíst šablonu. Ujisti se, že máš soubor 'sablona.xlsx' ve složce s projektem.");
+    }
 });
