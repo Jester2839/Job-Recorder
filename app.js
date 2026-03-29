@@ -96,6 +96,7 @@ addRecordBtn.addEventListener('click', async () => {
 
 
 // --- NAČÍTÁNÍ A ZOBRAZENÍ DAT ---
+let allRecords = []; // Tady budeme držet aktuální data z DB
 
 function loadRecords() {
     // Vytvoříme dotaz na databázi (chceme jen tvoje data, seřazená podle data)
@@ -107,34 +108,84 @@ function loadRecords() {
 
     // onSnapshot je kouzlo - poslouchá změny v reálném čase
     onSnapshot(q, (snapshot) => {
-        const list = document.getElementById('records-list');
-        list.innerHTML = ''; // Vyčistíme seznam před novým vykreslením
+    allRecords = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+    }));
 
-        snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const docId = docSnap.id; // Unikátní ID záznamu v databázi
-
-            // Vytvoříme prvek seznamu (li)
-            const li = document.createElement('li');
-            li.style.marginBottom = "10px"; // Jen rychlý styl pro přehlednost
-            li.innerHTML = `
-                <strong>${data.date}</strong> | ${data.hours} hod. | ${data.description}
-                <button class="delete-btn" data-id="${docId}" style="margin-left: 10px; color: red;">Smazat</button>
-            `;
-            list.appendChild(li);
-        });
-
-        // Přidáme "posluchače" na všechna tlačítka Smazat
-        const deleteButtons = document.querySelectorAll('.delete-btn');
-        deleteButtons.forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const idToDelete = e.target.getAttribute('data-id');
-                if(confirm("Opravdu smazat tento záznam?")) {
-                    await deleteDoc(doc(db, "work_records", idToDelete));
-                }
-            });
-        });
+    renderRecords();
     }, (error) => {
         console.error("Chyba při načítání: ", error);
     });
 }
+
+// Funkce, která se stará čistě o vykreslení (používá ji i filtr)
+function renderRecords() {
+    const monthValue = document.getElementById('monthFilter').value; // Formát "YYYY-MM"
+    const list = document.getElementById('records-list');
+    list.innerHTML = '';
+
+    const filtered = allRecords.filter(record => {
+        if (!monthValue) return true;
+        return record.date.startsWith(monthValue);
+    });
+
+    filtered.forEach(record => {
+        const li = document.createElement('li');
+        li.style.marginBottom = "10px";
+        li.innerHTML = `
+            <strong>${record.date}</strong> | ${record.hours} hod. | ${record.description}
+            <button class="delete-btn" data-id="${record.id}" style="margin-left: 10px; color: red;">Smazat</button>
+        `;
+        list.appendChild(li);
+    });
+
+    // Přidáme posluchače na všechna tlačítka Smazat
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const idToDelete = e.target.getAttribute('data-id');
+            if (confirm("Opravdu smazat tento záznam?")) {
+                await deleteDoc(doc(db, "work_records", idToDelete));
+            }
+        });
+    });
+
+    // Uložíme profiltrovaná data pro případný export
+    window.currentlyFilteredData = filtered;
+}
+
+// Event listenery pro filtry
+document.getElementById('monthFilter').addEventListener('input', renderRecords);
+document.getElementById('clear-filter-btn').addEventListener('click', () => {
+    document.getElementById('monthFilter').value = '';
+    renderRecords();
+});
+
+
+
+//export zaznomu do excelu
+document.getElementById('export-btn').addEventListener('click', () => {
+    if (!window.currentlyFilteredData || window.currentlyFilteredData.length === 0) {
+        alert("Žádná data k exportu!");
+        return;
+    }
+
+    // 1. Příprava dat (vyhodíme nepotřebné věci jako ID a userId)
+    const dataToExport = window.currentlyFilteredData.map(record => ({
+        "Datum": record.date,
+        "Počet hodin": record.hours,
+        "Činnost": record.description
+    }));
+
+    // 2. Vytvoření listu (worksheet)
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+    // 3. Vytvoření sešitu (workbook)
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Záznamy brigády");
+
+    // 4. Vygenerování a stažení souboru
+    const fileName = `Brigada_Export_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+});

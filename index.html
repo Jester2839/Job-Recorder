@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Recorder</title>
     <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
+
 <body>
     <div id="login-section">
         <h2>Přihlášení</h2>
@@ -29,6 +32,14 @@
             <button id="add-record-btn">Uložit záznam</button>
         </div>
 
+        <div class="filters-container">
+            <h3>Filtry a Export</h3>
+            <label for="monthFilter">Měsíc:</label>
+            <input type="month" id="monthFilter">
+            <button id="clear-filter-btn">Zrušit filtr</button>
+            <button id="export-btn" style="background-color: #28a745; color: white;">Exportovat do Excelu</button>
+        </div>
+
         <div class="records-container">
             <h3>Záznamy</h3>
             <ul id="records-list"></ul>
@@ -37,4 +48,5 @@
 
     <script type="module" src="app.js"></script>
 </body>
+
 </html>
