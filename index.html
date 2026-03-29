@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Recorder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="login-section">
+        <h2>Přihlášení</h2>
+        <input type="email" id="email" placeholder="Tvůj e-mail">
+        <input type="password" id="password" placeholder="Heslo">
+        <button id="login-btn">Přihlásit se</button>
+        <p id="login-error" style="color: red; display: none;">Špatné jméno nebo heslo.</p>
+    </div>
+
+    <div id="app-section" style="display: none;">
+        <div class="header">
+            <h2>Můj deník</h2>
+            <button id="logout-btn">Odhlásit</button>
+        </div>
+
+        <div class="form-container">
+            <h3>Nový záznam</h3>
+            <input type="date" id="dateInput">
+            <input type="number" id="hoursInput" placeholder="Počet hodin" step="0.5">
+            <input type="text" id="descInput" placeholder="Co jsi dělal? (např. sekání trávy)">
+            <button id="add-record-btn">Uložit záznam</button>
+        </div>
+
+        <div class="records-container">
+            <h3>Záznamy</h3>
+            <ul id="records-list"></ul>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
