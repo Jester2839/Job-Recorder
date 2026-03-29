@@ -1,8 +1,7 @@
 // Importy Firebase funkcí z CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 // SEM VLOŽ SVŮJ CONFIG Z FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDOLQ6Owwk5lYJOqe7vrUrDhKjW5eA3loU",
@@ -35,7 +34,9 @@ onAuthStateChanged(auth, (user) => {
         loginSection.style.display = 'none';
         appSection.style.display = 'block';
         console.log("Přihlášen jako:", user.email);
-        // Tady pak zavoláme funkci na načtení dat
+        
+        // ZAVOLÁME NAČTENÍ DAT
+        loadRecords();
     } else {
         // Uživatel není přihlášen
         loginSection.style.display = 'block';
@@ -92,3 +93,48 @@ addRecordBtn.addEventListener('click', async () => {
         console.error("Chyba při ukládání: ", e);
     }
 });
+
+
+// --- NAČÍTÁNÍ A ZOBRAZENÍ DAT ---
+
+function loadRecords() {
+    // Vytvoříme dotaz na databázi (chceme jen tvoje data, seřazená podle data)
+    const q = query(
+        collection(db, "work_records"),
+        where("userId", "==", auth.currentUser.uid),
+        orderBy("date", "desc")
+    );
+
+    // onSnapshot je kouzlo - poslouchá změny v reálném čase
+    onSnapshot(q, (snapshot) => {
+        const list = document.getElementById('records-list');
+        list.innerHTML = ''; // Vyčistíme seznam před novým vykreslením
+
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const docId = docSnap.id; // Unikátní ID záznamu v databázi
+
+            // Vytvoříme prvek seznamu (li)
+            const li = document.createElement('li');
+            li.style.marginBottom = "10px"; // Jen rychlý styl pro přehlednost
+            li.innerHTML = `
+                <strong>${data.date}</strong> | ${data.hours} hod. | ${data.description}
+                <button class="delete-btn" data-id="${docId}" style="margin-left: 10px; color: red;">Smazat</button>
+            `;
+            list.appendChild(li);
+        });
+
+        // Přidáme "posluchače" na všechna tlačítka Smazat
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const idToDelete = e.target.getAttribute('data-id');
+                if(confirm("Opravdu smazat tento záznam?")) {
+                    await deleteDoc(doc(db, "work_records", idToDelete));
+                }
+            });
+        });
+    }, (error) => {
+        console.error("Chyba při načítání: ", error);
+    });
+}
