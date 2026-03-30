@@ -1,7 +1,8 @@
 // Importy Firebase funkcí z CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
 // SEM VLOŽ SVŮJ CONFIG Z FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDOLQ6Owwk5lYJOqe7vrUrDhKjW5eA3loU",
@@ -54,7 +55,6 @@ loginBtn.addEventListener('click', () => {
         .then(() => { errorMsg.style.display = 'none'; })
         .catch((error) => { errorMsg.style.display = 'block'; console.error(error); });
 });
-
 // Odhlášení
 logoutBtn.addEventListener('click', () => {
     signOut(auth);
@@ -69,7 +69,7 @@ addRecordBtn.addEventListener('click', async () => {
     const desc = document.getElementById('descInput').value;
 
     if (!date || !hours || !desc) {
-        alert("Vyplň všechna pole!");
+        showToast("Vyplň všechna pole!", "warning");
         return;
     }
 
@@ -83,7 +83,7 @@ addRecordBtn.addEventListener('click', async () => {
             createdAt: serverTimestamp() // Kdy to bylo reálně zapsáno
         });
 
-        alert("Záznam uložen!");
+        showToast("Záznam uložen!", "success");
         // Vyčištění formuláře
         document.getElementById('dateInput').value = '';
         document.getElementById('hoursInput').value = '';
@@ -130,12 +130,15 @@ function renderRecords() {
         return record.date.startsWith(monthValue);
     });
 
-    filtered.forEach(record => {
+    //tlacitka na upravu zaznamu
+    filtered.forEach(data => {
         const li = document.createElement('li');
-        li.style.marginBottom = "10px";
         li.innerHTML = `
-            <strong>${record.date}</strong> | ${record.hours} hod. | ${record.description}
-            <button class="delete-btn" data-id="${record.id}" style="margin-left: 10px; color: red;">Smazat</button>
+            <strong>${data.date}</strong> | ${data.hours} hod. | ${data.description}
+            <div style="margin-top: 5px;">
+                <button onclick="openEditModal('${data.id}')" style="background-color: #ffc107; color: black; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Upravit</button>
+                <button onclick="openDeleteModal('${data.id}')" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; margin-left: 5px;">Smazat</button>
+            </div>
         `;
         list.appendChild(li);
     });
@@ -162,12 +165,103 @@ document.getElementById('clear-filter-btn').addEventListener('click', () => {
     renderRecords();
 });
 
+//Funkce pro zobrazení Toastu (upozorneni)
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.innerText = message;
+
+    // Nejprve vyčistíme všechny předchozí barvy a odkryjeme bublinu
+    toast.classList.remove('hidden', 'toast-success', 'toast-error', 'toast-warning');
+
+    // Přidáme správnou barvu podle typu
+    if (type === 'success') {
+        toast.classList.add('toast-success');
+    } else if (type === 'error') {
+        toast.classList.add('toast-error');
+    } else if (type === 'warning') {
+        toast.classList.add('toast-warning');
+    }
+
+    // Za 3 vteřiny bublina zase zmizí
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+}
+
+
+// Globální proměnné, ať víme, na jaký záznam jsme zrovna klikli
+let editingRecordId = null;
+let deletingRecordId = null;
+
+// --- LOGIKA PRO MAZÁNÍ (Náhrada za confirm) ---
+window.openDeleteModal = (id) => {
+    deletingRecordId = id; // Zapamatujeme si ID
+    document.getElementById('delete-modal').classList.remove('hidden'); // Ukážeme okno
+};
+document.getElementById('close-delete-btn').addEventListener('click', () => {
+    document.getElementById('delete-modal').classList.add('hidden'); // Skryjeme okno
+});
+document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+    if (deletingRecordId) {
+        await deleteDoc(doc(db, "work_records", deletingRecordId));
+        showToast("Záznam byl smazán.", "success");
+        document.getElementById('delete-modal').classList.add('hidden');
+        deletingRecordId = null;
+    }
+});
+
+// --- LOGIKA PRO ÚPRAVU ZÁZNAMŮ ---
+window.openEditModal = (id) => {
+    const record = window.currentlyFilteredData.find(r => r.id === id);
+    if (!record) return;
+
+    editingRecordId = id; // Zapamatujeme si ID
+
+    // Předvyplníme okno aktuálními daty
+    document.getElementById('editDateInput').value = record.date;
+    document.getElementById('editHoursInput').value = record.hours;
+    document.getElementById('editDescInput').value = record.description;
+
+    document.getElementById('edit-modal').classList.remove('hidden'); // Ukážeme okno
+};
+
+document.getElementById('close-edit-btn').addEventListener('click', () => {
+    document.getElementById('edit-modal').classList.add('hidden'); // Skryjeme okno
+});
+
+document.getElementById('save-edit-btn').addEventListener('click', async () => {
+    const date = document.getElementById('editDateInput').value;
+    const hours = document.getElementById('editHoursInput').value;
+    const desc = document.getElementById('editDescInput').value;
+
+    if (!date || !hours || !desc) {
+        showToast("Vyplň všechna pole!", "warning");
+        return;
+    }
+
+    try {
+        const docRef = doc(db, "work_records", editingRecordId);
+        await updateDoc(docRef, {
+            date: date,
+            hours: Number(hours),
+            description: desc
+        });
+
+        showToast("Záznam úspěšně upraven!", "success");
+        document.getElementById('edit-modal').classList.add('hidden'); // Zavřeme okno
+        editingRecordId = null; // Vyčistíme ID
+
+    } catch (e) {
+        console.error("Chyba při úpravě: ", e);
+        showToast("Něco se pokazilo.", "warning");
+    }
+});
 
 
 // --- EXPORT POMOCÍ ŠABLONY ---
 document.getElementById('export-btn').addEventListener('click', async () => {
     if (!window.currentlyFilteredData || window.currentlyFilteredData.length === 0) {
-        alert("Žádná data k exportu!");
+        showToast("Žádná data k exportu!", "error");
         return;
     }
 
@@ -192,8 +286,14 @@ document.getElementById('export-btn').addEventListener('click', async () => {
             // worksheet.insertRow(currentRowIndex, []); //přidává novyrádek a ty pod ním posouvá dolů
             const row = worksheet.getRow(currentRowIndex);
 
+            // --- PŘEVOD FORMÁTU DATA ---
+            // record.date je ve formátu "YYYY-MM-DD" (např. "2026-03-30")
+            const dateParts = record.date.split('-'); // Rozsekáme to podle pomlčky na pole ["2026", "03", "30"]
+            // Poskládáme to zpět s tečkami: 3. část + 2. část + 1. část
+            const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+
             // Vyplníme jen ty buňky, které chceme (A=1, B=2, ... E=5, J=10, K=11)
-            row.getCell(1).value = record.date;                  // A: Datum
+            row.getCell(1).value = formattedDate;                  // A: Datum
             row.getCell(5).value = 'ostatní';                    // E: Činnost
             row.getCell(10).value = record.description;          // J: Poznámka
             row.getCell(11).value = Number(record.hours);        // K: Hodiny
@@ -212,6 +312,7 @@ document.getElementById('export-btn').addEventListener('click', async () => {
 
     } catch (error) {
         console.error("Chyba při exportu:", error);
-        alert("Nepodařilo se načíst šablonu. Ujisti se, že máš soubor 'sablona.xlsx' ve složce s projektem.");
+        showToast("Nepodařilo se načíst šablonu. Ujisti se, že máš soubor 'sablona.xlsx' ve složce s projektem.", "error");
     }
 });
+
