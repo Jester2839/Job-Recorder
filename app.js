@@ -64,9 +64,10 @@ logoutBtn.addEventListener('click', () => {
 addRecordBtn.addEventListener('click', async () => {
     const date = document.getElementById('dateInput').value;
     const hours = document.getElementById('hoursInput').value;
+    const activity = document.getElementById('activityInput').value;
     const desc = document.getElementById('descInput').value;
 
-    if (!date || !hours || !desc) {
+    if (!date || !hours || !activity || !desc) {
         showToast("Vyplň všechna pole!", "warning");
         return;
     }
@@ -76,6 +77,7 @@ addRecordBtn.addEventListener('click', async () => {
         await addDoc(collection(db, "work_records"), {
             date: date,
             hours: Number(hours),
+            activity: activity,
             description: desc,
             userId: auth.currentUser.uid, // Abychom věděli, že je to tvůj záznam
             createdAt: serverTimestamp() // Kdy to bylo reálně zapsáno
@@ -85,12 +87,14 @@ addRecordBtn.addEventListener('click', async () => {
         // Vyčištění formuláře
         document.getElementById('dateInput').value = '';
         document.getElementById('hoursInput').value = '';
+        document.getElementById('activityInput').value = '';
         document.getElementById('descInput').value = '';
+
+        addModal.classList.add('hidden');
         
     } catch (e) {
         console.error("Chyba při ukládání: ", e);
     }
-    addModal.classList.add('hidden');
 });
 // --- NAČÍTÁNÍ A ZOBRAZENÍ DAT ---
 let allRecords = []; // Tady budeme držet aktuální data z DB
@@ -114,9 +118,9 @@ function loadRecords() {
         console.error("Chyba při načítání: ", error);
     });
 }
-// Funkce, která se stará čistě o vykreslení (používá ji i filtr)
+// Funkce, která se stará čistě o vykreslení
 function renderRecords() {
-    const monthValue = document.getElementById('monthFilter').value; // Formát "YYYY-MM"
+    const monthValue = document.getElementById('monthFilter').value; 
     const list = document.getElementById('records-list');
     list.innerHTML = '';
 
@@ -125,31 +129,75 @@ function renderRecords() {
         return record.date.startsWith(monthValue);
     });
 
-    //tlacitka na upravu zaznamu
-    filtered.forEach(data => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <strong>${data.date}</strong> | ${data.hours} hod. | ${data.description}
-            <div style="margin-top: 5px;">
-                <button onclick="openEditModal('${data.id}')" style="background-color: #ffc107; color: black; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Upravit</button>
-                <button onclick="openDeleteModal('${data.id}')" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; margin-left: 5px;">Smazat</button>
-            </div>
-        `;
-        list.appendChild(li);
+    // 1. SESKUPOVÁNÍ DAT
+    const grouped = {};
+    filtered.forEach(record => {
+        const [year, month, day] = record.date.split('-'); // 2026-03-30 -> ["2026", "03", "30"]
+        
+        if (!grouped[year]) grouped[year] = {};
+        if (!grouped[year][month]) grouped[year][month] = [];
+        
+        grouped[year][month].push(record);
     });
 
-    // Přidáme posluchače na všechna tlačítka Smazat
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-    deleteButtons.forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            const idToDelete = e.target.getAttribute('data-id');
-            if (confirm("Opravdu smazat tento záznam?")) {
-                await deleteDoc(doc(db, "work_records", idToDelete));
-            }
+    const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+
+    // 2. VYKRESLENÍ
+    // Projdeme roky (sestupně)
+    Object.keys(grouped).sort((a, b) => b - a).forEach(year => {
+        
+        // Hlavička roku
+        const yearHeader = document.createElement('h3');
+        yearHeader.innerHTML = `<i class="ph ph-calendar-blank" style="color: var(--primary-color);"></i> ${year}`;
+        yearHeader.style.marginTop = "20px";
+        yearHeader.style.borderBottom = "2px solid var(--border-color)";
+        yearHeader.style.paddingBottom = "5px";
+        list.appendChild(yearHeader);
+
+        // Projdeme měsíce v daném roce (sestupně)
+        Object.keys(grouped[year]).sort((a, b) => b - a).forEach(month => {
+            
+            // Hlavička měsíce
+            const monthHeader = document.createElement('h4');
+            monthHeader.innerText = monthNames[parseInt(month) - 1]; // "03" -> "Březen"
+            monthHeader.style.marginLeft = "15px";
+            monthHeader.style.marginTop = "15px";
+            monthHeader.style.color = "var(--text-secondary)";
+            list.appendChild(monthHeader);
+
+            // Záznamy v daném měsíci
+            grouped[year][month].forEach(data => {
+                const day = data.date.split('-')[2]; // Vytáhneme jen den
+                const activityName = data.activity || 'ostatní'; // Záchrana pro staré záznamy
+
+                const item = document.createElement('div');
+                item.className = "card"; // Použijeme tvůj styl karty
+                item.style.marginLeft = "30px";
+                item.style.marginBottom = "10px";
+                item.style.padding = "15px";
+                
+                // Struktura jednoho záznamu (Vlevo data, vpravo ikonky)
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                <strong style="font-size: 1.1rem;">${day}. ${month}. ${year}</strong>
+                                <span class="badge-display">${activityName}</span>
+                                <span style="color: var(--text-secondary);"><i class="ph ph-clock"></i> ${data.hours} hod.</span>
+                            </div>
+                            <p style="margin: 0; color: var(--text-primary);">${data.description}</p>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-icon" onclick="openEditModal('${data.id}')" style="color: var(--warning-color);" title="Upravit"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="btn-icon" onclick="openDeleteModal('${data.id}')" style="color: var(--danger-color);" title="Smazat"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
         });
     });
 
-    // Uložíme profiltrovaná data pro případný export
     window.currentlyFilteredData = filtered;
 }
 // Event listenery pro filtry
@@ -241,6 +289,8 @@ window.openEditModal = (id) => {
     // Předvyplníme okno aktuálními daty
     document.getElementById('editDateInput').value = record.date;
     document.getElementById('editHoursInput').value = record.hours;
+    // Předvyplnění činnosti (pokud u starých záznamů chybí, dáme "ostatní")
+    document.getElementById('editActivityInput').value = record.activity || 'ostatní';
     document.getElementById('editDescInput').value = record.description;
 
     document.getElementById('edit-modal').classList.remove('hidden'); // Ukážeme okno
@@ -251,9 +301,10 @@ document.getElementById('close-edit-btn').addEventListener('click', () => {
 document.getElementById('save-edit-btn').addEventListener('click', async () => {
     const date = document.getElementById('editDateInput').value;
     const hours = document.getElementById('editHoursInput').value;
+    const activity = document.getElementById('editActivityInput').value;
     const desc = document.getElementById('editDescInput').value;
 
-    if (!date || !hours || !desc) {
+    if (!date || !hours || !activity || !desc) {
         showToast("Vyplň všechna pole!", "warning");
         return;
     }
@@ -263,6 +314,7 @@ document.getElementById('save-edit-btn').addEventListener('click', async () => {
         await updateDoc(docRef, {
             date: date,
             hours: Number(hours),
+            activity: activity,
             description: desc
         });
 
@@ -272,7 +324,7 @@ document.getElementById('save-edit-btn').addEventListener('click', async () => {
 
     } catch (e) {
         console.error("Chyba při úpravě: ", e);
-        showToast("Něco se pokazilo.", "warning");
+        showToast("Něco se pokazilo.", "error");
     }
 });
 

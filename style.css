@@ -148,3 +148,14 @@ input {
     padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; color: var(--text-secondary);
 }
 .badge:hover { background-color: var(--border-color); color: var(--text-primary); }
+
+/* Štítek ve výpisu záznamů */
+.badge-display {
+    background-color: var(--bg-main); 
+    border: 1px solid var(--border-color);
+    padding: 2px 8px; 
+    border-radius: 12px; 
+    font-size: 0.8rem; 
+    color: var(--text-secondary);
+    cursor: default;
+}
