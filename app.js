@@ -120,9 +120,8 @@ function loadRecords() {
 }
 // --- VYKRESLOVANÍ S FILTRY ---
 function renderRecords() {
-    // 1. Získáme aktuální hodnoty ze všech políček v Toolbaru
     const searchValue = document.getElementById('searchInput').value.toLowerCase();
-    const sortValue = document.getElementById('sortInput').value; // "desc" nebo "asc"
+    const sortValue = document.getElementById('sort-toggle-btn').getAttribute('data-sort'); // NOVÉ: Čteme z atributu tlačítka
     const monthValue = document.getElementById('monthFilter').value; 
     const exactDateValue = document.getElementById('exactDateFilter').value;
     const activityValue = document.getElementById('activityFilter').value.toLowerCase();
@@ -130,41 +129,39 @@ function renderRecords() {
     const list = document.getElementById('records-list');
     list.innerHTML = '';
 
-    // 2. ZŘETĚZENÉ FILTROVÁNÍ (Záznam projde, jen když splní VŠECHNO)
+    // Zřetězené filtrování
     let filtered = allRecords.filter(record => {
         const safeDesc = record.description ? record.description.toLowerCase() : '';
         const safeAct = record.activity ? record.activity.toLowerCase() : 'ostatní';
 
-        // A) Hledání textu (Lupa) v popisu nebo činnosti
         const matchesSearch = !searchValue || safeDesc.includes(searchValue) || safeAct.includes(searchValue);
-        
-        // B) Filtr podle Měsíce a Roku (YYYY-MM)
         const matchesMonth = !monthValue || record.date.startsWith(monthValue);
-        
-        // C) Filtr podle přesného dne (YYYY-MM-DD)
         const matchesExactDate = !exactDateValue || record.date === exactDateValue;
-        
-        // D) Filtr podle konkrétní činnosti
         const matchesActivity = !activityValue || safeAct.includes(activityValue);
 
         return matchesSearch && matchesMonth && matchesExactDate && matchesActivity;
     });
 
-    // 3. ŘAZENÍ POLE (Firebase vrací "desc", takže pokud chceme "asc", pole otočíme)
     if (sortValue === 'asc') {
         filtered = filtered.reverse();
     }
 
-    // Uložíme si profiltrovaná data pro případný export
     window.currentlyFilteredData = filtered;
 
-    // Pokud po vyfiltrování nic nezbyde, ukážeme hlášku a ukončíme vykreslování
+    // --- OVLÁDÁNÍ BAREVNÉ TEČKY U FILTRU ---
+    const filterIndicator = document.getElementById('filter-indicator');
+    if (monthValue || exactDateValue || activityValue) {
+        filterIndicator.classList.remove('hidden');
+    } else {
+        filterIndicator.classList.add('hidden');
+    }
+
     if (filtered.length === 0) {
         list.innerHTML = `<p style="text-align: center; color: var(--text-secondary); margin-top: 20px;">Žádné záznamy nenalezeny.</p>`;
         return;
     }
 
-    // 4. SESKUPOVÁNÍ DAT PRO VÝPIS
+    // Seskupování
     const grouped = {};
     filtered.forEach(record => {
         const [year, month, day] = record.date.split('-'); 
@@ -174,12 +171,10 @@ function renderRecords() {
     });
 
     const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
-    const sortMultiplier = sortValue === 'asc' ? -1 : 1; // 1 pro sestupně, -1 pro vzestupně
+    const sortMultiplier = sortValue === 'asc' ? -1 : 1; 
 
-    // 5. SAMOTNÉ VYKRESLENÍ (S ohledem na to, jak chceme řadit)
+    // Vykreslení
     Object.keys(grouped).sort((a, b) => (b - a) * sortMultiplier).forEach(year => {
-        
-        // Hlavička Roku
         const yearHeader = document.createElement('h3');
         yearHeader.innerHTML = `<i class="ph ph-calendar-blank" style="color: var(--primary-color);"></i> ${year}`;
         yearHeader.style.marginTop = "20px";
@@ -187,7 +182,6 @@ function renderRecords() {
         yearHeader.style.paddingBottom = "5px";
         list.appendChild(yearHeader);
 
-        // Hlavička Měsíce
         Object.keys(grouped[year]).sort((a, b) => (b - a) * sortMultiplier).forEach(month => {
             const monthHeader = document.createElement('h4');
             monthHeader.innerText = monthNames[parseInt(month) - 1]; 
@@ -196,7 +190,6 @@ function renderRecords() {
             monthHeader.style.color = "var(--text-secondary)";
             list.appendChild(monthHeader);
 
-            // Záznamy
             grouped[year][month].forEach(data => {
                 const day = data.date.split('-')[2]; 
                 const activityName = data.activity || 'ostatní'; 
@@ -228,20 +221,57 @@ function renderRecords() {
         });
     });
 }
-// EVENT LISTENERY PRO VŠECHNY FILTRY
-// Kdykoliv se cokoliv napíše nebo změní, okamžitě překreslíme data
-const filterInputs = ['searchInput', 'sortInput', 'monthFilter', 'exactDateFilter', 'activityFilter'];
+
+// --- LOGIKA TOOLBARU (Animace a tlačítka) ---
+// 1. Rozbalování Lupy
+const searchToggleBtn = document.getElementById('search-toggle-btn');
+const searchInput = document.getElementById('searchInput');
+searchToggleBtn.addEventListener('click', () => {
+    searchInput.classList.toggle('hidden-search');
+    if (!searchInput.classList.contains('hidden-search')) {
+        searchInput.focus(); 
+    } else {
+        searchInput.value = '';
+        renderRecords();
+    }
+});
+// 2. Tlačítko Řazení (Toggle Desc/Asc)
+const sortToggleBtn = document.getElementById('sort-toggle-btn');
+const sortIcon = document.getElementById('sort-icon');
+sortToggleBtn.addEventListener('click', () => {
+    let currentSort = sortToggleBtn.getAttribute('data-sort');
+    let newSort = currentSort === 'desc' ? 'asc' : 'desc';
+    
+    sortToggleBtn.setAttribute('data-sort', newSort);
+    if (newSort === 'desc') {
+        sortIcon.classList.replace('ph-sort-ascending', 'ph-sort-descending');
+    } else {
+        sortIcon.classList.replace('ph-sort-descending', 'ph-sort-ascending');
+    }
+    renderRecords(); 
+});
+// 3. Rozbalovací menu Filtrů
+const filterToggleBtn = document.getElementById('filter-toggle-btn');
+const filterDropdown = document.getElementById('filter-dropdown');
+const closeFilterCross = document.getElementById('close-filter-cross');
+filterToggleBtn.addEventListener('click', () => {
+    filterDropdown.classList.toggle('hidden');
+});
+closeFilterCross.addEventListener('click', () => {
+    filterDropdown.classList.add('hidden');
+});
+// 4. Překreslení při změně inputů
+const filterInputs = ['searchInput', 'monthFilter', 'exactDateFilter', 'activityFilter'];
 filterInputs.forEach(inputId => {
     document.getElementById(inputId).addEventListener('input', renderRecords);
 });
-// Zrušení všech filtrů
+// 5. Zrušení filtrů
 document.getElementById('clear-filter-btn').addEventListener('click', () => {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('sortInput').value = 'desc'; // Vrátíme na výchozí "Nejnovější"
     document.getElementById('monthFilter').value = '';
     document.getElementById('exactDateFilter').value = '';
     document.getElementById('activityFilter').value = '';
-    renderRecords(); // Znovu vykreslíme vše
+    renderRecords(); 
+    filterDropdown.classList.add('hidden'); 
 });
 //Funkce pro zobrazení Toastu (upozorneni)
 function showToast(message, type = 'success') {

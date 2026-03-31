@@ -159,3 +159,41 @@ input {
     color: var(--text-secondary);
     cursor: default;
 }
+
+
+/* =========================================
+   4. TOOLBAR A ROZBALOVACÍ HLEDÁNÍ
+   ========================================= */
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.search-input {
+    width: 200px;
+    padding: 5px 10px;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    outline: none;
+    transition: width 0.4s ease, border-color 0.4s ease, opacity 0.4s ease, padding 0.4s ease;
+    opacity: 1;
+    margin-right: 5px;
+}
+
+.search-input:focus {
+    border-bottom: 2px solid var(--primary-color);
+    box-shadow: 0 4px 5px -4px var(--primary-color);
+}
+
+.hidden-search {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    margin-left: 0;
+    border-bottom: 2px solid transparent;
+    pointer-events: none;
+}

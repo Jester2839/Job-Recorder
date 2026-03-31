@@ -51,56 +51,63 @@
             </div>
         </header>
 
-        <main style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-            
-            <button id="open-add-modal-btn" class="btn btn-primary" style="margin-bottom: 15px;">Přidat záznam</button>
-
-            <div class="card" id="toolbar-container" style="display: flex; flex-direction: column; gap: 15px;">
-                
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <div style="flex-grow: 1; position: relative; min-width: 200px;">
-                        <i class="ph ph-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
-                        <input type="text" id="searchInput" placeholder="Hledat v poznámkách a činnostech..." style="width: 100%; padding-left: 35px; border-radius: 8px;">
-                    </div>
-                    
-                    <select id="sortInput" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-main); color: var(--text-primary); font-family: var(--font-family); cursor: pointer;">
-                        <option value="desc">Nejnovější</option>
-                        <option value="asc">Nejstarší</option>
-                    </select>
-                </div>
-
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                    
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <i class="ph ph-calendar-blank" style="color: var(--text-secondary);" title="Měsíc a Rok"></i>
-                        <input type="month" id="monthFilter" style="border-radius: 8px;">
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <i class="ph ph-calendar-check" style="color: var(--text-secondary);" title="Přesný den"></i>
-                        <input type="date" id="exactDateFilter" style="border-radius: 8px;">
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <i class="ph ph-tag" style="color: var(--text-secondary);" title="Činnost"></i>
-                        <input type="text" id="activityFilter" placeholder="Činnost..." style="width: 130px; border-radius: 8px;">
-                    </div>
-
-                    <button id="clear-filter-btn" class="btn" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-primary); margin-left: auto;">
-                        <i class="ph ph-x"></i> Zrušit filtry
-                    </button>
-
-                    <button id="export-btn" class="btn" style="background-color: #28a745; color: white;">
-                        <i class="ph ph-file-xls"></i> Exportovat
-                    </button>
-                </div>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button id="open-add-modal-btn" class="btn btn-primary">
+                    <i class="ph ph-plus-circle"></i> Přidat záznam
+                </button>
+                <button id="export-btn" class="btn" style="background-color: #28a745; color: white;">
+                    <i class="ph ph-file-xls"></i> Exportovat
+                </button>
             </div>
 
-            <div class="card records-container">
-                <h3><i class="ph ph-list-dashes"></i> Záznamy</h3>
+            <div class="card records-container" style="position: relative;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                    <h3 style="margin: 0;"><i class="ph ph-list-dashes"></i> Záznamy</h3>
+                    
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        
+                        <div class="search-wrapper">
+                            <input type="text" id="searchInput" class="search-input hidden-search" placeholder="Hledat...">
+                            <button id="search-toggle-btn" class="btn-icon" title="Hledat"><i class="ph ph-magnifying-glass"></i></button>
+                        </div>
+
+                        <button id="sort-toggle-btn" class="btn-icon" title="Seřadit" data-sort="desc">
+                            <i class="ph ph-sort-descending" id="sort-icon"></i>
+                        </button>
+
+                        <div style="position: relative;">
+                            <button id="filter-toggle-btn" class="btn-icon" title="Filtry">
+                                <i class="ph ph-funnel"></i>
+                                <span id="filter-indicator" class="hidden" style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; background-color: var(--primary-color); border-radius: 50%;"></span>
+                            </button>
+                            
+                            <div id="filter-dropdown" class="card hidden" style="position: absolute; right: 0; top: 100%; margin-top: 10px; width: 250px; z-index: 50; padding: 15px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">
+                                    <h4 style="margin: 0;">Nastavení filtrů</h4>
+                                    <button id="close-filter-cross" class="btn-icon" style="font-size: 1.2rem; padding: 0;"><i class="ph ph-x"></i></button>
+                                </div>
+                                
+                                <label style="font-size: 0.9rem; color: var(--text-secondary);">Měsíc a Rok</label>
+                                <input type="month" id="monthFilter">
+                                
+                                <label style="font-size: 0.9rem; color: var(--text-secondary);">Přesný den</label>
+                                <input type="date" id="exactDateFilter">
+                                
+                                <label style="font-size: 0.9rem; color: var(--text-secondary);">Činnost</label>
+                                <input type="text" id="activityFilter" placeholder="Např. úklid">
+                                
+                                <button id="clear-filter-btn" class="btn" style="background-color: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary); margin-top: 5px; justify-content: center;">
+                                    <i class="ph ph-x"></i> Zrušit filtry
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="records-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </div>
-        </main>
     </div>
 
     <div id="toast" class="toast hidden">Uloženo!</div>
