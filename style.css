@@ -1,27 +1,117 @@
-/* Třída pro skrytí elementů */
-.hidden {
-    display: none !important;
+/* =========================================
+   1. CSS PROMĚNNÉ (Barvy, rozměry, fonty)
+   ========================================= */
+:root {
+    /* Světlý režim */
+    --bg-main: #f4f7f6;
+    --bg-surface: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6c757d;
+    --border-color: #e0e0e0;
+    
+    --primary-color: #2e7d32;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+
+    --border-radius: 12px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --transition-speed: 0.3s;
+    --font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
-/* Tmavé pozadí přes celou obrazovku pro Modaly */
+/* Tmavý režim */
+[data-theme="dark"] {
+    --bg-main: #121212;
+    --bg-surface: #1e1e1e;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --border-color: #333333;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================================
+   2. GLOBÁLNÍ STYLY A KARTY
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    line-height: 1.6;
+}
+
+input {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    border-radius: 4px;
+    font-family: var(--font-family);
+}
+
+.card {
+    background-color: var(--bg-surface);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-family);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-icon {
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    padding: 4px;
+}
+.btn-icon:hover { color: var(--primary-color); }
+
+/* =========================================
+   3. MODALY A TOASTY (Tvůj původní kód upravený pro dark mode)
+   ========================================= */
+.hidden { display: none !important; }
+
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Poloprůhledná černá */
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Aby to bylo nad vším ostatním */
+    z-index: 1000;
 }
 
-/* Samotné bílé okénko */
 .modal-content {
-    background-color: white;
+    background-color: var(--bg-surface); /* Reaguje na dark mode */
+    color: var(--text-primary);
     padding: 25px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     width: 90%;
     max-width: 400px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: var(--box-shadow);
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -34,7 +124,6 @@
     margin-top: 10px;
 }
 
-/* Elegantní bublina s upozorněním (Toast) dole uprostřed */
 .toast {
     position: fixed;
     bottom: 30px;
@@ -49,18 +138,6 @@
     transition: opacity 0.3s ease;
 }
 
-/* barvy pro toasty */
-.toast-success {
-    background-color: #28a745 !important; /* Zelená pro úspěch */
-    color: white;
-}
-
-.toast-error {
-    background-color: #dc3545 !important; /* Červená pro chybu */
-    color: white;
-}
-
-.toast-warning {
-    background-color: #ffc107 !important; /* Žlutá pro varování */
-    color: black;
-}
+.toast-success { background-color: #28a745 !important; color: white; }
+.toast-error { background-color: #dc3545 !important; color: white; }
+.toast-warning { background-color: #ffc107 !important; color: black; }

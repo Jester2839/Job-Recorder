@@ -27,7 +27,6 @@ const logoutBtn = document.getElementById('logout-btn');
 const addRecordBtn = document.getElementById('add-record-btn');
 
 // --- AUTHENTIKACE ---
-
 // Sledování stavu uživatele (přihlášen/odhlášen)
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -44,7 +43,6 @@ onAuthStateChanged(auth, (user) => {
         appSection.style.display = 'none';
     }
 });
-
 // Přihlášení
 loginBtn.addEventListener('click', () => {
     const email = document.getElementById('email').value;
@@ -60,8 +58,8 @@ logoutBtn.addEventListener('click', () => {
     signOut(auth);
 });
 
-// --- PRÁCE S DATABÁZÍ ---
 
+// --- PRÁCE S DATABÁZÍ ---
 // Přidání záznamu
 addRecordBtn.addEventListener('click', async () => {
     const date = document.getElementById('dateInput').value;
@@ -93,11 +91,8 @@ addRecordBtn.addEventListener('click', async () => {
         console.error("Chyba při ukládání: ", e);
     }
 });
-
-
 // --- NAČÍTÁNÍ A ZOBRAZENÍ DAT ---
 let allRecords = []; // Tady budeme držet aktuální data z DB
-
 function loadRecords() {
     // Vytvoříme dotaz na databázi (chceme jen tvoje data, seřazená podle data)
     const q = query(
@@ -118,7 +113,6 @@ function loadRecords() {
         console.error("Chyba při načítání: ", error);
     });
 }
-
 // Funkce, která se stará čistě o vykreslení (používá ji i filtr)
 function renderRecords() {
     const monthValue = document.getElementById('monthFilter').value; // Formát "YYYY-MM"
@@ -157,14 +151,12 @@ function renderRecords() {
     // Uložíme profiltrovaná data pro případný export
     window.currentlyFilteredData = filtered;
 }
-
 // Event listenery pro filtry
 document.getElementById('monthFilter').addEventListener('input', renderRecords);
 document.getElementById('clear-filter-btn').addEventListener('click', () => {
     document.getElementById('monthFilter').value = '';
     renderRecords();
 });
-
 //Funkce pro zobrazení Toastu (upozorneni)
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
@@ -189,9 +181,24 @@ function showToast(message, type = 'success') {
 }
 
 
+
+
+// --- ROZBALOVACÍ MENU UŽIVATELE ---
+const userMenuBtn = document.getElementById('user-menu-btn');
+const userDropdown = document.getElementById('user-dropdown');
+
+userMenuBtn.addEventListener('click', () => {
+    userDropdown.classList.toggle('hidden');
+});
+
+
+
+
+
 // Globální proměnné, ať víme, na jaký záznam jsme zrovna klikli
 let editingRecordId = null;
 let deletingRecordId = null;
+
 
 // --- LOGIKA PRO MAZÁNÍ (Náhrada za confirm) ---
 window.openDeleteModal = (id) => {
@@ -224,11 +231,9 @@ window.openEditModal = (id) => {
 
     document.getElementById('edit-modal').classList.remove('hidden'); // Ukážeme okno
 };
-
 document.getElementById('close-edit-btn').addEventListener('click', () => {
     document.getElementById('edit-modal').classList.add('hidden'); // Skryjeme okno
 });
-
 document.getElementById('save-edit-btn').addEventListener('click', async () => {
     const date = document.getElementById('editDateInput').value;
     const hours = document.getElementById('editHoursInput').value;
@@ -255,6 +260,28 @@ document.getElementById('save-edit-btn').addEventListener('click', async () => {
         console.error("Chyba při úpravě: ", e);
         showToast("Něco se pokazilo.", "warning");
     }
+});
+
+
+// --- PŘEPÍNÁNÍ DARK/LIGHT REŽIMU ---
+const themeToggleBtn = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+// Zjistíme, jestli má uživatel už něco uloženo, jinak použijeme systémové nastavení
+const currentTheme = localStorage.getItem('theme') || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        themeIcon.classList.replace('ph-moon', 'ph-sun');
+    } else {
+        document.body.removeAttribute('data-theme');
+        themeIcon.classList.replace('ph-sun', 'ph-moon');
+    }
+}
+applyTheme(currentTheme);
+themeToggleBtn.addEventListener('click', () => {
+    let newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
 });
 
 
