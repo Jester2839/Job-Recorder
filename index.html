@@ -55,12 +55,44 @@
             
             <button id="open-add-modal-btn" class="btn btn-primary" style="margin-bottom: 15px;">Přidat záznam</button>
 
-            <div class="card filters-container">
-                <h3><i class="ph ph-funnel"></i> Filtry a Export</h3>
-                <div style="display: flex; gap: 10px; margin-top: 15px; align-items: center; flex-wrap: wrap;">
-                    <input type="month" id="monthFilter">
-                    <button id="clear-filter-btn" class="btn" style="background-color: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary);">Zrušit filtr</button>
-                    <button id="export-btn" class="btn" style="background-color: #28a745; color: white;"><i class="ph ph-file-xls"></i> Exportovat do Excelu</button>
+            <div class="card" id="toolbar-container" style="display: flex; flex-direction: column; gap: 15px;">
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div style="flex-grow: 1; position: relative; min-width: 200px;">
+                        <i class="ph ph-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
+                        <input type="text" id="searchInput" placeholder="Hledat v poznámkách a činnostech..." style="width: 100%; padding-left: 35px; border-radius: 8px;">
+                    </div>
+                    
+                    <select id="sortInput" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-main); color: var(--text-primary); font-family: var(--font-family); cursor: pointer;">
+                        <option value="desc">Nejnovější</option>
+                        <option value="asc">Nejstarší</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <i class="ph ph-calendar-blank" style="color: var(--text-secondary);" title="Měsíc a Rok"></i>
+                        <input type="month" id="monthFilter" style="border-radius: 8px;">
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <i class="ph ph-calendar-check" style="color: var(--text-secondary);" title="Přesný den"></i>
+                        <input type="date" id="exactDateFilter" style="border-radius: 8px;">
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <i class="ph ph-tag" style="color: var(--text-secondary);" title="Činnost"></i>
+                        <input type="text" id="activityFilter" placeholder="Činnost..." style="width: 130px; border-radius: 8px;">
+                    </div>
+
+                    <button id="clear-filter-btn" class="btn" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-primary); margin-left: auto;">
+                        <i class="ph ph-x"></i> Zrušit filtry
+                    </button>
+
+                    <button id="export-btn" class="btn" style="background-color: #28a745; color: white;">
+                        <i class="ph ph-file-xls"></i> Exportovat
+                    </button>
                 </div>
             </div>
 

@@ -118,35 +118,68 @@ function loadRecords() {
         console.error("Chyba při načítání: ", error);
     });
 }
-// Funkce, která se stará čistě o vykreslení
+// --- VYKRESLOVANÍ S FILTRY ---
 function renderRecords() {
+    // 1. Získáme aktuální hodnoty ze všech políček v Toolbaru
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    const sortValue = document.getElementById('sortInput').value; // "desc" nebo "asc"
     const monthValue = document.getElementById('monthFilter').value; 
+    const exactDateValue = document.getElementById('exactDateFilter').value;
+    const activityValue = document.getElementById('activityFilter').value.toLowerCase();
+
     const list = document.getElementById('records-list');
     list.innerHTML = '';
 
-    const filtered = allRecords.filter(record => {
-        if (!monthValue) return true;
-        return record.date.startsWith(monthValue);
+    // 2. ZŘETĚZENÉ FILTROVÁNÍ (Záznam projde, jen když splní VŠECHNO)
+    let filtered = allRecords.filter(record => {
+        const safeDesc = record.description ? record.description.toLowerCase() : '';
+        const safeAct = record.activity ? record.activity.toLowerCase() : 'ostatní';
+
+        // A) Hledání textu (Lupa) v popisu nebo činnosti
+        const matchesSearch = !searchValue || safeDesc.includes(searchValue) || safeAct.includes(searchValue);
+        
+        // B) Filtr podle Měsíce a Roku (YYYY-MM)
+        const matchesMonth = !monthValue || record.date.startsWith(monthValue);
+        
+        // C) Filtr podle přesného dne (YYYY-MM-DD)
+        const matchesExactDate = !exactDateValue || record.date === exactDateValue;
+        
+        // D) Filtr podle konkrétní činnosti
+        const matchesActivity = !activityValue || safeAct.includes(activityValue);
+
+        return matchesSearch && matchesMonth && matchesExactDate && matchesActivity;
     });
 
-    // 1. SESKUPOVÁNÍ DAT
+    // 3. ŘAZENÍ POLE (Firebase vrací "desc", takže pokud chceme "asc", pole otočíme)
+    if (sortValue === 'asc') {
+        filtered = filtered.reverse();
+    }
+
+    // Uložíme si profiltrovaná data pro případný export
+    window.currentlyFilteredData = filtered;
+
+    // Pokud po vyfiltrování nic nezbyde, ukážeme hlášku a ukončíme vykreslování
+    if (filtered.length === 0) {
+        list.innerHTML = `<p style="text-align: center; color: var(--text-secondary); margin-top: 20px;">Žádné záznamy nenalezeny.</p>`;
+        return;
+    }
+
+    // 4. SESKUPOVÁNÍ DAT PRO VÝPIS
     const grouped = {};
     filtered.forEach(record => {
-        const [year, month, day] = record.date.split('-'); // 2026-03-30 -> ["2026", "03", "30"]
-        
+        const [year, month, day] = record.date.split('-'); 
         if (!grouped[year]) grouped[year] = {};
         if (!grouped[year][month]) grouped[year][month] = [];
-        
         grouped[year][month].push(record);
     });
 
     const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+    const sortMultiplier = sortValue === 'asc' ? -1 : 1; // 1 pro sestupně, -1 pro vzestupně
 
-    // 2. VYKRESLENÍ
-    // Projdeme roky (sestupně)
-    Object.keys(grouped).sort((a, b) => b - a).forEach(year => {
+    // 5. SAMOTNÉ VYKRESLENÍ (S ohledem na to, jak chceme řadit)
+    Object.keys(grouped).sort((a, b) => (b - a) * sortMultiplier).forEach(year => {
         
-        // Hlavička roku
+        // Hlavička Roku
         const yearHeader = document.createElement('h3');
         yearHeader.innerHTML = `<i class="ph ph-calendar-blank" style="color: var(--primary-color);"></i> ${year}`;
         yearHeader.style.marginTop = "20px";
@@ -154,29 +187,26 @@ function renderRecords() {
         yearHeader.style.paddingBottom = "5px";
         list.appendChild(yearHeader);
 
-        // Projdeme měsíce v daném roce (sestupně)
-        Object.keys(grouped[year]).sort((a, b) => b - a).forEach(month => {
-            
-            // Hlavička měsíce
+        // Hlavička Měsíce
+        Object.keys(grouped[year]).sort((a, b) => (b - a) * sortMultiplier).forEach(month => {
             const monthHeader = document.createElement('h4');
-            monthHeader.innerText = monthNames[parseInt(month) - 1]; // "03" -> "Březen"
+            monthHeader.innerText = monthNames[parseInt(month) - 1]; 
             monthHeader.style.marginLeft = "15px";
             monthHeader.style.marginTop = "15px";
             monthHeader.style.color = "var(--text-secondary)";
             list.appendChild(monthHeader);
 
-            // Záznamy v daném měsíci
+            // Záznamy
             grouped[year][month].forEach(data => {
-                const day = data.date.split('-')[2]; // Vytáhneme jen den
-                const activityName = data.activity || 'ostatní'; // Záchrana pro staré záznamy
+                const day = data.date.split('-')[2]; 
+                const activityName = data.activity || 'ostatní'; 
 
                 const item = document.createElement('div');
-                item.className = "card"; // Použijeme tvůj styl karty
+                item.className = "card"; 
                 item.style.marginLeft = "30px";
                 item.style.marginBottom = "10px";
                 item.style.padding = "15px";
                 
-                // Struktura jednoho záznamu (Vlevo data, vpravo ikonky)
                 item.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
                         <div>
@@ -197,14 +227,21 @@ function renderRecords() {
             });
         });
     });
-
-    window.currentlyFilteredData = filtered;
 }
-// Event listenery pro filtry
-document.getElementById('monthFilter').addEventListener('input', renderRecords);
+// EVENT LISTENERY PRO VŠECHNY FILTRY
+// Kdykoliv se cokoliv napíše nebo změní, okamžitě překreslíme data
+const filterInputs = ['searchInput', 'sortInput', 'monthFilter', 'exactDateFilter', 'activityFilter'];
+filterInputs.forEach(inputId => {
+    document.getElementById(inputId).addEventListener('input', renderRecords);
+});
+// Zrušení všech filtrů
 document.getElementById('clear-filter-btn').addEventListener('click', () => {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('sortInput').value = 'desc'; // Vrátíme na výchozí "Nejnovější"
     document.getElementById('monthFilter').value = '';
-    renderRecords();
+    document.getElementById('exactDateFilter').value = '';
+    document.getElementById('activityFilter').value = '';
+    renderRecords(); // Znovu vykreslíme vše
 });
 //Funkce pro zobrazení Toastu (upozorneni)
 function showToast(message, type = 'success') {
