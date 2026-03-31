@@ -25,10 +25,10 @@
     <div id="app-section" style="display: none;">
         
         <header style="background-color: var(--bg-surface); padding: 15px 20px; box-shadow: var(--box-shadow); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+            <h1 style="margin: 0; display: flex; align-items: center; gap: 8px;">
                 <i class="ph ph-plant" style="color: var(--primary-color);"></i>
-                Můj deník
-            </h2>
+                Job Recorder
+            </h1>
             <div style="display: flex; gap: 15px; align-items: center; position: relative;">
                 <button id="theme-toggle" class="btn-icon"><i class="ph ph-moon" id="theme-icon"></i></button>
                 
@@ -53,15 +53,7 @@
 
         <main style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
             
-            <div class="card form-container">
-                <h3><i class="ph ph-plus-circle"></i> Nový záznam</h3>
-                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
-                    <input type="date" id="dateInput">
-                    <input type="number" id="hoursInput" placeholder="Počet hodin" step="0.5">
-                    <input type="text" id="descInput" placeholder="Co jsi dělal?">
-                    <button id="add-record-btn" class="btn btn-primary">Uložit záznam</button>
-                </div>
-            </div>
+            <button id="open-add-modal-btn" class="btn btn-primary" style="margin-bottom: 15px;">Přidat záznam</button>
 
             <div class="card filters-container">
                 <h3><i class="ph ph-funnel"></i> Filtry a Export</h3>
@@ -80,6 +72,32 @@
     </div>
 
     <div id="toast" class="toast hidden">Uloženo!</div>
+
+
+    <div id="add-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="ph ph-plus-circle"></i> Nový záznam</h3>
+                <button id="close-add-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            
+            <input type="date" id="dateInput">
+            <input type="number" id="hoursInput" placeholder="Počet hodin" step="0.5">
+            
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <input type="text" id="activityInput" placeholder="Činnost (např. ostatní, úklid)">
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;" id="quick-tags">
+                    <span class="badge" onclick="document.getElementById('activityInput').value='ostatní'">ostatní</span>
+                </div>
+            </div>
+
+            <input type="text" id="descInput" placeholder="Co jsi dělal? (Poznámka)">
+            
+            <div class="modal-buttons">
+                <button id="add-record-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">Uložit záznam</button>
+            </div>
+        </div>
+    </div>
 
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-content">

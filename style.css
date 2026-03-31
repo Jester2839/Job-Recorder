@@ -141,3 +141,10 @@ input {
 .toast-success { background-color: #28a745 !important; color: white; }
 .toast-error { background-color: #dc3545 !important; color: white; }
 .toast-warning { background-color: #ffc107 !important; color: black; }
+
+
+.badge {
+    background-color: var(--bg-main); border: 1px solid var(--border-color);
+    padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; color: var(--text-secondary);
+}
+.badge:hover { background-color: var(--border-color); color: var(--text-primary); }

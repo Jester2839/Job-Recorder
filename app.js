@@ -90,6 +90,7 @@ addRecordBtn.addEventListener('click', async () => {
     } catch (e) {
         console.error("Chyba při ukládání: ", e);
     }
+    addModal.classList.add('hidden');
 });
 // --- NAČÍTÁNÍ A ZOBRAZENÍ DAT ---
 let allRecords = []; // Tady budeme držet aktuální data z DB
@@ -191,7 +192,20 @@ userMenuBtn.addEventListener('click', () => {
     userDropdown.classList.toggle('hidden');
 });
 
+// --- LOGIKA PRO OKNO PŘIDÁNÍ ZÁZNAMU ---
+const addModal = document.getElementById('add-modal');
+const openAddModalBtn = document.getElementById('open-add-modal-btn');
+const closeAddCross = document.getElementById('close-add-cross');
 
+// Otevření přes tlačítko nahoře
+openAddModalBtn.addEventListener('click', () => {
+    addModal.classList.remove('hidden');
+});
+
+// Zavření přes křížek
+closeAddCross.addEventListener('click', () => {
+    addModal.classList.add('hidden');
+});
 
 
 
