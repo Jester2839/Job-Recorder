@@ -14,6 +14,10 @@ const firebaseConfig = {
   measurementId: "G-2HCMHQJZWV"
 };
 
+// --- HODINOVKA ---
+const HOURLY_RATE = 200;
+// --------------------
+
 // Inicializace Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -220,8 +224,25 @@ function renderRecords() {
             });
         });
     });
-}
 
+    // --- AKTUALIZACE STATISTIK ---
+    let totalHours = 0;
+    
+    // Sečteme hodiny ze všech aktuálně zobrazených (vyfiltrovaných) záznamů
+    filtered.forEach(record => {
+        totalHours += Number(record.hours);
+    });
+
+    // Vypočítáme peníze
+    let totalMoney = totalHours * HOURLY_RATE;
+
+    // Pošleme to do HTML
+    document.getElementById('stat-count').innerText = filtered.length;
+    document.getElementById('stat-hours').innerText = totalHours + " h";
+    
+    // Hezké formátování na tisíce (např. 12 500 Kč)
+    document.getElementById('stat-money').innerText = totalMoney.toLocaleString('cs-CZ') + " Kč";
+}
 // --- LOGIKA TOOLBARU (Animace a tlačítka) ---
 // 1. Rozbalování Lupy
 const searchToggleBtn = document.getElementById('search-toggle-btn');
