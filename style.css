@@ -197,3 +197,23 @@ input {
     border-bottom: 2px solid transparent;
     pointer-events: none;
 }
+
+
+
+
+
+/* =========================================
+   5. RESPONZIVITA (Mobily a malé obrazovky)
+   ========================================= */
+@media (max-width: 900px) {
+    .main-grid {
+        flex-direction: column !important;
+    }
+    #sidebar-stats {
+        width: 100%;
+        position: static !important; /* Na mobilu nebude sidebar "lepit" k vršku */
+    }
+    .records-container {
+        width: 100%;
+    }
+}

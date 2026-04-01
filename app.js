@@ -225,7 +225,8 @@ function renderRecords() {
         });
     });
 
-    // --- AKTUALIZACE STATISTIK ---
+
+    // --- AKTUALIZACE FILTROVANÝCH STATISTIK ---
     let totalHours = 0;
     
     // Sečteme hodiny ze všech aktuálně zobrazených (vyfiltrovaných) záznamů
@@ -236,12 +237,39 @@ function renderRecords() {
     // Vypočítáme peníze
     let totalMoney = totalHours * HOURLY_RATE;
 
-    // Pošleme to do HTML
+    // Pošleme to do HTML pro aktuální přehled
     document.getElementById('stat-count').innerText = filtered.length;
     document.getElementById('stat-hours').innerText = totalHours + " h";
-    
-    // Hezké formátování na tisíce (např. 12 500 Kč)
     document.getElementById('stat-money').innerText = totalMoney.toLocaleString('cs-CZ') + " Kč";
+
+    // --- GLOBÁLNÍ ROČNÍ SOUHRNY (Vždy ze všech záznamů) ---
+    const yearlyData = {};
+    allRecords.forEach(record => {
+        const year = record.date.split('-')[0]; // Vezme rok
+        if (!yearlyData[year]) yearlyData[year] = 0;
+        yearlyData[year] += Number(record.hours); // Přičte hodiny k danému roku
+    });
+
+    const yearlyList = document.getElementById('yearly-summary-list');
+    if (yearlyList) { 
+        yearlyList.innerHTML = ''; // Vyčistíme předchozí výpis
+        
+        // Seřadíme roky sestupně a vypíšeme je
+        Object.keys(yearlyData).sort((a, b) => b - a).forEach(year => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.justifyContent = 'space-between';
+            row.style.padding = '8px 0';
+            row.style.borderBottom = '1px solid var(--border-color)';
+            
+            row.innerHTML = `
+                <span><strong>${year}</strong></span>
+                <span>${yearlyData[year]} h <small style="color:var(--text-secondary)">(${(yearlyData[year] * HOURLY_RATE).toLocaleString('cs-CZ')} Kč)</small></span>
+            `;
+            yearlyList.appendChild(row);
+        });
+    }
+    
 }
 // --- LOGIKA TOOLBARU (Animace a tlačítka) ---
 // 1. Rozbalování Lupy
