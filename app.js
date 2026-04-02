@@ -524,8 +524,63 @@ modalOverlays.forEach(overlay => {
 });
 
 
-
-
+// ==========================================
+// --- MOBILNÍ ROZHRANÍ (Menu a Statistiky) ---
+// ==========================================
+const hamburgerBtn = document.getElementById('hamburger-btn');
+const mobileMenuModal = document.getElementById('mobile-menu-modal');
+const closeMobileMenuBtn = document.getElementById('close-mobile-menu-btn');
+// Otevření a zavření menu
+hamburgerBtn.addEventListener('click', () => {
+    mobileMenuModal.classList.remove('hidden');
+});
+closeMobileMenuBtn.addEventListener('click', () => {
+    mobileMenuModal.classList.add('hidden');
+});
+// Odhlášení z mobilního menu
+document.getElementById('mobile-logout-btn').addEventListener('click', () => {
+    mobileMenuModal.classList.add('hidden'); // PŘIDÁNO: Zavření okna menu před odhlášením
+    signOut(auth);
+});
+// Změna motivu z mobilního menu (Musí upravit ikonky nahoře i dole)
+const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+document.getElementById('mobile-theme-toggle').addEventListener('click', () => {
+    let newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    // Prohození obou ikonek
+    if (newTheme === 'dark') {
+        mobileThemeIcon.classList.replace('ph-moon', 'ph-sun');
+        document.getElementById('theme-icon').classList.replace('ph-moon', 'ph-sun');
+    } else {
+        mobileThemeIcon.classList.replace('ph-sun', 'ph-moon');
+        document.getElementById('theme-icon').classList.replace('ph-sun', 'ph-moon');
+    }
+});
+// --- Zobrazení statistik z mobilního menu ---
+const sidebarStats = document.getElementById('sidebar-stats');
+const closeStatsMobile = document.getElementById('close-stats-mobile');
+// Když kliknu na "Aktuální přehled" nebo "Souhrny", zavřu menu a otevřu statistiky
+['show-stats-btn', 'show-yearly-btn'].forEach(id => {
+    document.getElementById(id).addEventListener('click', () => {
+        mobileMenuModal.classList.add('hidden'); 
+        sidebarStats.classList.add('show-mobile'); 
+    });
+});
+// Zavření okna statistik na mobilu (kliknutím mimo na tmavé pozadí)
+sidebarStats.addEventListener('click', (event) => {
+    // Pokud jsme klikli přímo na ten hlavní obal (černé pozadí) a ne na karty uvnitř
+    if (event.target === sidebarStats) {
+        sidebarStats.classList.remove('show-mobile');
+    }
+});
+// Zavření okna statistik na mobilu (křížkem)
+if (closeStatsMobile) {
+    closeStatsMobile.addEventListener('click', () => {
+        sidebarStats.classList.remove('show-mobile');
+    });
+}
 
 
 

@@ -598,18 +598,59 @@ input[type="number"]::-webkit-outer-spin-button {
 
 
 
+/* Pomocné třídy pro responzivitu */
+.mobile-only { display: none !important; }
+/* Schování mobilního textu na velkých obrazovkách */
+.export-text-mobile { display: none; }
+
+
 @media (max-width: 900px) {
-    .main-grid {
-        flex-direction: column;
+    /* Přepínání viditelnosti */
+    .desktop-only { display: none !important; }
+    .desktop-only-flex { display: none !important; }
+    .mobile-only { display: flex !important; }
+    
+    .app-title { gap: 10px; }
+    .main-grid { flex-direction: column; }
+
+    /* Globální tlačítka: Na mobilu hezky vedle sebe */
+    .global-actions {
+        gap: 10px;
+        margin-top: 20px; /* Zmenšená mezera zhora */
+        display: flex;
+    }
+    .global-actions .btn-lg {
+        flex: 1;
+        padding: 12px 10px; /* Menší padding, aby se to tam vešlo */
+        font-size: 0.95rem; /* Menší písmo */
     }
 
+    /* Schování pravého panelu statistik a přeměna na popup Modal */
     .stats-sidebar {
-        position: static;
-        width: 100%;
+        display: none; /* Normálně schováno */
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 2000;
+        padding: 20px;
+        overflow-y: auto; /* Kdyby toho bylo moc, půjde to rolovat */
+        justify-content: center;
+    }
+    /* Tuto třídu přidáme přes JS, když uživatel klikne v Menu */
+    .stats-sidebar.show-mobile {
+        display: flex;
+    }
+    .stats-sidebar .card {
+        margin-bottom: 20px;
     }
 
+    /* Záznamy */
     .record-item {
         margin-left: 0;
         flex-direction: column;
     }
+
+    /* Přepnutí textu u export tlačítka */
+    .export-text-desktop { display: none; }
+    .export-text-mobile { display: inline; }
 }
