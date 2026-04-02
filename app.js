@@ -305,9 +305,25 @@ filterToggleBtn.addEventListener('click', () => {
 closeFilterCross.addEventListener('click', () => {
     filterDropdown.classList.add('hidden');
 });
-// 4. Překreslení při změně inputů
-const filterInputs = ['searchInput', 'monthFilter', 'exactDateFilter', 'activityFilter'];
-filterInputs.forEach(inputId => {
+// 4. Překreslení při změně inputů a chytré rušení filtrů
+const monthFilterInput = document.getElementById('monthFilter');
+const exactDateFilterInput = document.getElementById('exactDateFilter');
+// Když vyberu Měsíc, smažu Přesný den
+monthFilterInput.addEventListener('input', () => {
+    if (monthFilterInput.value) {
+        exactDateFilterInput.value = ''; 
+    }
+    renderRecords();
+});
+// Když vyberu Přesný den, smažu Měsíc
+exactDateFilterInput.addEventListener('input', () => {
+    if (exactDateFilterInput.value) {
+        monthFilterInput.value = ''; 
+    }
+    renderRecords();
+});
+// Ostatní filtry (hledání a činnost) jen překreslují data
+['searchInput', 'activityFilter'].forEach(inputId => {
     document.getElementById(inputId).addEventListener('input', renderRecords);
 });
 // 5. Zrušení filtrů
@@ -498,7 +514,6 @@ window.addEventListener('click', (event) => {
 // 2. Zavírání Modalů kliknutím na tmavé pozadí (Overlay)
 // Najdeme všechna tmavá pozadí vyskakovacích oken
 const modalOverlays = document.querySelectorAll('.modal-overlay');
-
 modalOverlays.forEach(overlay => {
     overlay.addEventListener('click', (event) => {
         // Zkontrolujeme, jestli uživatel klikl přímo na ten tmavý overlay, a NE dovnitř na to bílé/skleněné okno
