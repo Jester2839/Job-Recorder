@@ -6,7 +6,6 @@
     /* Světlý režim (Zatím hrubý nástřel, držíme to světlé se zlatým akcentem) */
     --bg-main: #f4f7f6;
     --bg-surface: #ffffff;
-    /* --accent-color: #6e5f09; */
     --accent-color: #1D4ED8;
     --text-primary: #15141A;
     --text-secondary: #6c757d;
@@ -29,8 +28,8 @@
     color-scheme: dark;
     --bg-main: #15141A;
     --bg-surface: #1E1D24;
-    /* --accent-color: #C9BE7E; */
-    --accent-color: #3B82F6;
+    /* --accent-color: #3B82F6; */
+    --accent-color: #76a1e6;
     --text-primary: #e0e0e0;
     --text-secondary: #8a8a93;
     --border-color: rgba(255, 255, 255, 0.08);
@@ -309,15 +308,29 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Přihlašování */
 .auth-wrapper {
-    max-width: 450px;
+    width: 100%; 
     margin: 10vh auto;
+    margin-top: 8vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    padding: 0 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 450px; /* Tady přesně držíme tvoje úzké menu! */
 }
 
 .auth-title {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    white-space: nowrap;
+    margin-bottom: 50px;
     color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0px 40px;
+    border-radius: var(--border-radius);
 }
 
 .auth-form {
