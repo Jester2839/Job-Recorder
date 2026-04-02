@@ -1,136 +1,147 @@
 <!DOCTYPE html>
 <html lang="cs">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Recorder</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
     <link rel="stylesheet" href="style.css">
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-</head>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Anek+Telugu:wght@100..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anek+Telugu:wght@100..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Zilla+Slab:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+</head>
 <body>
-    <div id="login-section" class="card" style="max-width: 400px; margin: 50px auto; text-align: center;">
-        <h2 style="margin-bottom: 20px;">Přihlášení</h2>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <input type="email" id="email" placeholder="Tvůj e-mail">
-            <input type="password" id="password" placeholder="Heslo">
-            <button id="login-btn" class="btn btn-primary" style="justify-content: center;">Přihlásit se</button>
+
+    <div id="login-section" class="auth-wrapper">
+        <h1 class="auth-title">Job Recorder</h1>
+        <div class="card">
+            <div class="auth-form">
+                <input type="email" id="email" placeholder="Tvůj e-mail">
+                <input type="password" id="password" placeholder="Heslo">
+                <button id="login-btn" class="btn btn-ghost">Přihlásit se</button>
+            </div>
+            <a href="#" class="auth-link" onclick="showToast('Registrace zatím není spuštěna.', 'warning')">Nemáš účet? Zaregistruj se</a>
+            <p id="login-error" class="hidden" style="color: var(--danger-color); margin-top: 15px;">Špatné jméno nebo heslo.</p>
         </div>
-        <p id="login-error" style="color: red; display: none; margin-top: 10px;">Špatné jméno nebo heslo.</p>
     </div>
 
-    <div id="app-section" style="display: none;">
+    <div id="app-section" class="hidden">
 
-        <header
-            style="background-color: var(--bg-surface); padding: 15px 20px; box-shadow: var(--box-shadow); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1 style="margin: 0; display: flex; align-items: center; gap: 8px; color: var(--text-headding);">
-                Job Recorder
+        <header class="app-header">
+            <h1 class="app-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 87.66 75.31" width="1.2em" height="1.2em" fill="currentColor">
+                    <path d="M78.39,39.11c3.15-1.31,5.5-3.21,7-5.65,1.51-2.46,2.27-5.13,2.27-7.94v-2.52c0-2.66-.49-5.18-1.45-7.5-.96-2.31-2.37-4.38-4.19-6.13-1.82-1.75-4.13-3.15-6.85-4.15-2.75-1.01-6-1.52-9.65-1.52h-11.26v9.34h-6.31v37.49c0,7.89-2.19,14.02-6.51,18.23-.95.93-1.99,1.73-3.1,2.46v4.1h11.88v-27.76h16.98c2.33,0,4.06.65,5.13,1.94,1.03,1.23,1.55,2.83,1.55,4.74v21.08h11.88v-24.45c0-2.22-.62-4-1.9-5.43-1.28-1.44-2.98-2.26-5.2-2.51l-.89-.1v-3.45l.62-.26ZM75.78,26.26c0,3.16-1,5.65-2.96,7.42-1.93,1.74-4.74,2.62-8.35,2.62h-14.25V14.95h14.25c3.63,0,6.45,1,8.39,2.98,1.93,1.97,2.92,4.35,2.92,7.06v1.26ZM38.34,68.78c-.32.24-.66.47-1,.69-.33.22-.66.42-1,.62-3.44,1.98-7.66,2.99-12.63,2.99-3.59,0-6.88-.5-9.78-1.47-2.87-.96-5.36-2.42-7.42-4.31-2.06-1.89-3.67-4.25-4.8-7-1.14-2.77-1.71-6.06-1.71-9.77v-5.94h11.88v5.94c0,3.55,1.02,6.39,3.02,8.43,2.01,2.05,4.83,3.09,8.39,3.09,3.36,0,6.02-1.03,7.93-3.05,1.89-2.01,2.85-4.85,2.85-8.47V11.04h-7.57V0h25.76v11.04h-6.31v39.49c0,7.33-1.99,12.98-5.9,16.79-.54.52-1.11,1.01-1.71,1.46ZM51.22,18.71h20.4v2h-20.4v-2ZM51.22,24.62h20.4v2h-20.4v-2ZM51.22,30.54h20.4v2h-20.4v-2Z" />
+                </svg>
+                <!-- Job Recorder -->
             </h1>
-            <div style="display: flex; gap: 15px; align-items: center; position: relative;">
-                <button id="theme-toggle" class="btn-icon"><i class="ph ph-moon" id="theme-icon"></i></button>
 
-                <div id="user-menu-wrapper" style="position: relative;">
-                    <button id="user-menu-btn" class="btn-icon"><i class="ph ph-user-circle"></i></button>
+            <h2 class="user-name">Jméno Brigádníka</h2>
+            
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn-icon" title="Změnit motiv"><i class="ph ph-moon" id="theme-icon"></i></button>
 
-                    <div id="user-dropdown" class="card hidden"
-                        style="position: absolute; right: 0; top: 100%; margin-top: 10px; width: 200px; padding: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 100;">
-                        <div
-                            style="display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
-                            <i class="ph ph-user-circle" style="font-size: 2rem; color: var(--primary-color);"></i>
-                            <strong>Můj Profil</strong>
+                <div style="position: relative;">
+                    <button id="user-menu-btn" class="btn-icon" title="Můj profil"><i class="ph ph-user-circle"></i></button>
+
+                    <div id="user-dropdown" class="card-small filter-dropdown hidden">
+                        <div class="dropdown-header">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="ph ph-user-circle" style="font-size: 1.8rem; color: var(--accent-color);"></i>
+                                <strong>Můj Profil</strong>
+                            </div>
+                            <button id="close-user-cross" class="btn-icon"><i class="ph ph-x"></i></button>
                         </div>
-                        <button class="btn"
-                            style="background-color: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color); justify-content: flex-start;">
-                            <i class="ph ph-pencil-simple"></i> Upravit profil
-                        </button>
-                        <button id="logout-btn" class="btn"
-                            style="background-color: transparent; color: var(--danger-color); justify-content: flex-start; padding-left: 0;">
-                            <i class="ph ph-sign-out"></i> Odhlásit se
-                        </button>
+                        <button class="btn btn-ghost"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
+                        <button id="logout-btn" class="btn btn-danger"><i class="ph ph-sign-out"></i> Odhlásit se</button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main style="max-width: 1600px; margin: 0 auto; margin-top: 120px; padding: 0 20px;">
+        <main class="main-container">
             
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button id="open-add-modal-btn" class="btn btn-primary">
+            <div class="global-actions">
+                <button id="open-add-modal-btn" class="btn btn-accent btn-lg">
                     <i class="ph ph-plus-circle"></i> Přidat záznam
                 </button>
-                <button id="export-btn" class="btn btn-primary">
-                    <i class="ph ph-file-xls"></i> Exportovat
+                <button id="export-btn" class="btn btn-ghost btn-lg">
+                    <i class="ph ph-file-xls"></i> Exportovat do Excelu
                 </button>
             </div>
 
-            <div class="main-grid" style="display: flex; gap: 20px; align-items: flex-start;">
+            <div class="main-grid">
                 
-                <div class="card records-container" style="flex: 3; position: relative; margin-bottom: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                        <h3 style="margin: 0;"><i class="ph ph-list-dashes"></i> Záznamy</h3>
+                <div class="records-section card">
+                    
+                    <div class="toolbar-header">
+                        <div class="search-wrapper">
+                            <input type="text" id="searchInput" class="search-input hidden-search" placeholder="Hledat...">
+                            <button id="search-toggle-btn" class="btn-icon" title="Hledat"><i class="ph ph-magnifying-glass"></i></button>
+                        </div>
+                        <button id="sort-toggle-btn" class="btn-icon" title="Seřadit" data-sort="desc">
+                            <i class="ph ph-sort-descending" id="sort-icon"></i>
+                        </button>
                         
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <div class="search-wrapper">
-                                <input type="text" id="searchInput" class="search-input hidden-search" placeholder="Hledat...">
-                                <button id="search-toggle-btn" class="btn-icon" title="Hledat"><i class="ph ph-magnifying-glass"></i></button>
-                            </div>
-                            <button id="sort-toggle-btn" class="btn-icon" title="Seřadit" data-sort="desc">
-                                <i class="ph ph-sort-descending" id="sort-icon"></i>
+                        <div style="position: relative;">
+                            <button id="filter-toggle-btn" class="btn-icon" title="Filtry">
+                                <i class="ph ph-funnel"></i>
+                                <span id="filter-indicator" class="hidden" style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; background-color: var(--accent-color); border-radius: 50%;"></span>
                             </button>
-                            <div style="position: relative;">
-                                <button id="filter-toggle-btn" class="btn-icon" title="Filtry">
-                                    <i class="ph ph-funnel"></i>
-                                    <span id="filter-indicator" class="hidden" style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; background-color: var(--primary-color); border-radius: 50%;"></span>
-                                </button>
-                                <div id="filter-dropdown" class="card hidden" style="position: absolute; right: 0; top: 100%; margin-top: 10px; width: 250px; z-index: 50; padding: 15px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">
-                                        <h4 style="margin: 0;">Nastavení filtrů</h4>
-                                        <button id="close-filter-cross" class="btn-icon" style="font-size: 1.2rem; padding: 0;"><i class="ph ph-x"></i></button>
-                                    </div>
-                                    <label style="font-size: 0.9rem; color: var(--text-secondary);">Měsíc a Rok</label>
-                                    <input type="month" id="monthFilter">
-                                    <label style="font-size: 0.9rem; color: var(--text-secondary);">Přesný den</label>
-                                    <input type="date" id="exactDateFilter">
-                                    <label style="font-size: 0.9rem; color: var(--text-secondary);">Činnost</label>
-                                    <input type="text" id="activityFilter" placeholder="Např. úklid">
-                                    <button id="clear-filter-btn" class="btn" style="background-color: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary); margin-top: 5px; justify-content: center;">
-                                        <i class="ph ph-x"></i> Zrušit filtry
-                                    </button>
+                            
+                            <div id="filter-dropdown" class="card-small filter-dropdown hidden">
+                                <div class="dropdown-header">
+                                    <h4>Nastavení filtrů</h4>
+                                    <button id="close-filter-cross" class="btn-icon"><i class="ph ph-x"></i></button>
                                 </div>
+                                
+                                <div class="form-group">
+                                    <!-- <label>Měsíc a Rok</label> -->
+                                    <input type="text" id="monthFilter" placeholder="Měsíc a rok..." onfocus="(this.type='month')" onblur="if(!this.value) this.type='text'">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <!-- <label>Přesný den</label> -->
+                                    <input type="text" id="exactDateFilter" placeholder="Konkrétní den..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <!-- <label>Činnost</label> -->
+                                    <input type="text" id="activityFilter" placeholder="Činnost (např. ostatní)">
+                                </div>
+                                
+                                <button id="clear-filter-btn" class="btn btn-ghost"><i class="ph ph-x"></i> Zrušit filtry</button>
                             </div>
                         </div>
                     </div>
-                    <div id="records-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+                    <div id="records-list"></div>
                 </div>
 
-                <aside id="sidebar-stats" style="flex: 1; display: flex; flex-direction: column; gap: 20px; position: sticky; top: 20px;">
-                    <div class="card" style="margin-bottom: 0;">
-                        <h3 style="margin-bottom: 15px; font-size: 1.1rem;"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
-                        <div style="display: flex; flex-direction: column; gap: 15px;">
-                            <div>
-                                <div style="color: var(--text-secondary); font-size: 0.8rem;">Záznamů</div>
-                                <div id="stat-count" style="font-size: 1.4rem; font-weight: bold;">0</div>
-                            </div>
-                            <div>
-                                <div style="color: var(--text-secondary); font-size: 0.8rem;">Hodin celkem</div>
-                                <div id="stat-hours" style="font-size: 1.4rem; font-weight: bold; color: var(--primary-color);">0 h</div>
-                            </div>
-                            <div>
-                                <div style="color: var(--text-secondary); font-size: 0.8rem;">Výdělek</div>
-                                <div id="stat-money" style="font-size: 1.4rem; font-weight: bold; color: var(--warning-color);">0 Kč</div>
-                            </div>
+                <aside id="sidebar-stats" class="stats-sidebar">
+                    <div class="card">
+                        <h3 style="margin-bottom: 15px;"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
+                        <div class="stat-row">
+                            <span style="color: var(--text-secondary);">Záznamů</span>
+                            <strong id="stat-count">0</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span style="color: var(--text-secondary);">Odpracováno</span>
+                            <strong id="stat-hours" style="color: var(--text-primary);">0 h</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span style="color: var(--text-secondary);">Výdělek</span>
+                            <strong id="stat-money" style="color: var(--accent-color);">0 Kč</strong>
                         </div>
                     </div>
 
-                    <div class="card" style="margin-bottom: 0;">
-                        <h3 style="margin-bottom: 15px; font-size: 1.1rem;"><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
-                        <div id="yearly-summary-list" style="display: flex; flex-direction: column; gap: 10px;">
-                            </div>
+                    <div class="card">
+                        <h3 style="margin-bottom: 15px;"><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
+                        <div id="yearly-summary-list"></div>
                     </div>
                 </aside>
 
@@ -140,64 +151,63 @@
 
     <div id="toast" class="toast hidden">Uloženo!</div>
 
-
-    <div id="add-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div id="add-modal" class="modal-overlay hidden"> 
+        <div class="modal-content over"> 
+            <div class="dropdown-header">
                 <h3><i class="ph ph-plus-circle"></i> Nový záznam</h3>
                 <button id="close-add-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
-
-            <input type="date" id="dateInput">
+            
+            <input type="text" id="dateInput" placeholder="Vyber datum..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
             <input type="number" id="hoursInput" placeholder="Počet hodin" step="0.5">
-
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-                <input type="text" id="activityInput" placeholder="Činnost (např. ostatní, úklid)">
+            
+            <div class="form-group">
+                <input type="text" id="activityInput" placeholder="Činnost (např. ostatní)">
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;" id="quick-tags">
-                    <span class="badge"
-                        onclick="document.getElementById('activityInput').value='ostatní'">ostatní</span>
+                    <span class="badge" onclick="document.getElementById('activityInput').value='ostatní'">ostatní</span>
                 </div>
             </div>
-
+            
             <input type="text" id="descInput" placeholder="Co jsi dělal? (Poznámka)">
-
-            <div class="modal-buttons">
-                <button id="add-record-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">Uložit
-                    záznam</button>
+            
+            <div class="header-actions" style="margin-top: 10px; justify-content: flex-end;">
+                <button id="close-add-btn" class="btn">Zrušit</button>
+                <button id="add-record-btn" class="btn btn-ghost">Uložit záznam</button>
             </div>
         </div>
     </div>
 
     <div id="edit-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3>Upravit záznam</h3>
+        <div class="modal-content over">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-pencil-simple"></i> Upravit záznam</h3>
+                <button id="close-edit-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
             <input type="date" id="editDateInput">
             <input type="number" id="editHoursInput" placeholder="Počet hodin" step="0.5">
             <input type="text" id="editActivityInput" placeholder="Činnost (např. ostatní, úklid)">
             <input type="text" id="editDescInput" placeholder="Co jsi dělal?">
-            <div class="modal-buttons">
-                <button id="save-edit-btn" class="btn btn-primary" style="justify-content: center;">Uložit
-                    změny</button>
-                <button id="close-edit-btn" class="btn"
-                    style="background-color: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-primary);">Zrušit</button>
+            <div class="header-actions" style="margin-top: 10px; justify-content: flex-end;">
+                <button id="close-edit-btn" class="btn">Zrušit</button>
+                <button id="save-edit-btn" class="btn btn-ghost">Uložit změny</button>
             </div>
         </div>
     </div>
 
     <div id="delete-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3>Opravdu smazat?</h3>
-            <p>Tento záznam bude trvale odstraněn.</p>
-            <div class="modal-buttons">
-                <button id="confirm-delete-btn" class="btn" style="background-color: #dc3545; color: white;">Ano,
-                    smazat</button>
-                <button id="close-delete-btn" class="btn"
-                    style="background-color: #6c757d; color: white;">Zrušit</button>
+            <div class="dropdown-header">
+                <h3 style="color: var(--danger-color);"><i class="ph ph-warning"></i> Smazat záznam?</h3>
+                <button id="close-delete-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <p style="color: var(--text-secondary);">Tato akce je nevratná.</p>
+            <div class="header-actions" style="margin-top: 10px; justify-content: flex-end;">
+                <button id="close-delete-btn" class="btn">Zrušit</button>
+                <button id="confirm-delete-btn" class="btn btn-danger">Ano, smazat</button>
             </div>
         </div>
     </div>
 
     <script type="module" src="app.js"></script>
 </body>
-
 </html>

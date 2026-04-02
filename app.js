@@ -34,17 +34,17 @@ const addRecordBtn = document.getElementById('add-record-btn');
 // Sledování stavu uživatele (přihlášen/odhlášen)
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Uživatel je přihlášen
-        loginSection.style.display = 'none';
-        appSection.style.display = 'block';
+        // Uživatel je přihlášen - SCHOVÁME login, UKÁŽEME aplikaci
+        loginSection.classList.add('hidden');
+        appSection.classList.remove('hidden');
         console.log("Přihlášen jako:", user.email);
         
         // ZAVOLÁME NAČTENÍ DAT
         loadRecords();
     } else {
-        // Uživatel není přihlášen
-        loginSection.style.display = 'block';
-        appSection.style.display = 'none';
+        // Uživatel není přihlášen - UKÁŽEME login, SCHOVÁME aplikaci
+        loginSection.classList.remove('hidden');
+        appSection.classList.add('hidden');
     }
 });
 // Přihlášení
@@ -54,8 +54,8 @@ loginBtn.addEventListener('click', () => {
     const errorMsg = document.getElementById('login-error');
 
     signInWithEmailAndPassword(auth, email, password)
-        .then(() => { errorMsg.style.display = 'none'; })
-        .catch((error) => { errorMsg.style.display = 'block'; console.error(error); });
+        .then(() => { errorMsg.classList.add('hidden'); }) // Schování chyby
+        .catch((error) => { errorMsg.classList.remove('hidden'); console.error(error); }); // Ukázání chyby
 });
 // Odhlášení
 logoutBtn.addEventListener('click', () => {
@@ -179,45 +179,41 @@ function renderRecords() {
 
     // Vykreslení
     Object.keys(grouped).sort((a, b) => (b - a) * sortMultiplier).forEach(year => {
+        
+        // Hlavička roku
         const yearHeader = document.createElement('h3');
-        yearHeader.innerHTML = `<i class="ph ph-calendar-blank" style="color: var(--primary-color);"></i> ${year}`;
-        yearHeader.style.marginTop = "20px";
-        yearHeader.style.borderBottom = "2px solid var(--border-color)";
-        yearHeader.style.paddingBottom = "5px";
+        yearHeader.className = 'year-title';
+        yearHeader.innerHTML = `<i class="ph ph-calendar-blank"></i> ${year}`;
         list.appendChild(yearHeader);
 
         Object.keys(grouped[year]).sort((a, b) => (b - a) * sortMultiplier).forEach(month => {
+            
+            // Hlavička měsíce
             const monthHeader = document.createElement('h4');
+            monthHeader.className = 'month-title';
             monthHeader.innerText = monthNames[parseInt(month) - 1]; 
-            monthHeader.style.marginLeft = "15px";
-            monthHeader.style.marginTop = "15px";
-            monthHeader.style.color = "var(--text-secondary)";
             list.appendChild(monthHeader);
 
+            // Záznamy
             grouped[year][month].forEach(data => {
                 const day = data.date.split('-')[2]; 
                 const activityName = data.activity || 'ostatní'; 
 
                 const item = document.createElement('div');
-                item.className = "card"; 
-                item.style.marginLeft = "30px";
-                item.style.marginBottom = "10px";
-                item.style.padding = "15px";
+                item.className = "card record-item"; // Karta a specifický layout záznamu
                 
                 item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
-                        <div>
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <strong style="font-size: 1.1rem;">${day}. ${month}. ${year}</strong>
-                                <span class="badge-display">${activityName}</span>
-                                <span style="color: var(--text-secondary);"><i class="ph ph-clock"></i> ${data.hours} hod.</span>
-                            </div>
-                            <p style="margin: 0; color: var(--text-primary);">${data.description}</p>
+                    <div style="flex: 1;">
+                        <div class="record-info">
+                            <span class="record-date">${day}. ${month}. ${year}</span>
+                            <span class="badge-display">${activityName}</span>
+                            <span class="record-hours"><i class="ph ph-clock"></i> ${data.hours} hod.</span>
                         </div>
-                        <div style="display: flex; gap: 5px;">
-                            <button class="btn-icon" onclick="openEditModal('${data.id}')" style="color: var(--warning-color);" title="Upravit"><i class="ph ph-pencil-simple"></i></button>
-                            <button class="btn-icon" onclick="openDeleteModal('${data.id}')" style="color: var(--danger-color);" title="Smazat"><i class="ph ph-trash"></i></button>
-                        </div>
+                        <p class="record-desc">${data.description}</p>
+                    </div>
+                    <div class="record-actions">
+                        <button class="btn-icon" onclick="openEditModal('${data.id}')" title="Upravit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="btn-icon" onclick="openDeleteModal('${data.id}')" title="Smazat"><i class="ph ph-trash"></i></button>
                     </div>
                 `;
                 list.appendChild(item);
@@ -351,9 +347,12 @@ function showToast(message, type = 'success') {
 // --- ROZBALOVACÍ MENU UŽIVATELE ---
 const userMenuBtn = document.getElementById('user-menu-btn');
 const userDropdown = document.getElementById('user-dropdown');
-
+const closeUserCross = document.getElementById('close-user-cross');
 userMenuBtn.addEventListener('click', () => {
     userDropdown.classList.toggle('hidden');
+});
+closeUserCross.addEventListener('click', () => {
+    userDropdown.classList.add('hidden');
 });
 
 // --- LOGIKA PRO OKNO PŘIDÁNÍ ZÁZNAMU ---
@@ -368,6 +367,9 @@ openAddModalBtn.addEventListener('click', () => {
 
 // Zavření přes křížek
 closeAddCross.addEventListener('click', () => {
+    addModal.classList.add('hidden');
+});
+document.getElementById('close-add-btn').addEventListener('click', () => {
     addModal.classList.add('hidden');
 });
 
@@ -385,6 +387,9 @@ window.openDeleteModal = (id) => {
 };
 document.getElementById('close-delete-btn').addEventListener('click', () => {
     document.getElementById('delete-modal').classList.add('hidden'); // Skryjeme okno
+});
+document.getElementById('close-delete-cross').addEventListener('click', () => {
+    document.getElementById('delete-modal').classList.add('hidden'); 
 });
 document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
     if (deletingRecordId) {
@@ -413,6 +418,9 @@ window.openEditModal = (id) => {
 };
 document.getElementById('close-edit-btn').addEventListener('click', () => {
     document.getElementById('edit-modal').classList.add('hidden'); // Skryjeme okno
+});
+document.getElementById('close-edit-cross').addEventListener('click', () => {
+    document.getElementById('edit-modal').classList.add('hidden'); 
 });
 document.getElementById('save-edit-btn').addEventListener('click', async () => {
     const date = document.getElementById('editDateInput').value;
@@ -465,6 +473,47 @@ themeToggleBtn.addEventListener('click', () => {
     applyTheme(newTheme);
     localStorage.setItem('theme', newTheme);
 });
+
+
+// --- ZAVÍRÁNÍ OKEN PŘI KLIKNUTÍ MIMO ---
+// 1. Zavírání Dropdownů (Profil a Filtry)
+window.addEventListener('click', (event) => {
+    // Definice elementů, které chceme hlídat
+    const userDropdown = document.getElementById('user-dropdown');
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    const filterDropdown = document.getElementById('filter-dropdown');
+    const filterToggleBtn = document.getElementById('filter-toggle-btn');
+
+    // Pokud uživatel klikl mimo tlačítko profilu A ZÁROVEŇ mimo samotné menu profilu
+    if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+        userDropdown.classList.add('hidden');
+    }
+
+    // Pokud uživatel klikl mimo tlačítko filtrů A ZÁROVEŇ mimo samotné menu filtrů
+    if (!filterToggleBtn.contains(event.target) && !filterDropdown.contains(event.target)) {
+        filterDropdown.classList.add('hidden');
+    }
+});
+
+// 2. Zavírání Modalů kliknutím na tmavé pozadí (Overlay)
+// Najdeme všechna tmavá pozadí vyskakovacích oken
+const modalOverlays = document.querySelectorAll('.modal-overlay');
+
+modalOverlays.forEach(overlay => {
+    overlay.addEventListener('click', (event) => {
+        // Zkontrolujeme, jestli uživatel klikl přímo na ten tmavý overlay, a NE dovnitř na to bílé/skleněné okno
+        if (event.target === overlay) {
+            overlay.classList.add('hidden');
+        }
+    });
+});
+
+
+
+
+
+
+
 
 
 // --- EXPORT POMOCÍ ŠABLONY ---
