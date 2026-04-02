@@ -6,7 +6,8 @@
     /* Světlý režim (Zatím hrubý nástřel, držíme to světlé se zlatým akcentem) */
     --bg-main: #f4f7f6;
     --bg-surface: #ffffff;
-    --accent-color: #1D4ED8;
+    --accent-color: #445da4; /*modra*/
+    /*--accent-color: #c3581e;*/    /*oranzova*/
     --text-primary: #15141A;
     --text-secondary: #6c757d;
     --border-color: #e0e0e0;
@@ -21,6 +22,20 @@
 
     --glass-bg: rgba(142, 142, 156, 0.08);
     --glass-border: rgba(126, 156, 201, 0.15);
+
+    /* FLUIDNÍ TYPOGRAFIE (Texty) */
+    --fs-xs: clamp(0.7rem, 1vw + 0.5rem, 0.75rem); /* Štítky, malé popisky */
+    --fs-sm: clamp(0.85rem, 1.5vw + 0.5rem, 0.9rem); /* Labely ve filtrech, odkazy */
+    --fs-base: clamp(0.95rem, 2vw + 0.5rem, 1rem); /* Běžný text, inputy */
+    --fs-lg: clamp(1.05rem, 2.5vw + 0.5rem, 1.1rem); /* Tlačítka, data záznamů */
+    --fs-xl: clamp(1.15rem, 3vw + 0.5rem, 1.3rem); /* H3 nadpisy (Roky, sekce) */
+    --fs-2xl: clamp(1.4rem, 4vw + 0.5rem, 1.8rem); /* Velká čísla ve statistikách */
+    --fs-title: clamp(2.5rem, 8vw, 4rem); /* Hlavní nadpis aplikace */
+
+    /* FLUIDNÍ VELIKOSTI IKON */
+    --icon-base: clamp(1.3rem, 3vw + 0.5rem, 1.5rem); /* Běžná tlačítka */
+    --icon-lg: clamp(1.5rem, 4vw + 0.5rem, 1.8rem); /* Velká tlačítka (Přidat záznam) */
+    --icon-xl: clamp(2rem, 6vw + 0.5rem, 3rem); /* Logo, Profil uživatele */
 }
 
 /* Tmavý režim (Tvoje chladná černo-šedá) */
@@ -28,8 +43,8 @@
     color-scheme: dark;
     --bg-main: #15141A;
     --bg-surface: #1E1D24;
-    /* --accent-color: #3B82F6; */
-    --accent-color: #76a1e6;
+    --accent-color: #76a1e6; /*modra*/
+    /*--accent-color: #cd8551;*/ /*oranzova*/
     --text-primary: #e0e0e0;
     --text-secondary: #8a8a93;
     --border-color: rgba(255, 255, 255, 0.08);
@@ -54,6 +69,7 @@ body {
     color: var(--text-primary);
     font-family: var(--font-family);
     line-height: 1.6;
+    font-size: var(--fs-base);
 }
 
 h1,
@@ -65,7 +81,7 @@ h4 {
     font-family: var(--font-family-fancy);
 }
 h3{
-    font-size: 1.3rem;
+    font-size: var(--fs-xl);
 }
 
 .app-title {
@@ -75,7 +91,7 @@ h3{
 }
 .app-title svg{
     /* color: var(--text-primary); */
-    font-size: 3rem;
+    font-size: var(--icon-xl);
 }
 
 .user-name{
@@ -94,6 +110,7 @@ input {
     font-family: var(--font-family);
     width: 100%;
     outline: none;
+    font-size: var(--fs-base);
 }
 
 input:focus {
@@ -150,18 +167,10 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Automatický styl pro všechny nadpisy políček v této skupině */
 .form-group label {
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     color: var(--text-secondary);
 }
 
-/* Velká varianta tlačítek (Zvětšený padding, text i ikona) */
-.btn-lg {
-    padding: 14px 28px;
-    font-size: 1.1rem;
-}
-.btn-lg i {
-    font-size: 1.6rem;
-}
 
 /* =========================================
    3. TLAČÍTKA (Ghost & Icon Buttons)
@@ -179,10 +188,20 @@ input[type="number"]::-webkit-outer-spin-button {
     justify-content: center;
     gap: 8px;
     font-family: var(--font-family);
+    font-size: var(--fs-base);
     transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed), transform 0.3s ease;
 }
 .btn:hover {
     transform: translateY(-1.5px); 
+}
+
+/* Velká varianta tlačítek (Zvětšený padding, text i ikona) */
+.btn-lg {
+    padding: 10px 20px;
+    font-size: var(--fs-lg);
+}
+.btn-lg i {
+    font-size: calc(var(--icon-base) + 0.1rem);
 }
 
 /* Ghost button (Zlatý obrys, po najetí se vyplní) */
@@ -216,7 +235,7 @@ input[type="number"]::-webkit-outer-spin-button {
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    font-size: 1.5rem;
+    font-size: var(--icon-base);
     padding: 6px;
     border-radius: 8px;
     cursor: pointer;
@@ -226,7 +245,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 #user-menu-btn{
-    font-size: 3rem;
+    font-size: var(--icon-xl);
     color: var(--accent-color);
 }
 
@@ -324,7 +343,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .auth-title {
-    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-size: var(--fs-title);
     white-space: nowrap;
     margin-bottom: 50px;
     color: var(--accent-color);
@@ -342,7 +361,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .auth-link {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     cursor: pointer;
     text-decoration: none;
 }
@@ -414,7 +433,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .month-title {
     margin: 20px 0 10px 15px;
     color: var(--text-secondary);
-    font-size: 1.1rem;
+    font-size: var(--fs-lg);
 }
 
 .record-item {
@@ -436,7 +455,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .record-date {
-    font-size: 1.1rem;
+    font-size: var(--fs-lg);
     font-weight: bold;
     color: var(--text-primary);
     font-family: var(--font-family-fancy);
@@ -473,7 +492,7 @@ input[type="number"]::-webkit-outer-spin-button {
     color: var(--text-secondary);
     padding: 2px 8px;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: var(--fs-xs);
     border: 1px solid var(--border-color);
 }
 
@@ -573,6 +592,7 @@ input[type="number"]::-webkit-outer-spin-button {
 #yearly-summary-list {
     font-family: var(--font-family-fancy);
     font-weight: 200;
+    font-size: var(--fs-l);
 }
 
 
