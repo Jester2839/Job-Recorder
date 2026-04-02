@@ -12,8 +12,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Anek+Telugu:wght@100..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anek+Telugu:wght@100..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Zilla+Slab:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -26,7 +27,7 @@
                 <button id="login-btn" class="btn btn-ghost">Přihlásit se</button>
             </div>
             <a href="#" class="auth-link" onclick="showToast('Registrace zatím není spuštěna.', 'warning')">Nemáš účet? Zaregistruj se</a>
-            <p id="login-error" class="hidden" style="color: var(--danger-color); margin-top: 15px;">Špatné jméno nebo heslo.</p>
+            <p id="login-error" class="hidden text-danger mt-15">Špatné jméno nebo heslo.</p>
         </div>
     </div>
 
@@ -37,7 +38,6 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 87.66 75.31" width="1.2em" height="1.2em" fill="currentColor">
                     <path d="M78.39,39.11c3.15-1.31,5.5-3.21,7-5.65,1.51-2.46,2.27-5.13,2.27-7.94v-2.52c0-2.66-.49-5.18-1.45-7.5-.96-2.31-2.37-4.38-4.19-6.13-1.82-1.75-4.13-3.15-6.85-4.15-2.75-1.01-6-1.52-9.65-1.52h-11.26v9.34h-6.31v37.49c0,7.89-2.19,14.02-6.51,18.23-.95.93-1.99,1.73-3.1,2.46v4.1h11.88v-27.76h16.98c2.33,0,4.06.65,5.13,1.94,1.03,1.23,1.55,2.83,1.55,4.74v21.08h11.88v-24.45c0-2.22-.62-4-1.9-5.43-1.28-1.44-2.98-2.26-5.2-2.51l-.89-.1v-3.45l.62-.26ZM75.78,26.26c0,3.16-1,5.65-2.96,7.42-1.93,1.74-4.74,2.62-8.35,2.62h-14.25V14.95h14.25c3.63,0,6.45,1,8.39,2.98,1.93,1.97,2.92,4.35,2.92,7.06v1.26ZM38.34,68.78c-.32.24-.66.47-1,.69-.33.22-.66.42-1,.62-3.44,1.98-7.66,2.99-12.63,2.99-3.59,0-6.88-.5-9.78-1.47-2.87-.96-5.36-2.42-7.42-4.31-2.06-1.89-3.67-4.25-4.8-7-1.14-2.77-1.71-6.06-1.71-9.77v-5.94h11.88v5.94c0,3.55,1.02,6.39,3.02,8.43,2.01,2.05,4.83,3.09,8.39,3.09,3.36,0,6.02-1.03,7.93-3.05,1.89-2.01,2.85-4.85,2.85-8.47V11.04h-7.57V0h25.76v11.04h-6.31v39.49c0,7.33-1.99,12.98-5.9,16.79-.54.52-1.11,1.01-1.71,1.46ZM51.22,18.71h20.4v2h-20.4v-2ZM51.22,24.62h20.4v2h-20.4v-2ZM51.22,30.54h20.4v2h-20.4v-2Z" />
                 </svg>
-                <!-- <span class="desktop-only">Job Recorder</span> -->
             </h1>
             
             <h2 class="user-name desktop-only">Jméno Brigádníka</h2>
@@ -45,12 +45,12 @@
             <div class="header-actions desktop-only-flex">
                 <button id="theme-toggle" class="btn-icon" title="Změnit motiv"><i class="ph ph-moon" id="theme-icon"></i></button>
 
-                <div style="position: relative;">
+                <div class="relative-wrapper">
                     <button id="user-menu-btn" class="btn-icon" title="Můj profil"><i class="ph ph-user-circle"></i></button>
                     <div id="user-dropdown" class="card-small filter-dropdown hidden">
                         <div class="dropdown-header">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <i class="ph ph-user-circle" style="font-size: 1.8rem; color: var(--accent-color);"></i>
+                            <div class="flex-center-gap">
+                                <i class="ph ph-user-circle icon-xl-accent"></i>
                                 <strong>Můj Profil</strong>
                             </div>
                             <button id="close-user-cross" class="btn-icon"><i class="ph ph-x"></i></button>
@@ -61,7 +61,7 @@
                 </div>
             </div>
 
-            <button id="hamburger-btn" class="btn-icon mobile-only"><i class="ph ph-list" style="font-size: 2rem; color: var(--text-primary);"></i></button>
+            <button id="hamburger-btn" class="btn-icon mobile-only"><i class="ph ph-list" style="font-size: 2rem;"></i></button>
         </header>
 
         <main class="main-container">
@@ -90,10 +90,10 @@
                             <i class="ph ph-sort-descending" id="sort-icon"></i>
                         </button>
                         
-                        <div style="position: relative;">
+                        <div class="relative-wrapper">
                             <button id="filter-toggle-btn" class="btn-icon" title="Filtry">
                                 <i class="ph ph-funnel"></i>
-                                <span id="filter-indicator" class="hidden" style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; background-color: var(--accent-color); border-radius: 50%;"></span>
+                                <span id="filter-indicator" class="hidden filter-indicator-dot"></span>
                             </button>
                             
                             <div id="filter-dropdown" class="card-small filter-dropdown hidden">
@@ -103,17 +103,14 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <!-- <label>Měsíc a Rok</label> -->
                                     <input type="text" id="monthFilter" placeholder="Měsíc a rok..." onfocus="(this.type='month')" onblur="if(!this.value) this.type='text'">
                                 </div>
                                 
                                 <div class="form-group">
-                                    <!-- <label>Přesný den</label> -->
                                     <input type="text" id="exactDateFilter" placeholder="Konkrétní den..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
                                 </div>
                                 
                                 <div class="form-group">
-                                    <!-- <label>Činnost</label> -->
                                     <input type="text" id="activityFilter" placeholder="Činnost (např. ostatní)">
                                 </div>
                                 
@@ -127,24 +124,24 @@
 
                 <aside id="sidebar-stats" class="stats-sidebar">
                     <div class="card">
-                        <button id="close-stats-mobile" class="btn-icon mobile-only" style="position: absolute; top: 10px; right: 10px; z-index: 10;"><i class="ph ph-x"></i></button>
-                        <h3 style="margin-bottom: 15px;"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
+                        <button id="close-stats-mobile" class="btn-icon mobile-only mobile-close-stats"><i class="ph ph-x"></i></button>
+                        <h3 class="mb-15"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
                         <div class="stat-row">
-                            <span style="color: var(--text-secondary);">Záznamů</span>
+                            <span class="text-secondary">Záznamů</span>
                             <strong id="stat-count">0</strong>
                         </div>
                         <div class="stat-row">
-                            <span style="color: var(--text-secondary);">Odpracováno</span>
+                            <span class="text-secondary">Odpracováno</span>
                             <strong id="stat-hours" style="color: var(--text-primary);">0 h</strong>
                         </div>
                         <div class="stat-row">
-                            <span style="color: var(--text-secondary);">Výdělek</span>
+                            <span class="text-secondary">Výdělek</span>
                             <strong id="stat-money" style="color: var(--accent-color);">0 Kč</strong>
                         </div>
                     </div>
 
                     <div class="card">
-                        <h3 style="margin-bottom: 15px;"><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
+                        <h3 class="mb-15"><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
                         <div id="yearly-summary-list"></div>
                     </div>
                 </aside>
@@ -156,7 +153,7 @@
     <div id="toast" class="toast hidden">Uloženo!</div>
 
     <div id="add-modal" class="modal-overlay hidden"> 
-        <div class="modal-content over"> 
+        <div class="modal-content modal-solid"> 
             <div class="dropdown-header">
                 <h3><i class="ph ph-plus-circle"></i> Nový záznam</h3>
                 <button id="close-add-cross" class="btn-icon"><i class="ph ph-x"></i></button>
@@ -167,14 +164,14 @@
             
             <div class="form-group">
                 <input type="text" id="activityInput" placeholder="Činnost (např. ostatní)">
-                <div style="display: flex; gap: 5px; flex-wrap: wrap;" id="quick-tags">
+                <div class="quick-tags-wrapper" id="quick-tags">
                     <span class="badge" onclick="document.getElementById('activityInput').value='ostatní'">ostatní</span>
                 </div>
             </div>
             
             <input type="text" id="descInput" placeholder="Co jsi dělal? (Poznámka)">
             
-            <div class="header-actions" style="margin-top: 10px; justify-content: flex-end;">
+            <div class="header-actions modal-actions">
                 <button id="close-add-btn" class="btn">Zrušit</button>
                 <button id="add-record-btn" class="btn btn-ghost">Uložit záznam</button>
             </div>
@@ -182,7 +179,7 @@
     </div>
 
     <div id="edit-modal" class="modal-overlay hidden">
-        <div class="modal-content over">
+        <div class="modal-content modal-solid">
             <div class="dropdown-header">
                 <h3><i class="ph ph-pencil-simple"></i> Upravit záznam</h3>
                 <button id="close-edit-cross" class="btn-icon"><i class="ph ph-x"></i></button>
@@ -191,7 +188,7 @@
             <input type="number" id="editHoursInput" placeholder="Počet hodin" step="0.5">
             <input type="text" id="editActivityInput" placeholder="Činnost (např. ostatní, úklid)">
             <input type="text" id="editDescInput" placeholder="Co jsi dělal?">
-            <div class="header-actions" style="margin-top: 10px; justify-content: flex-end;">
+            <div class="header-actions modal-actions">
                 <button id="close-edit-btn" class="btn">Zrušit</button>
                 <button id="save-edit-btn" class="btn btn-ghost">Uložit změny</button>
             </div>
@@ -201,11 +198,11 @@
     <div id="delete-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="dropdown-header">
-                <h3 style="color: var(--danger-color);"><i class="ph ph-warning"></i> Smazat záznam?</h3>
+                <h3 class="text-danger"><i class="ph ph-warning"></i> Smazat záznam?</h3>
                 <button id="close-delete-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
-            <p style="color: var(--text-secondary);">Tato akce je nevratná.</p>
-            <div class="header-actions" style="margin-top: 10px; justify-content: flex-end;">
+            <p class="text-secondary">Tato akce je nevratná.</p>
+            <div class="header-actions modal-actions">
                 <button id="close-delete-btn" class="btn">Zrušit</button>
                 <button id="confirm-delete-btn" class="btn btn-danger">Ano, smazat</button>
             </div>
@@ -213,26 +210,26 @@
     </div>
 
     <div id="mobile-menu-modal" class="modal-overlay hidden">
-        <div class="modal-content over" style="height: auto; max-height: 90vh; justify-content: space-between;">
+        <div class="modal-content modal-solid mobile-menu-content">
             <div>
-                <div class="dropdown-header" style="margin-bottom: 20px; padding-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="ph ph-user-circle" style="font-size: 2.2rem; color: var(--text-secondary);"></i>
-                        <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-primary); border: none; padding: 0;">Jméno Brigádníka</h2>
+                <div class="mobile-menu-header">
+                    <div class="flex-center-gap">
+                        <i class="ph ph-user-circle icon-xl-secondary"></i>
+                        <h2 class="mobile-user-name">Jméno Brigádníka</h2>
                     </div>
                     <button id="close-mobile-menu-btn" class="btn-icon"><i class="ph ph-x" style="font-size: 1.8rem;"></i></button>
                 </div>
                 
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button class="btn btn-ghost" style="justify-content: flex-start; padding: 12px; font-weight: normal;"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
-                    <button id="show-stats-btn" class="btn btn-ghost" style="justify-content: flex-start; padding: 12px; font-weight: normal;"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</button>
-                    <button id="show-yearly-btn" class="btn btn-ghost" style="justify-content: flex-start; padding: 12px; font-weight: normal;"><i class="ph ph-calendar-star"></i> Roční souhrny</button>
+                    <button class="btn btn-ghost btn-mobile-menu"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
+                    <button id="show-stats-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</button>
+                    <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční souhrny</button>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+            <div class="mobile-menu-footer">
                 <button id="mobile-theme-toggle" class="btn-icon"><i class="ph ph-moon" id="mobile-theme-icon" style="font-size: 1.8rem;"></i></button>
-                <button id="mobile-logout-btn" class="btn-icon" style="color: var(--danger-color);"><i class="ph ph-sign-out" style="font-size: 1.8rem;"></i></button>
+                <button id="mobile-logout-btn" class="btn-icon text-danger"><i class="ph ph-sign-out" style="font-size: 1.8rem;"></i></button>
             </div>
         </div>
     </div>

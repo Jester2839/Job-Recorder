@@ -212,8 +212,8 @@ function renderRecords() {
                         <p class="record-desc">${data.description}</p>
                     </div>
                     <div class="record-actions">
-                        <button class="btn-icon" onclick="openEditModal('${data.id}')" title="Upravit"><i class="ph ph-pencil-simple"></i></button>
-                        <button class="btn-icon" onclick="openDeleteModal('${data.id}')" title="Smazat"><i class="ph ph-trash"></i></button>
+                        <button class="btn-icon action-edit-btn" data-id="${data.id}" title="Upravit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="btn-icon action-delete-btn" data-id="${data.id}" title="Smazat"><i class="ph ph-trash"></i></button>
                     </div>
                 `;
                 list.appendChild(item);
@@ -253,14 +253,11 @@ function renderRecords() {
         // Seřadíme roky sestupně a vypíšeme je
         Object.keys(yearlyData).sort((a, b) => b - a).forEach(year => {
             const row = document.createElement('div');
-            row.style.display = 'flex';
-            row.style.justifyContent = 'space-between';
-            row.style.padding = '8px 0';
-            row.style.borderBottom = '1px solid var(--border-color)';
-            
+            row.className = 'stat-row'; // Použití hotové CSS třídy!
+    
             row.innerHTML = `
                 <span><strong>${year}</strong></span>
-                <span>${yearlyData[year]} h <small style="color:var(--text-secondary)">(${(yearlyData[year] * HOURLY_RATE).toLocaleString('cs-CZ')} Kč)</small></span>
+                <span>${yearlyData[year]} h <small class="text-secondary">(${(yearlyData[year] * HOURLY_RATE).toLocaleString('cs-CZ')} Kč)</small></span>
             `;
             yearlyList.appendChild(row);
         });
@@ -397,7 +394,7 @@ let deletingRecordId = null;
 
 
 // --- LOGIKA PRO MAZÁNÍ (Náhrada za confirm) ---
-window.openDeleteModal = (id) => {
+function openDeleteModal(id){
     deletingRecordId = id; // Zapamatujeme si ID
     document.getElementById('delete-modal').classList.remove('hidden'); // Ukážeme okno
 };
@@ -417,7 +414,7 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
 });
 
 // --- LOGIKA PRO ÚPRAVU ZÁZNAMŮ ---
-window.openEditModal = (id) => {
+function openEditModal(id){
     const record = window.currentlyFilteredData.find(r => r.id === id);
     if (!record) return;
 
@@ -469,26 +466,49 @@ document.getElementById('save-edit-btn').addEventListener('click', async () => {
 });
 
 
+// --- EVENT DELEGATION PRO TLAČÍTKA U ZÁZNAMŮ ---
+document.getElementById('records-list').addEventListener('click', (event) => {
+    // Zjistíme, jestli bylo kliknuto na editační tlačítko (nebo jeho ikonu)
+    const editBtn = event.target.closest('.action-edit-btn');
+    const deleteBtn = event.target.closest('.action-delete-btn');
+
+    if (editBtn) {
+        openEditModal(editBtn.getAttribute('data-id'));
+    } else if (deleteBtn) {
+        openDeleteModal(deleteBtn.getAttribute('data-id'));
+    }
+});
+
+
 // --- PŘEPÍNÁNÍ DARK/LIGHT REŽIMU ---
 const themeToggleBtn = document.getElementById('theme-toggle');
-const themeIcon = document.getElementById('theme-icon');
-// Zjistíme, jestli má uživatel už něco uloženo, jinak použijeme systémové nastavení
 const currentTheme = localStorage.getItem('theme') || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
 function applyTheme(theme) {
+    const themeIcon = document.getElementById('theme-icon');
+    const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+
     if (theme === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
-        themeIcon.classList.replace('ph-moon', 'ph-sun');
+        if (themeIcon) themeIcon.classList.replace('ph-moon', 'ph-sun');
+        if (mobileThemeIcon) mobileThemeIcon.classList.replace('ph-moon', 'ph-sun');
     } else {
         document.body.removeAttribute('data-theme');
-        themeIcon.classList.replace('ph-sun', 'ph-moon');
+        if (themeIcon) themeIcon.classList.replace('ph-sun', 'ph-moon');
+        if (mobileThemeIcon) mobileThemeIcon.classList.replace('ph-sun', 'ph-moon');
     }
 }
 applyTheme(currentTheme);
-themeToggleBtn.addEventListener('click', () => {
+
+// Nyní obě tlačítka (desktop i mobil) používají tuto jedinou logiku
+function toggleTheme() {
     let newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     applyTheme(newTheme);
     localStorage.setItem('theme', newTheme);
-});
+}
+
+themeToggleBtn.addEventListener('click', toggleTheme);
+document.getElementById('mobile-theme-toggle').addEventListener('click', toggleTheme);
 
 
 // --- ZAVÍRÁNÍ OKEN PŘI KLIKNUTÍ MIMO ---
@@ -541,22 +561,6 @@ closeMobileMenuBtn.addEventListener('click', () => {
 document.getElementById('mobile-logout-btn').addEventListener('click', () => {
     mobileMenuModal.classList.add('hidden'); // PŘIDÁNO: Zavření okna menu před odhlášením
     signOut(auth);
-});
-// Změna motivu z mobilního menu (Musí upravit ikonky nahoře i dole)
-const mobileThemeIcon = document.getElementById('mobile-theme-icon');
-document.getElementById('mobile-theme-toggle').addEventListener('click', () => {
-    let newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    
-    // Prohození obou ikonek
-    if (newTheme === 'dark') {
-        mobileThemeIcon.classList.replace('ph-moon', 'ph-sun');
-        document.getElementById('theme-icon').classList.replace('ph-moon', 'ph-sun');
-    } else {
-        mobileThemeIcon.classList.replace('ph-sun', 'ph-moon');
-        document.getElementById('theme-icon').classList.replace('ph-sun', 'ph-moon');
-    }
 });
 // --- Zobrazení statistik z mobilního menu ---
 const sidebarStats = document.getElementById('sidebar-stats');
@@ -622,7 +626,7 @@ document.getElementById('export-btn').addEventListener('click', async () => {
 
             // Vyplníme jen ty buňky, které chceme (A=1, B=2, ... E=5, J=10, K=11)
             row.getCell(1).value = formattedDate;                  // A: Datum
-            row.getCell(5).value = 'ostatní';                    // E: Činnost
+            row.getCell(5).value = record.activity;                    // E: Činnost
             row.getCell(10).value = record.description;          // J: Poznámka
             row.getCell(11).value = Number(record.hours);        // K: Hodiny
 

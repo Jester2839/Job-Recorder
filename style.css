@@ -14,7 +14,7 @@
     --danger-color: #dc3545;
     --danger-hover: #c82333;
 
-    --border-radius: 12px;
+    --border-radius: 8px;
     --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     --transition-speed: 0.3s;
     --font-family: "Inter", system-ui, sans-serif;
@@ -249,6 +249,10 @@ input[type="number"]::-webkit-outer-spin-button {
     color: var(--accent-color);
 }
 
+#login-btn{
+    margin-top: 15px;
+}
+
 .btn-icon:hover {
     color: var(--accent-color);
     background-color: rgba(201, 190, 126, 0.1);
@@ -284,6 +288,7 @@ input[type="number"]::-webkit-outer-spin-button {
     position: sticky;
     top: 0;
     z-index: 100;
+    border-radius: var(--border-radius);
 }
 
 .header-actions {
@@ -561,7 +566,7 @@ input[type="number"]::-webkit-outer-spin-button {
     backdrop-filter: blur(2px);
 }
 
-.over{
+.modal-solid{
     background-color: var(--bg-main);
 }
 
@@ -592,10 +597,111 @@ input[type="number"]::-webkit-outer-spin-button {
 #yearly-summary-list {
     font-family: var(--font-family-fancy);
     font-weight: 200;
-    font-size: var(--fs-l);
+    font-size: var(--fs-lg);
 }
 
+/* --- POMOCNÉ TŘÍDY (Utility classes) --- */
+.relative-wrapper {
+    position: relative;
+}
 
+.flex-center-gap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-accent {
+    color: var(--accent-color);
+}
+
+.mt-15 {
+    margin-top: 15px;
+}
+
+.mb-15 {
+    margin-bottom: 15px;
+}
+
+.icon-xl-accent {
+    font-size: 1.8rem;
+    color: var(--accent-color);
+}
+
+.icon-xl-secondary {
+    font-size: 2.2rem;
+    color: var(--text-secondary);
+}
+
+.modal-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.quick-tags-wrapper {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.filter-indicator-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+}
+
+.mobile-close-stats {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+.mobile-menu-content {
+    height: auto;
+    max-height: 90vh;
+    justify-content: space-between;
+}
+
+.mobile-menu-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mobile-menu-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 15px;
+}
+
+.mobile-user-name {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    border: none;
+    padding: 0;
+}
 
 
 /* Pomocné třídy pro responzivitu */
