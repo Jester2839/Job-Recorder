@@ -834,18 +834,18 @@ input[type="number"]::-webkit-outer-spin-button {
     .mobile-menu-links {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 15px;
         flex-grow: 1; /* Roztáhne se a natlačí patičku dolů */
     }
 
     .btn-mobile-menu {
         justify-content: flex-start;
-        padding: 15px 10px;
+        padding: 14px 20px;
         font-size: var(--fs-lg);
-        border: none; /* Odstraníme klasický obrys tlačítka */
-        border-bottom: 1px solid var(--border-color);
-        border-radius: 0;
-        font-weight: normal;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius); 
+        font-weight: 500;      
+        background-color: var(--glass-bg); 
     }
 
     .mobile-menu-bottom {
