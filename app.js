@@ -573,7 +573,6 @@ document.getElementById('mobile-logout-btn').addEventListener('click', () => {
 
 // --- Zobrazení specifických statistik z menu ---
 const sidebarStats = document.getElementById('sidebar-stats');
-const closeStatsMobile = document.getElementById('close-stats-mobile');
 const cardCurrentStats = document.getElementById('card-current-stats');
 const cardYearlyStats = document.getElementById('card-yearly-stats');
 
@@ -607,9 +606,9 @@ function hideMobileStats() {
     }, 300); // Počkáme na dokončení animace zmizení
 }
 
-if (closeStatsMobile) {
-    closeStatsMobile.addEventListener('click', hideMobileStats);
-}
+document.querySelectorAll('.close-stats-mobile-btn').forEach(btn => {
+    btn.addEventListener('click', hideMobileStats);
+});
 
 sidebarStats.addEventListener('click', (event) => {
     if (event.target === sidebarStats) hideMobileStats();

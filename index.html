@@ -124,8 +124,10 @@
 
                 <aside id="sidebar-stats" class="stats-sidebar">
                     <div class="card" id="card-current-stats">
-                        <button id="close-stats-mobile" class="btn-icon mobile-only mobile-close-stats"><i class="ph ph-x"></i></button>
-                        <h3 class="mb-15"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
+                        <div class="dropdown-header">
+                            <h3><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
+                            <button class="btn-icon mobile-only close-stats-mobile-btn"><i class="ph ph-x"></i></button>
+                        </div>
                         <div class="stat-row">
                             <span class="text-secondary">Záznamů</span>
                             <strong id="stat-count">0</strong>
@@ -141,7 +143,10 @@
                     </div>
 
                     <div class="card" id="card-yearly-stats">
-                        <h3 class="mb-15"><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
+                        <div class="dropdown-header">
+                            <h3><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
+                            <button class="btn-icon mobile-only close-stats-mobile-btn"><i class="ph ph-x"></i></button>
+                        </div>
                         <div id="yearly-summary-list"></div>
                     </div>
                 </aside>

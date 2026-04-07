@@ -616,8 +616,8 @@ input[type="number"]::-webkit-outer-spin-button {
 .stat-row {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border-color);
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border-color);
 }
 
 .stat-row:last-child {
