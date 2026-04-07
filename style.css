@@ -154,7 +154,7 @@ input[type="number"]::-webkit-outer-spin-button {
     padding: 25px;
     box-shadow: var(--box-shadow);
     border: 1px solid var(--border-color);
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(5px);
 }
 
 /* Seskupení štítku a políčka blíž k sobě */
