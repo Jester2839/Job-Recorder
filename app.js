@@ -160,8 +160,14 @@ function renderRecords() {
         filterIndicator.classList.add('hidden');
     }
 
+    //hlaska pokud nejsou nalezeny záznamy
     if (filtered.length === 0) {
-        list.innerHTML = `<p style="text-align: center; color: var(--text-secondary); margin-top: 20px;">Žádné záznamy nenalezeny.</p>`;
+        list.innerHTML = `
+            <div class="empty-state">
+                <i class="ph ph-magnifying-glass"></i>
+                <p>Nenalezeny žádné záznamy.</p>
+            </div>
+        `;
         return;
     }
 
