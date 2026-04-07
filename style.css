@@ -5,7 +5,7 @@
     color-scheme: light;
     --bg-main: #edeef4;
     --bg-surface: #fbfdfe;
-    --accent-color: #445da4; /*modra*/
+    --accent-color: #445da4;      /*modra*/
     /*--accent-color: #c3581e;*/    /*oranzova*/
     --text-primary: #15141A;
     --text-secondary: #6c757d;
@@ -42,8 +42,8 @@
     color-scheme: dark;
     --bg-main: #15141A;
     --bg-surface: #1E1D24;
-    --accent-color: #76a1e6; /*modra*/
-    /*--accent-color: #cd8551;*/ /*oranzova*/
+    --accent-color: #76a1e6;      /*modra*/
+    /*--accent-color: #cd8551;*/    /*oranzova*/
     --text-primary: #e0e0e0;
     --text-secondary: #8a8a93;
     --border-color: rgba(255, 255, 255, 0.08);
@@ -712,45 +712,6 @@ input[type="number"]::-webkit-outer-spin-button {
     border-radius: 50%;
 }
 
-.mobile-close-stats {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-}
-
-.mobile-menu-content {
-    height: auto;
-    max-height: 90vh;
-    justify-content: space-between;
-}
-
-.mobile-menu-header {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.mobile-menu-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 30px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 15px;
-}
-
-.mobile-user-name {
-    margin: 0;
-    font-size: 1.5rem;
-    color: var(--text-primary);
-    border: none;
-    padding: 0;
-}
-
 
 /* Pomocné třídy pro responzivitu */
 .mobile-only { display: none !important; }
@@ -807,4 +768,65 @@ input[type="number"]::-webkit-outer-spin-button {
     /* Přepnutí textu u export tlačítka */
     .export-text-desktop { display: none; }
     .export-text-mobile { display: inline; }
+
+    /* mobilni menu */
+    .mobile-menu-fullscreen {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-surface);
+        z-index: 3000;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        /* Schované vpravo mimo obrazovku */
+        transform: translateX(100%); 
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Třída, kterou přidá JS pro vysunutí */
+    .mobile-menu-fullscreen.menu-open {
+        transform: translateX(0); 
+    }
+
+    .mobile-menu-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+
+    .mobile-menu-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex-grow: 1; /* Roztáhne se a natlačí patičku dolů */
+    }
+
+    .btn-mobile-menu {
+        justify-content: flex-start;
+        padding: 15px 10px;
+        font-size: var(--fs-lg);
+        border: none; /* Odstraníme klasický obrys tlačítka */
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+        font-weight: normal;
+    }
+
+    .mobile-menu-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Speciální třída pro schování statistik jen na mobilu */
+    .mobile-hidden {
+        display: none !important;
+    }
 }

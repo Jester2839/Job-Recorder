@@ -123,7 +123,7 @@
                 </div>
 
                 <aside id="sidebar-stats" class="stats-sidebar">
-                    <div class="card">
+                    <div class="card" id="card-current-stats">
                         <button id="close-stats-mobile" class="btn-icon mobile-only mobile-close-stats"><i class="ph ph-x"></i></button>
                         <h3 class="mb-15"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
                         <div class="stat-row">
@@ -140,7 +140,7 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card" id="card-yearly-stats">
                         <h3 class="mb-15"><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
                         <div id="yearly-summary-list"></div>
                     </div>
@@ -209,30 +209,26 @@
         </div>
     </div>
 
-    <div id="mobile-menu-modal" class="modal-overlay hidden">
-        <div class="modal-content modal-solid mobile-menu-content">
-            <div>
-                <div class="mobile-menu-header">
-                    <div class="flex-center-gap">
-                        <i class="ph ph-user-circle icon-xl-secondary"></i>
-                        <h2 class="mobile-user-name">Jméno Brigádníka</h2>
-                    </div>
-                    <button id="close-mobile-menu-btn" class="btn-icon"><i class="ph ph-x icon-menu-size"></i></button>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button class="btn btn-ghost btn-mobile-menu"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
-                    <button id="show-stats-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</button>
-                    <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční souhrny</button>
-                </div>
+    <nav id="mobile-fullscreen-menu" class="mobile-menu-fullscreen">
+        <div class="mobile-menu-top">
+            <div class="flex-center-gap">
+                <i class="ph ph-user-circle icon-xl-secondary"></i>
+                <h2 class="mobile-user-name">Jméno Brigádníka</h2>
             </div>
-
-            <div class="mobile-menu-footer">
-                <button id="mobile-theme-toggle" class="btn-icon"><i class="ph ph-moon icon-menu-size" id="mobile-theme-icon"></i></button>
-                <button id="mobile-logout-btn" class="btn-icon text-danger"><i class="ph ph-sign-out icon-menu-size"></i></button>
-            </div>
+            <button id="close-mobile-menu-btn" class="btn-icon"><i class="ph ph-x icon-burger-size"></i></button>
         </div>
-    </div>
+        
+        <div class="mobile-menu-links">
+            <button class="btn btn-ghost btn-mobile-menu"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
+            <button id="show-stats-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</button>
+            <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční souhrny</button>
+        </div>
+
+        <div class="mobile-menu-bottom">
+            <button id="mobile-theme-toggle" class="btn-icon"><i class="ph ph-moon icon-menu-size" id="mobile-theme-icon"></i></button>
+            <button id="mobile-logout-btn" class="btn-icon text-danger"><i class="ph ph-sign-out icon-menu-size"></i></button>
+        </div>
+    </nav>
 
     <script type="module" src="app.js"></script>
 </body>

@@ -554,43 +554,68 @@ modalOverlays.forEach(overlay => {
 // --- MOBILNÍ ROZHRANÍ (Menu a Statistiky) ---
 // ==========================================
 const hamburgerBtn = document.getElementById('hamburger-btn');
-const mobileMenuModal = document.getElementById('mobile-menu-modal');
+const mobileFullscreenMenu = document.getElementById('mobile-fullscreen-menu');
 const closeMobileMenuBtn = document.getElementById('close-mobile-menu-btn');
-// Otevření a zavření menu
+
+// Otevření a zavření menu (Animace vysunutí)
 hamburgerBtn.addEventListener('click', () => {
-    mobileMenuModal.classList.remove('hidden');
+    mobileFullscreenMenu.classList.add('menu-open');
 });
 closeMobileMenuBtn.addEventListener('click', () => {
-    mobileMenuModal.classList.add('hidden');
+    mobileFullscreenMenu.classList.remove('menu-open');
 });
+
 // Odhlášení z mobilního menu
 document.getElementById('mobile-logout-btn').addEventListener('click', () => {
-    mobileMenuModal.classList.add('hidden'); // PŘIDÁNO: Zavření okna menu před odhlášením
+    mobileFullscreenMenu.classList.remove('menu-open');
     signOut(auth);
 });
-// --- Zobrazení statistik z mobilního menu ---
+
+// --- Zobrazení specifických statistik z menu ---
 const sidebarStats = document.getElementById('sidebar-stats');
 const closeStatsMobile = document.getElementById('close-stats-mobile');
-// Když kliknu na "Aktuální přehled" nebo "Souhrny", zavřu menu a otevřu statistiky
-['show-stats-btn', 'show-yearly-btn'].forEach(id => {
-    document.getElementById(id).addEventListener('click', () => {
-        mobileMenuModal.classList.add('hidden'); 
-        sidebarStats.classList.add('show-mobile'); 
-    });
+const cardCurrentStats = document.getElementById('card-current-stats');
+const cardYearlyStats = document.getElementById('card-yearly-stats');
+
+// Kliknutí na Aktuální přehled
+document.getElementById('show-stats-btn').addEventListener('click', () => {
+    mobileFullscreenMenu.classList.remove('menu-open'); 
+    sidebarStats.classList.add('show-mobile'); 
+    
+    // Ukázat přehled, schovat souhrny
+    cardCurrentStats.classList.remove('mobile-hidden');
+    cardYearlyStats.classList.add('mobile-hidden');
 });
-// Zavření okna statistik na mobilu (kliknutím mimo na tmavé pozadí)
-sidebarStats.addEventListener('click', (event) => {
-    // Pokud jsme klikli přímo na ten hlavní obal (černé pozadí) a ne na karty uvnitř
-    if (event.target === sidebarStats) {
-        sidebarStats.classList.remove('show-mobile');
-    }
+
+// Kliknutí na Roční souhrny
+document.getElementById('show-yearly-btn').addEventListener('click', () => {
+    mobileFullscreenMenu.classList.remove('menu-open'); 
+    sidebarStats.classList.add('show-mobile'); 
+    
+    // Schovat přehled, ukázat souhrny
+    cardCurrentStats.classList.add('mobile-hidden');
+    cardYearlyStats.classList.remove('mobile-hidden');
 });
-// Zavření okna statistik na mobilu (křížkem)
-if (closeStatsMobile) {
-    closeStatsMobile.addEventListener('click', () => {
-        sidebarStats.classList.remove('show-mobile');
-    });
+
+// Zavření okna statistik na mobilu (křížkem nebo kliknutím mimo)
+function hideMobileStats() {
+    sidebarStats.classList.remove('show-mobile');
+    // Vrátíme to do původního stavu pro příště (nebo pro přechod na PC)
+    setTimeout(() => {
+        cardCurrentStats.classList.remove('mobile-hidden');
+        cardYearlyStats.classList.remove('mobile-hidden');
+    }, 300); // Počkáme na dokončení animace zmizení
 }
+
+if (closeStatsMobile) {
+    closeStatsMobile.addEventListener('click', hideMobileStats);
+}
+
+sidebarStats.addEventListener('click', (event) => {
+    if (event.target === sidebarStats) hideMobileStats();
+});
+
+
 
 
 
