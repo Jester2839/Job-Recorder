@@ -40,7 +40,7 @@
                 </svg>
             </h1>
             
-            <h2 class="user-name desktop-only">Jméno Brigádníka</h2>
+            <h2 class="user-name text-truncate">Jméno Brigádníka</h2>
             
             <div class="header-actions desktop-only-flex">
                 <button id="theme-toggle" class="btn-icon" title="Změnit motiv"><i class="ph ph-moon" id="theme-icon"></i></button>
@@ -51,7 +51,7 @@
                         <div class="dropdown-header">
                             <div class="flex-center-gap">
                                 <i class="ph ph-user-circle icon-xl-accent"></i>
-                                <strong>Můj Profil</strong>
+                                <strong>Jméno brigádníka</strong>
                             </div>
                             <button id="close-user-cross" class="btn-icon"><i class="ph ph-x"></i></button>
                         </div>
@@ -213,13 +213,15 @@
         <div class="mobile-menu-top">
             <div class="flex-center-gap">
                 <i class="ph ph-user-circle icon-xl-secondary"></i>
-                <h2 class="mobile-user-name">Jméno Brigádníka</h2>
+                <div style="display: flex; flex-direction: column; align-items: flex-start; overflow: hidden;">
+                    <h2 class="mobile-user-name text-truncate" style="max-width: 200px;">Jméno Brigádníka</h2>
+                    <button class="btn-text-small mt-15" style="margin-top: 2px;"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
+                </div>
             </div>
             <button id="close-mobile-menu-btn" class="btn-icon"><i class="ph ph-x icon-burger-size"></i></button>
         </div>
         
         <div class="mobile-menu-links">
-            <button class="btn btn-ghost btn-mobile-menu"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
             <button id="show-stats-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</button>
             <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční souhrny</button>
         </div>
