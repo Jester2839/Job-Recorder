@@ -525,15 +525,26 @@ window.addEventListener('click', (event) => {
     const userMenuBtn = document.getElementById('user-menu-btn');
     const filterDropdown = document.getElementById('filter-dropdown');
     const filterToggleBtn = document.getElementById('filter-toggle-btn');
+    const searchInput = document.getElementById('searchInput');
+    const searchToggleBtn = document.getElementById('search-toggle-btn');
 
-    // Pokud uživatel klikl mimo tlačítko profilu A ZÁROVEŇ mimo samotné menu profilu
+    // Zavírání profilu
     if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
         userDropdown.classList.add('hidden');
     }
 
-    // Pokud uživatel klikl mimo tlačítko filtrů A ZÁROVEŇ mimo samotné menu filtrů
+    // Zavírání filtrů
     if (!filterToggleBtn.contains(event.target) && !filterDropdown.contains(event.target)) {
         filterDropdown.classList.add('hidden');
+    }
+
+    // CHYTRÉ ZAVÍRÁNÍ LUPY
+    // Pokud kliknu mimo lupu a mimo její tlačítko...
+    if (!searchToggleBtn.contains(event.target) && !searchInput.contains(event.target)) {
+        // ... a pokud je lupa prázdná, tak ji schovám
+        if (searchInput.value.trim() === '') {
+            searchInput.classList.add('hidden-search');
+        }
     }
 });
 

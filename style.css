@@ -98,6 +98,11 @@ h3{
     border-bottom: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 0px 24px;
+
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
 }
 
 input {
@@ -869,6 +874,10 @@ input[type="number"]::-webkit-outer-spin-button {
         font-size: var(--fs-lg);
         max-width: 40vw;
         text-align: center;
-        margin: 0 auto;
+    }
+
+    /* Zúžení lupy, aby nerozbíjela šířku displeje */
+    .search-input {
+        width: 140px;
     }
 }
