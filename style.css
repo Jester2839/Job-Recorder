@@ -880,4 +880,48 @@ input[type="number"]::-webkit-outer-spin-button {
     .search-input {
         width: 140px;
     }
+
+
+    /* ==========================================
+       VYLADĚNÍ ZÁZNAMŮ A ŠÍŘKY NA MOBILU
+       ========================================== */
+       
+    /* 1. Zajištění, aby kontejner se záznamy vyplnil přesně celou šířku a nepřetékal */
+    .records-section {
+        width: 100%;
+    }
+
+    /* Zajištění, aby se filtry a hledání na úzkém displeji zalamovaly a neroztahovaly kartu */
+    .toolbar-header {
+        flex-wrap: wrap;
+    }
+
+    /* 2. Kompaktnější výpis jednotlivých záznamů */
+    .record-item {
+        margin-left: 0;
+        flex-direction: row; /* ZMĚNA: Vrátili jsme to do řádku! Tlačítka zůstanou vpravo. */
+        padding: 12px 14px; /* Zmenšené odsazení ze všech stran (původně 20px) */
+        gap: 10px; /* Menší mezera mezi textem a tlačítky */
+    }
+
+    /* Těsnější informace o záznamu (Datum, štítek, hodiny) */
+    .record-info {
+        gap: 8px;
+        margin-bottom: 2px; /* Skoro úplně zrušená mezera nad poznámkou */
+    }
+
+    /* Drobné zmenšení textů na mobilu pro lepší přehlednost */
+    .record-date {
+        font-size: var(--fs-base); /* Zmenšeno z desktopového --fs-lg */
+    }
+
+    .record-desc {
+        font-size: var(--fs-sm); /* Zmenšená poznámka */
+        line-height: 1.3;
+    }
+
+    /* Zmenšení akčních tlačítek (Tužka a Koš), aby nezabírala drahocenné místo */
+    .record-actions .btn-icon {
+        padding: 4px;
+    }
 }
