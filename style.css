@@ -329,13 +329,18 @@ input[type="number"]::-webkit-outer-spin-button {
     position: sticky;
     top: 0;
     z-index: 100;
-    border-radius: var(--border-radius);
+    border-radius: 0px 0px var(--border-radius) var(--border-radius);
 }
 
 .header-actions {
     display: flex;
     gap: 15px;
     align-items: center;
+}
+
+.app-title .logo-apris{
+    height: 50px;
+    width: auto;
 }
 
 /* Hlavní obsah */
@@ -772,6 +777,21 @@ input[type="number"]::-webkit-outer-spin-button {
     text-overflow: ellipsis;
 }
 
+/* --- Přepínání prvků podle motivu (Světlý/Tmavý) --- */
+/* Výchozí stav (Světlý režim): Tmavé logo schováme */
+.dark-only {
+    display: none;
+}
+
+/* Jakmile je aktivní tmavý režim: Schováme světlé logo a tmavé ukážeme */
+[data-theme="dark"] .light-only {
+    display: none;
+}
+
+[data-theme="dark"] .dark-only {
+    display: block; 
+}
+
 /* Pomocné třídy pro responzivitu */
 .mobile-only { display: none !important; }
 /* Schování mobilního textu na velkých obrazovkách */
@@ -891,6 +911,11 @@ input[type="number"]::-webkit-outer-spin-button {
     /* Speciální třída pro schování statistik jen na mobilu */
     .mobile-hidden {
         display: none !important;
+    }
+
+    /* velikost loga aprisu */
+    .app-title .logo-apris{
+        height: 38px;
     }
 
     /* Jméno uprostřed hlavičky na mobilu */

@@ -674,7 +674,7 @@ document.getElementById('export-btn').addEventListener('click', async () => {
 
     try {
         // 1. Načteme tvůj soubor se šablonou
-        const response = await fetch('sablona.xlsx'); // Musí být ve stejné složce
+        const response = await fetch('tamplates/sablona.xlsx'); // Musí být ve stejné složce
         const arrayBuffer = await response.arrayBuffer();
 
         // 2. Otevřeme ho pomocí ExcelJS
