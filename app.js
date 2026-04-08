@@ -30,6 +30,28 @@ const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const addRecordBtn = document.getElementById('add-record-btn');
 
+// --- ZOBRAZENÍ HESLA (Očičko) ---
+const togglePasswordBtn = document.getElementById('toggle-password-btn');
+const passwordInput = document.getElementById('password');
+const togglePasswordIcon = document.getElementById('toggle-password-icon');
+
+togglePasswordBtn.addEventListener('click', () => {
+    // Zjistíme aktuální typ (jestli je to teď heslo nebo text)
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    
+    // Změníme typ inputu
+    passwordInput.setAttribute('type', type);
+    
+    // Prohodíme ikonky podle stavu (Phosphor icons: ph-eye vs ph-eye-slash)
+    if (type === 'text') {
+        togglePasswordIcon.classList.replace('ph-eye', 'ph-eye-slash');
+        togglePasswordBtn.setAttribute('title', 'Skrýt heslo');
+    } else {
+        togglePasswordIcon.classList.replace('ph-eye-slash', 'ph-eye');
+        togglePasswordBtn.setAttribute('title', 'Zobrazit heslo');
+    }
+});
+
 // --- AUTHENTIKACE ---
 // Sledování stavu uživatele (přihlášen/odhlášen)
 onAuthStateChanged(auth, (user) => {
@@ -124,19 +146,31 @@ function loadRecords() {
 }
 // --- VYKRESLOVANÍ S FILTRY ---
 function renderRecords() {
-    const searchValue = document.getElementById('searchInput').value.toLowerCase();
-    const sortValue = document.getElementById('sort-toggle-btn').getAttribute('data-sort'); // NOVÉ: Čteme z atributu tlačítka
+    // 1. Pomocná funkce: Zbaví text háčků a čárek
+    const removeDiacritics = (str) => {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
+
+    // 2. Načtení vyhledávání: Převedeme na malá písmena a odstraníme diakritiku
+    const rawSearchValue = document.getElementById('searchInput').value.toLowerCase();
+    const searchValue = removeDiacritics(rawSearchValue);
+
+    const sortValue = document.getElementById('sort-toggle-btn').getAttribute('data-sort'); 
     const monthValue = document.getElementById('monthFilter').value; 
     const exactDateValue = document.getElementById('exactDateFilter').value;
-    const activityValue = document.getElementById('activityFilter').value.toLowerCase();
+    
+    // Tady také odstraníme diakritiku (kdybys někdy chtěl, aby i výběr z činností ignoroval háčky)
+    const rawActivityValue = document.getElementById('activityFilter').value.toLowerCase();
+    const activityValue = removeDiacritics(rawActivityValue);
 
     const list = document.getElementById('records-list');
     list.innerHTML = '';
 
-    // Zřetězené filtrování
+    // 3. Zřetězené filtrování
     let filtered = allRecords.filter(record => {
-        const safeDesc = record.description ? record.description.toLowerCase() : '';
-        const safeAct = record.activity ? record.activity.toLowerCase() : 'ostatní';
+        // Texty z databáze očešeme o háčky a čárky, abychom porovnávali jablka s jablky
+        const safeDesc = record.description ? removeDiacritics(record.description.toLowerCase()) : '';
+        const safeAct = record.activity ? removeDiacritics(record.activity.toLowerCase()) : 'ostatni'; // "ostatní" je teď taky bez háčku
 
         const matchesSearch = !searchValue || safeDesc.includes(searchValue) || safeAct.includes(searchValue);
         const matchesMonth = !monthValue || record.date.startsWith(monthValue);

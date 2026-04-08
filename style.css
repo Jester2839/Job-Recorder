@@ -417,6 +417,30 @@ input[type="number"]::-webkit-outer-spin-button {
     text-decoration: underline;
 }
 
+/* --- Očičko pro zobrazení hesla --- */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-input {
+    padding-right: 45px; /* Udělá místo vpravo, aby text nepřejel pod očičko */
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 5px; /* Odskočení od pravého okraje */
+    z-index: 10;
+}
+/* Aby očičko při najetí nemělo tak velký šedý hover efekt jako normální tlačítka */
+.password-toggle-btn:hover {
+    background-color: transparent;
+    color: var(--accent-color);
+}
+
+
 /* Toolbar */
 .toolbar-header {
     display: flex;
@@ -572,16 +596,19 @@ input[type="number"]::-webkit-outer-spin-button {
 .toast-success {
     border-color: #28a745;
     color: #28a745;
+    background-color: #28a7460c;
 }
 
 .toast-error {
     border-color: var(--danger-color);
     color: var(--danger-color);
+    background-color: #dc35460c;
 }
 
 .toast-warning {
     border-color: #ffc107;
     color: #ffc107;
+    background-color: #ffc1070c;
 }
 
 .modal-overlay {
@@ -876,9 +903,24 @@ input[type="number"]::-webkit-outer-spin-button {
         text-align: center;
     }
 
-    /* Zúžení lupy, aby nerozbíjela šířku displeje */
+    /* Otevřená lupa na mobilu: pevná bezpečná šířka, která se vejde všude */
     .search-input {
-        width: 140px;
+        width: 150px; 
+    }
+
+    /* Zavřená lupa na mobilu: Třída má vyšší prioritu, takže to zabrání probliknutí! */
+    .search-input.hidden-search {
+        width: 0;
+    }
+
+    .toast {
+        white-space: nowrap;
+        padding: 10px 16px;
+        font-size: var(--fs-sm);
+        max-width: 92vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        bottom: 20px;
     }
 
 
@@ -891,16 +933,16 @@ input[type="number"]::-webkit-outer-spin-button {
         width: 100%;
     }
 
-    /* Zajištění, aby se filtry a hledání na úzkém displeji zalamovaly a neroztahovaly kartu */
+    /* Zajištění, aby filtry a hledání NIKDY nešly na další řádek */
     .toolbar-header {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
 
     /* 2. Kompaktnější výpis jednotlivých záznamů */
     .record-item {
         margin-left: 0;
         flex-direction: row; /* ZMĚNA: Vrátili jsme to do řádku! Tlačítka zůstanou vpravo. */
-        padding: 12px 14px; /* Zmenšené odsazení ze všech stran (původně 20px) */
+        padding: 8px 10px; /* Zmenšené odsazení ze všech stran (původně 20px) */
         gap: 10px; /* Menší mezera mezi textem a tlačítky */
     }
 
