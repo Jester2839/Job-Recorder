@@ -390,7 +390,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .auth-card {
     width: 100%;
-    max-width: 450px; /* Tady přesně držíme tvoje úzké menu! */
+    max-width: 450px;
+    padding: 40px 25px;
 }
 
 .auth-title {
@@ -406,8 +407,8 @@ input[type="number"]::-webkit-outer-spin-button {
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 24px;
+    margin-bottom: 5px;
 }
 
 .auth-link {
@@ -420,6 +421,16 @@ input[type="number"]::-webkit-outer-spin-button {
 .auth-link:hover {
     color: var(--accent-color);
     text-decoration: underline;
+}
+
+.auth-form input {
+    padding: 14px 18px; 
+}
+
+#login-btn {
+    margin-top: 10px;
+    padding: 15px;
+    font-size: var(--fs-lg);
 }
 
 /* --- Očičko pro zobrazení hesla --- */
