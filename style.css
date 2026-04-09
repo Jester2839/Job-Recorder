@@ -5,8 +5,12 @@
     color-scheme: light;
     --bg-main: #edeef4;
     --bg-surface: #fbfdfe;
-    --accent-color: #445da4;      /*modra*/
-    /*--accent-color: #c3581e;*/    /*oranzova*/
+    /*--accent-color: #445da4;      /*modra*/
+    /*--accent-color: #c3581e;    /*oranzova*/
+    /*--accent-color: #00c083;    /*zelena*/
+    /*--accent-color: #985caf;    /*fialova*/
+    /*--accent-color: #e05666;    /*cervena*/
+    /*--accent-color: #242423;    /*invertovana*/
     --text-primary: #15141A;
     --text-secondary: #6c757d;
     --border-color: #e0e0e0;
@@ -42,8 +46,12 @@
     color-scheme: dark;
     --bg-main: #15141A;
     --bg-surface: #1E1D24;
-    --accent-color: #76a1e6;      /*modra*/
+    /*--accent-color: #76a1e6;      /*modra*/
     /*--accent-color: #cd8551;*/    /*oranzova*/
+    /*--accent-color: #00D28E;    /*zelena*/
+    /*--accent-color: #9d70af;    /*fialova*/
+    /*--accent-color: #d34758;    /*cervena*/
+    /*--accent-color: #ffffff;    /*invertovana*/
     --text-primary: #e0e0e0;
     --text-secondary: #8a8a93;
     --border-color: rgba(255, 255, 255, 0.08);
@@ -391,7 +399,8 @@ input[type="number"]::-webkit-outer-spin-button {
 .auth-card {
     width: 100%;
     max-width: 450px;
-    padding: 40px 25px;
+    padding:40px 25px;
+    padding-top: 24px;
 }
 
 .auth-title {
@@ -408,6 +417,7 @@ input[type="number"]::-webkit-outer-spin-button {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    margin: 0 5px;
     margin-bottom: 5px;
 }
 
@@ -425,6 +435,11 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .auth-form input {
     padding: 14px 18px; 
+}
+.auth-form h2{
+    border-bottom: 1px solid var(--border-color);
+    margin: 0 -10px;
+    padding-bottom: 5px;
 }
 
 #login-btn {
@@ -633,7 +648,7 @@ input[type="number"]::-webkit-outer-spin-button {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);/* Tmavý podkres */
+    background-color: rgba(0, 0, 0, 0.6);/* Tmavý podkres */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -659,6 +674,33 @@ input[type="number"]::-webkit-outer-spin-button {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
+
+/* --- Color Picker v Profilu --- */
+.color-picker {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.color-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: transform var(--transition-speed), border-color var(--transition-speed);
+    box-shadow: var(--box-shadow);
+}
+
+.color-swatch:hover {
+    transform: scale(1.15);
+}
+
+.color-swatch.active {
+    border-color: var(--text-primary);
+    transform: scale(1.15);
+}
+
 
 /* Statistiky a dropdowny */
 .stat-row {
@@ -957,6 +999,28 @@ input[type="number"]::-webkit-outer-spin-button {
         overflow: hidden;
         text-overflow: ellipsis;
         bottom: 20px;
+    }
+
+
+    /* --- Vyladění modalů na mobilu --- */
+    .modal-content {
+        width: 95%;
+        padding: 20px 15px;
+        gap: 12px;
+    }
+
+    /* Zajištění, aby barevné tečky byly dostatečně velké a v případě potřeby se zalomily */
+    .color-picker {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .color-swatch {
+        width: 35px;
+        height: 35px;
+        width: 40px;
+        height: 40px;
     }
 
 

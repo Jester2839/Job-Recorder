@@ -20,21 +20,42 @@
 
     <div id="login-section" class="auth-wrapper">
         <h1 class="auth-title">Job Recorder</h1>
-        <div class="card auth-card">
+        
+        <div class="card auth-card" id="login-card">
             <div class="auth-form">
-                <input type="email" id="email" placeholder="Tvůj e-mail">
+                <h2>Sign In</h2>
+
+                <input type="email" id="login-email" placeholder="Tvůj e-mail">
                 
                 <div class="password-wrapper">
-                    <input type="password" id="password" class="password-input" placeholder="Heslo">
-                    <button id="toggle-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
-                        <i class="ph ph-eye" id="toggle-password-icon"></i>
+                    <input type="password" id="login-password" class="password-input" placeholder="Heslo">
+                    <button id="toggle-login-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
+                        <i class="ph ph-eye" id="toggle-login-password-icon"></i>
                     </button>
                 </div>
                 
                 <button id="login-btn" class="btn btn-ghost">Přihlásit se</button>
             </div>
-            <a href="#" class="auth-link" onclick="showToast('Registrace zatím není spuštěna.', 'warning')">Nemáš účet? Zaregistruj se</a>
-            <p id="login-error" class="hidden text-danger mt-15">Špatné jméno nebo heslo.</p>
+            <a href="#" id="show-register-link" class="auth-link">Nemáš účet? Zaregistruj se</a>
+        </div>
+
+        <div class="card auth-card hidden" id="register-card">
+            <div class="auth-form">
+                <h2 class="">Sign Up</h2>
+
+                <input type="text" id="reg-name" placeholder="Tvé jméno a příjmení">
+                <input type="email" id="reg-email" placeholder="Tvůj e-mail">
+                
+                <div class="password-wrapper">
+                    <input type="password" id="reg-password" class="password-input" placeholder="Heslo (min. 6 znaků)">
+                    <button id="toggle-reg-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
+                        <i class="ph ph-eye" id="toggle-reg-password-icon"></i>
+                    </button>
+                </div>
+                
+                <button id="register-btn" class="btn btn-accent">Zaregistrovat se</button>
+            </div>
+            <a href="#" id="show-login-link" class="auth-link">Už máš účet? Přihlas se</a>
         </div>
     </div>
 
@@ -50,7 +71,7 @@
                 <img src="source/apris logo.png" alt="" class="mobile-only logo-apris">
             </h1>
             
-            <h2 class="user-name text-truncate">Jméno Brigádníka</h2>
+            <h2 class="user-name text-truncate" id="desktop-user-name">Jméno Brigádníka</h2>
             
             <div class="header-actions desktop-only-flex">
                 <button id="theme-toggle" class="btn-icon" title="Změnit motiv"><i class="ph ph-moon" id="theme-icon"></i></button>
@@ -61,11 +82,11 @@
                         <div class="dropdown-header">
                             <div class="flex-center-gap">
                                 <i class="ph ph-user-circle icon-xl-accent"></i>
-                                <strong>Jméno brigádníka</strong>
+                                <strong id="dropdown-user-name">Jméno brigádníka</strong>
                             </div>
                             <button id="close-user-cross" class="btn-icon"><i class="ph ph-x"></i></button>
                         </div>
-                        <button class="btn btn-ghost"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
+                        <button id="open-profile-desktop-btn" class="btn btn-ghost"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
                         <button id="logout-btn" class="btn btn-danger"><i class="ph ph-sign-out"></i> Odhlásit se</button>
                     </div>
                 </div>
@@ -82,7 +103,7 @@
                 </button>
                 <button id="export-btn" class="btn btn-ghost btn-lg">
                     <!-- <span class="export-text-mobile">Export </span> -->
-                    <i class="ph ph-file-xls"></i> 
+                    <i class="ph ph-file-xls"></i>
                     <span class="export-text-desktop">Exportovat do .xlsx</span>
                 </button>
             </div>
@@ -224,13 +245,59 @@
         </div>
     </div>
 
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-user-circle"></i> Úprava profilu</h3>
+                <button id="close-profile-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+
+            <div class="form-group">
+                <label>Jméno</label>
+                <input type="text" id="profile-name" placeholder="Tvé jméno">
+            </div>
+
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="profile-email" placeholder="Tvůj e-mail">
+            </div>
+
+            <div class="form-group">
+                <label>Nové heslo</label>
+                <div class="password-wrapper">
+                    <input type="password" id="profile-password" class="password-input" placeholder="Nevyplňuj, pokud nechceš měnit">
+                    <button id="toggle-profile-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
+                        <i class="ph ph-eye" id="toggle-profile-password-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group mt-15">
+                <label>Barva aplikace</label>
+                <div class="color-picker" id="color-picker">
+                    <div class="color-swatch active" data-theme-name="modra" style="background-color: #445da4;"></div>
+                    <div class="color-swatch" data-theme-name="oranzova" style="background-color: #c3581e;"></div>
+                    <div class="color-swatch" data-theme-name="zelena" style="background-color: #00c083;"></div>
+                    <div class="color-swatch" data-theme-name="fialova" style="background-color: #985caf;"></div>
+                    <div class="color-swatch" data-theme-name="cervena" style="background-color: #e05666;"></div>
+                    <div class="color-swatch" data-theme-name="invertovana" style="background-color: #242423;"></div>
+                </div>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-profile-btn" class="btn">Zrušit</button>
+                <button id="save-profile-btn" class="btn btn-accent">Uložit změny</button>
+            </div>
+        </div>
+    </div>
+
     <nav id="mobile-fullscreen-menu" class="mobile-menu-fullscreen mobile-only">
         <div class="mobile-menu-top">
             <div class="flex-center-gap">
                 <i class="ph ph-user-circle icon-xl-secondary"></i>
                 <div style="display: flex; flex-direction: column; align-items: flex-start; overflow: hidden;">
-                    <h2 class="mobile-user-name text-truncate" style="max-width: 200px;">Jméno Brigádníka</h2>
-                    <button class="btn-text-small mt-15" style="margin-top: 2px;"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
+                    <h2 class="mobile-user-name text-truncate" style="max-width: 200px;" id="mobile-user-name">Jméno Brigádníka</h2>
+                    <button id="open-profile-mobile-btn" class="btn-text-small mt-15" style="margin-top: 2px;"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
                 </div>
             </div>
             <button id="close-mobile-menu-btn" class="btn-icon"><i class="ph ph-x icon-burger-size"></i></button>

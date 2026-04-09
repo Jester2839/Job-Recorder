@@ -1,6 +1,6 @@
 // Importy Firebase funkcí z CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile, updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // SEM VLOŽ SVŮJ CONFIG Z FIREBASE
@@ -30,58 +30,123 @@ const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const addRecordBtn = document.getElementById('add-record-btn');
 
-// --- ZOBRAZENÍ HESLA (Očičko) ---
-const togglePasswordBtn = document.getElementById('toggle-password-btn');
-const passwordInput = document.getElementById('password');
-const togglePasswordIcon = document.getElementById('toggle-password-icon');
+// --- ZOBRAZENÍ HESLA (Očička pro oba formuláře) ---
+function setupPasswordToggle(btnId, inputId, iconId) {
+    const btn = document.getElementById(btnId);
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
 
-togglePasswordBtn.addEventListener('click', () => {
-    // Zjistíme aktuální typ (jestli je to teď heslo nebo text)
-    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-    
-    // Změníme typ inputu
-    passwordInput.setAttribute('type', type);
-    
-    // Prohodíme ikonky podle stavu (Phosphor icons: ph-eye vs ph-eye-slash)
-    if (type === 'text') {
-        togglePasswordIcon.classList.replace('ph-eye', 'ph-eye-slash');
-        togglePasswordBtn.setAttribute('title', 'Skrýt heslo');
-    } else {
-        togglePasswordIcon.classList.replace('ph-eye-slash', 'ph-eye');
-        togglePasswordBtn.setAttribute('title', 'Zobrazit heslo');
-    }
+    btn.addEventListener('click', () => {
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        
+        if (type === 'text') {
+            icon.classList.replace('ph-eye', 'ph-eye-slash');
+            btn.setAttribute('title', 'Skrýt heslo');
+        } else {
+            icon.classList.replace('ph-eye-slash', 'ph-eye');
+            btn.setAttribute('title', 'Zobrazit heslo');
+        }
+    });
+}
+setupPasswordToggle('toggle-login-password-btn', 'login-password', 'toggle-login-password-icon');
+setupPasswordToggle('toggle-reg-password-btn', 'reg-password', 'toggle-reg-password-icon');
+
+// --- PŘEPÍNÁNÍ PŘIHLÁŠENÍ / REGISTRACE ---
+const loginCard = document.getElementById('login-card');
+const registerCard = document.getElementById('register-card');
+
+document.getElementById('show-register-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    loginCard.classList.add('hidden');
+    registerCard.classList.remove('hidden');
+});
+
+document.getElementById('show-login-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    registerCard.classList.add('hidden');
+    loginCard.classList.remove('hidden');
 });
 
 // --- AUTHENTIKACE ---
 // Sledování stavu uživatele (přihlášen/odhlášen)
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Uživatel je přihlášen - SCHOVÁME login, UKÁŽEME aplikaci
         loginSection.classList.add('hidden');
         appSection.classList.remove('hidden');
-        console.log("Přihlášen jako:", user.email);
         
-        // ZAVOLÁME NAČTENÍ DAT
+        // ZÍSKÁNÍ A VYKRESLENÍ JMÉNA UŽIVATELE
+        // (Pokud by starý účet jméno neměl, vezme se část e-mailu před zavináčem jako záchrana)
+        const displayName = user.displayName || user.email.split('@')[0];
+        document.getElementById('desktop-user-name').innerText = displayName;
+        document.getElementById('dropdown-user-name').innerText = displayName;
+        document.getElementById('mobile-user-name').innerText = displayName;
+        
         loadRecords();
     } else {
-        // Uživatel není přihlášen - UKÁŽEME login, SCHOVÁME aplikaci
         loginSection.classList.remove('hidden');
         appSection.classList.add('hidden');
     }
 });
+
 // Přihlášení
 loginBtn.addEventListener('click', () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorMsg = document.getElementById('login-error');
+    // Upravená IDčka na nová
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
 
     signInWithEmailAndPassword(auth, email, password)
-        .then(() => { errorMsg.classList.add('hidden'); }) // Schování chyby
-        .catch((error) => { errorMsg.classList.remove('hidden'); console.error(error); }); // Ukázání chyby
+        .then(() => { 
+        }) 
+        .catch((error) => { 
+            console.error(error); 
+            showToast("Špatné jméno nebo heslo.", "error"); 
+        });
 });
+
 // Odhlášení
 logoutBtn.addEventListener('click', () => {
+    if (unsubscribeSnapshot) unsubscribeSnapshot(); // Zastaví stahování dat
     signOut(auth);
+});
+
+// Registrace Nového Uživatele
+document.getElementById('register-btn').addEventListener('click', async () => {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+
+    // Kontrola, zda je vše vyplněné
+    if (!name || !email || !password) {
+        showToast("Vyplň všechna pole!", "warning");
+        return;
+    }
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, {
+            displayName: name
+        });
+
+        showToast("Úspěšně zaregistrováno! Vítej.", "success");
+        
+        // Vyčištění formuláře pro příště
+        document.getElementById('reg-name').value = '';
+        document.getElementById('reg-email').value = '';
+        document.getElementById('reg-password').value = '';
+
+    } catch (error) {
+        // Překlad nejčastějších Firebase chyb a volání Toastu
+        if (error.code === 'auth/email-already-in-use') {
+            showToast("Tento e-mail už má vytvořený účet.", "error");
+        } else if (error.code === 'auth/weak-password') {
+            showToast("Heslo musí mít alespoň 6 znaků.", "warning");
+        } else if (error.code === 'auth/invalid-email') {
+            showToast("Zadej platný e-mailový formát.", "error");
+        } else {
+            showToast("Chyba při registraci: " + error.message, "error");
+        }
+    }
 });
 
 
@@ -124,22 +189,31 @@ addRecordBtn.addEventListener('click', async () => {
 });
 // --- NAČÍTÁNÍ A ZOBRAZENÍ DAT ---
 let allRecords = []; // Tady budeme držet aktuální data z DB
+let unsubscribeSnapshot = null; // Pojistka pro odpojení databáze při odhlášení
+
 function loadRecords() {
-    // Vytvoříme dotaz na databázi (chceme jen tvoje data, seřazená podle data)
+    // Pokud už posloucháme nějaká data, nejprve to zrušíme
+    if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+    }
+
+    // Vytvoříme dotaz na databázi (pouze WHERE, abychom se vyhnuli chybě s indexem)
     const q = query(
         collection(db, "work_records"),
-        where("userId", "==", auth.currentUser.uid),
-        orderBy("date", "desc")
+        where("userId", "==", auth.currentUser.uid)
     );
 
     // onSnapshot je kouzlo - poslouchá změny v reálném čase
-    onSnapshot(q, (snapshot) => {
-    allRecords = snapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data()
-    }));
+    unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+        allRecords = snapshot.docs.map(docSnap => ({
+            id: docSnap.id,
+            ...docSnap.data()
+        }));
 
-    renderRecords();
+        // Seřadíme data podle data (od nejnovějšího po nejstarší) bezpečně v JavaScriptu
+        allRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        renderRecords();
     }, (error) => {
         console.error("Chyba při načítání: ", error);
     });
@@ -520,15 +594,55 @@ document.getElementById('records-list').addEventListener('click', (event) => {
 });
 
 
-// --- PŘEPÍNÁNÍ DARK/LIGHT REŽIMU ---
-const themeToggleBtn = document.getElementById('theme-toggle');
-const currentTheme = localStorage.getItem('theme') || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+// ==========================================
+// --- BAREVNÁ SCHÉMATA A DARK/LIGHT REŽIM ---
+// ==========================================
 
-function applyTheme(theme) {
+// 1. Slovník našich barev (verze pro světlý a tmavý režim)
+const colorPalettes = {
+    'modra': { light: '#445da4', dark: '#76a1e6' },
+    'oranzova': { light: '#c3581e', dark: '#cd8551' },
+    'zelena': { light: '#00c083', dark: '#00D28E' },
+    'fialova': { light: '#985caf', dark: '#9d70af' },
+    'cervena': { light: '#e05666', dark: '#d34758' },
+    'invertovana': { light: '#242423', dark: '#ffffff' }
+};
+
+let currentAccentTheme = localStorage.getItem('app-accent-theme') || 'modra';
+const colorSwatches = document.querySelectorAll('.color-swatch');
+
+// 2. Funkce pro aplikování správné barvy
+function applyAccentTheme(themeName) {
+    currentAccentTheme = themeName;
+    
+    // Zjistíme, jestli je zrovna aktivní dark mode
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    
+    // Vybereme správný HEX kód ze slovníku
+    const hexColor = colorPalettes[themeName][isDark ? 'dark' : 'light'];
+
+    // Nastavíme barvu aplikaci
+    document.body.style.setProperty('--accent-color', hexColor);
+    
+    // Zvýrazníme správnou tečku v profilu
+    colorSwatches.forEach(swatch => {
+        if(swatch.getAttribute('data-theme-name') === themeName) {
+            swatch.classList.add('active');
+        } else {
+            swatch.classList.remove('active');
+        }
+    });
+}
+
+// 3. Funkce pro PŘEPÍNÁNÍ DARK/LIGHT REŽIMU
+const themeToggleBtn = document.getElementById('theme-toggle');
+const currentThemeMode = localStorage.getItem('theme') || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+function applyTheme(mode) {
     const themeIcon = document.getElementById('theme-icon');
     const mobileThemeIcon = document.getElementById('mobile-theme-icon');
 
-    if (theme === 'dark') {
+    if (mode === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
         if (themeIcon) themeIcon.classList.replace('ph-moon', 'ph-sun');
         if (mobileThemeIcon) mobileThemeIcon.classList.replace('ph-moon', 'ph-sun');
@@ -537,18 +651,48 @@ function applyTheme(theme) {
         if (themeIcon) themeIcon.classList.replace('ph-sun', 'ph-moon');
         if (mobileThemeIcon) mobileThemeIcon.classList.replace('ph-sun', 'ph-moon');
     }
+    
+    // DŮLEŽITÉ: Po přepnutí režimu musíme znovu přepočítat naši vybranou barvu!
+    applyAccentTheme(currentAccentTheme);
 }
-applyTheme(currentTheme);
 
-// Nyní obě tlačítka (desktop i mobil) používají tuto jedinou logiku
+// Aplikujeme při startu aplikace
+applyTheme(currentThemeMode); 
+
+// Tlačítka pro přepnutí režimu (PC i Mobil)
 function toggleTheme() {
-    let newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
+    let newMode = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(newMode);
+    localStorage.setItem('theme', newMode);
 }
 
-themeToggleBtn.addEventListener('click', toggleTheme);
-document.getElementById('mobile-theme-toggle').addEventListener('click', toggleTheme);
+if(themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
+if(mobileThemeToggle) mobileThemeToggle.addEventListener('click', toggleTheme);
+
+// 4. Klikání na barevné tečky
+colorSwatches.forEach(swatch => {
+    const themeName = swatch.getAttribute('data-theme-name');
+
+    // KLIKNUTÍ: Nastaví barvu natrvalo
+    swatch.addEventListener('click', () => {
+        applyAccentTheme(themeName);
+        localStorage.setItem('app-accent-theme', themeName);
+        showToast("Barva aplikace změněna.", "success");
+    });
+
+    // NAJETÍ MYŠÍ (Preview): Změní barvu jen vizuálně
+    swatch.addEventListener('mouseenter', () => {
+        // Použijeme naši funkci, ale NEUKLÁDÁME do localStorage
+        applyAccentTheme(themeName);
+    });
+
+    // ODJETÍ MYŠÍ: Vrátí barvu na tu, která je uložená v paměti
+    swatch.addEventListener('mouseleave', () => {
+        const savedTheme = localStorage.getItem('app-accent-theme') || 'modra';
+        applyAccentTheme(savedTheme);
+    });
+});
 
 
 // --- ZAVÍRÁNÍ OKEN PŘI KLIKNUTÍ MIMO ---
@@ -613,6 +757,7 @@ closeMobileMenuBtn.addEventListener('click', () => {
 // Odhlášení z mobilního menu
 document.getElementById('mobile-logout-btn').addEventListener('click', () => {
     mobileFullscreenMenu.classList.remove('menu-open');
+    if (unsubscribeSnapshot) unsubscribeSnapshot(); // Zastaví stahování dat
     signOut(auth);
 });
 
@@ -659,6 +804,104 @@ sidebarStats.addEventListener('click', (event) => {
     if (event.target === sidebarStats) hideMobileStats();
 });
 
+
+// ==========================================
+// LOGIKA ÚPRAVY PROFILU
+// ==========================================
+const profileModal = document.getElementById('profile-modal');
+const openProfileDesktop = document.getElementById('open-profile-desktop-btn');
+const openProfileMobile = document.getElementById('open-profile-mobile-btn');
+
+// Zaktivujeme "Očičko" i pro profilové heslo
+setupPasswordToggle('toggle-profile-password-btn', 'profile-password', 'toggle-profile-password-icon');
+
+function openProfileModal() {
+    // Zavře menu, pokud jsme na mobilu nebo u PC
+    document.getElementById('user-dropdown').classList.add('hidden');
+    document.getElementById('mobile-fullscreen-menu').classList.remove('menu-open');
+
+    // Vyplníme kolonky aktuálními daty
+    const user = auth.currentUser;
+    if (user) {
+        document.getElementById('profile-name').value = user.displayName || '';
+        document.getElementById('profile-email').value = user.email || '';
+        document.getElementById('profile-password').value = ''; // Heslo se předvyplnit nedá
+    }
+    profileModal.classList.remove('hidden');
+}
+
+if(openProfileDesktop) openProfileDesktop.addEventListener('click', openProfileModal);
+if(openProfileMobile) openProfileMobile.addEventListener('click', openProfileModal);
+
+// Zavírání profilu
+document.getElementById('close-profile-btn').addEventListener('click', () => profileModal.classList.add('hidden'));
+document.getElementById('close-profile-cross').addEventListener('click', () => profileModal.classList.add('hidden'));
+
+// Ukládání profilu
+document.getElementById('save-profile-btn').addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const newName = document.getElementById('profile-name').value.trim();
+    const newEmail = document.getElementById('profile-email').value.trim();
+    const newPassword = document.getElementById('profile-password').value;
+
+    if (!newName || !newEmail) {
+        showToast("Jméno a e-mail musí být vyplněny!", "warning");
+        return;
+    }
+
+    try {
+        let profileUpdated = false;
+
+        // 1. Aktualizace jména
+        if (newName !== user.displayName) {
+            await updateProfile(user, { displayName: newName });
+            // Přepíšeme jméno všude na obrazovce
+            document.getElementById('desktop-user-name').innerText = newName;
+            document.getElementById('dropdown-user-name').innerText = newName;
+            document.getElementById('mobile-user-name').innerText = newName;
+            profileUpdated = true;
+        }
+
+        // 2. Aktualizace emailu
+        if (newEmail !== user.email) {
+            await updateEmail(user, newEmail);
+            profileUpdated = true;
+        }
+
+        // 3. Aktualizace hesla
+        if (newPassword) {
+            if (newPassword.length < 6) {
+                showToast("Heslo musí mít alespoň 6 znaků.", "warning");
+                return;
+            }
+            await updatePassword(user, newPassword);
+            profileUpdated = true;
+        }
+
+        if (profileUpdated) {
+            showToast("Profil byl úspěšně upraven.", "success");
+        } else {
+            showToast("Žádné údaje se nezměnily (barva uložena).", "success");
+        }
+        
+        profileModal.classList.add('hidden');
+
+    } catch (error) {
+        console.error("Chyba profilu:", error);
+        
+        // BEZPEČNOSTNÍ POJISTKA FIREBASE
+        // Změna hesla/emailu je citlivá. Pokud je uživatel přihlášený už dlouho, Firebase to zablokuje.
+        if (error.code === 'auth/requires-recent-login') {
+            showToast("Pro změnu hesla nebo e-mailu je nutné se z bezpečnostních důvodů odhlásit a znovu přihlásit.", "error");
+        } else if (error.code === 'auth/email-already-in-use') {
+            showToast("Tento e-mail je již obsazený.", "error");
+        } else {
+            showToast("Chyba: " + error.message, "error");
+        }
+    }
+});
 
 
 
@@ -722,4 +965,3 @@ document.getElementById('export-btn').addEventListener('click', async () => {
         showToast("Nepodařilo se načíst šablonu. Ujisti se, že máš soubor 'sablona.xlsx' ve složce s projektem.", "error");
     }
 });
-
