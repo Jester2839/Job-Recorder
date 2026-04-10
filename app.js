@@ -127,13 +127,17 @@ document.getElementById('register-btn').addEventListener('click', async () => {
         await updateProfile(userCredential.user, {
             displayName: name
         });
-
-        showToast("Úspěšně zaregistrováno! Vítej.", "success");
         
         // Vyčištění formuláře pro příště
         document.getElementById('reg-name').value = '';
         document.getElementById('reg-email').value = '';
         document.getElementById('reg-password').value = '';
+        //Ruční přepsání jména v UI hned po registraci
+        document.getElementById('desktop-user-name').innerText = name;
+        document.getElementById('dropdown-user-name').innerText = name;
+        document.getElementById('mobile-user-name').innerText = name;
+
+        showToast("Úspěšně zaregistrováno! Vítej.", "success");
 
     } catch (error) {
         // Překlad nejčastějších Firebase chyb a volání Toastu

@@ -1,0 +1,22 @@
+# 1. Oprava pro stahování HTML (Vynucení, aby to byl web)
+AddType text/html .html .htm
+RemoveHandler .html .htm
+
+RewriteEngine On
+
+# 2. OPRAVENÉ skrytí index.html (Teď tě udrží ve tvé složce)
+RewriteCond %{THE_REQUEST} /index\.html [NC]
+RewriteRule ^(.*)index\.html$ /JobRecorder/$1 [R=301,L]
+
+# 3. Zastavení dědových pravidel z hlavní složky
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 4. Vynucení HTTPS a WWW (Pro profi URL)
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} !^www\. [NC]
+RewriteRule ^(.*)$ https://www.cettus.cz/JobRecorder/$1 [L,R=301]
+
+# 5. Výchozí soubor, když se zadá jen název složky
+DirectoryIndex index.html
