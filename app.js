@@ -51,6 +51,9 @@ function setupPasswordToggle(btnId, inputId, iconId) {
 }
 setupPasswordToggle('toggle-login-password-btn', 'login-password', 'toggle-login-password-icon');
 setupPasswordToggle('toggle-reg-password-btn', 'reg-password', 'toggle-reg-password-icon');
+setupPasswordToggle('toggle-reg-password-confirm-btn', 'reg-password-confirm', 'toggle-reg-password-confirm-icon');
+setupPasswordToggle('toggle-edit-password-btn', 'edit-val-password', 'toggle-edit-password-icon');
+setupPasswordToggle('toggle-edit-password-confirm-btn', 'edit-val-password-confirm', 'toggle-edit-password-confirm-icon');
 
 // --- PŘEPÍNÁNÍ PŘIHLÁŠENÍ / REGISTRACE ---
 const loginCard = document.getElementById('login-card');
@@ -115,10 +118,16 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     const name = document.getElementById('reg-name').value.trim();
     const email = document.getElementById('reg-email').value.trim();
     const password = document.getElementById('reg-password').value;
+    const confirmPassword = document.getElementById('reg-password-confirm').value;
 
     // Kontrola, zda je vše vyplněné
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !confirmPassword) {
         showToast("Vyplň všechna pole!", "warning");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showToast("Hesla se neshodují!", "warning");
         return;
     }
 
@@ -810,100 +819,104 @@ sidebarStats.addEventListener('click', (event) => {
 
 
 // ==========================================
-// LOGIKA ÚPRAVY PROFILU
+// BAREVNÁ SCHÉMATA A ÚPRAVA PROFILU
 // ==========================================
+
 const profileModal = document.getElementById('profile-modal');
-const openProfileDesktop = document.getElementById('open-profile-desktop-btn');
-const openProfileMobile = document.getElementById('open-profile-mobile-btn');
 
-// Zaktivujeme "Očičko" i pro profilové heslo
-setupPasswordToggle('toggle-profile-password-btn', 'profile-password', 'toggle-profile-password-icon');
-
+// Otevření hlavního profilu
 function openProfileModal() {
-    // Zavře menu, pokud jsme na mobilu nebo u PC
     document.getElementById('user-dropdown').classList.add('hidden');
     document.getElementById('mobile-fullscreen-menu').classList.remove('menu-open');
 
-    // Vyplníme kolonky aktuálními daty
     const user = auth.currentUser;
     if (user) {
-        document.getElementById('profile-name').value = user.displayName || '';
-        document.getElementById('profile-email').value = user.email || '';
-        document.getElementById('profile-password').value = ''; // Heslo se předvyplnit nedá
+        document.getElementById('profile-display-name').innerText = user.displayName || 'Uživatel';
+        document.getElementById('profile-val-name').innerText = user.displayName || 'Nenastaveno';
+        document.getElementById('profile-val-email').innerText = user.email || '';
     }
     profileModal.classList.remove('hidden');
 }
 
-if(openProfileDesktop) openProfileDesktop.addEventListener('click', openProfileModal);
-if(openProfileMobile) openProfileMobile.addEventListener('click', openProfileModal);
-
-// Zavírání profilu
-document.getElementById('close-profile-btn').addEventListener('click', () => profileModal.classList.add('hidden'));
+document.getElementById('open-profile-desktop-btn')?.addEventListener('click', openProfileModal);
+document.getElementById('open-profile-mobile-btn')?.addEventListener('click', openProfileModal);
 document.getElementById('close-profile-cross').addEventListener('click', () => profileModal.classList.add('hidden'));
 
-// Ukládání profilu
-document.getElementById('save-profile-btn').addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) return;
+// --- LOGIKA SUB-MODALŮ (Jméno, Email, Heslo) ---
+function setupSubmodal(triggerId, modalId, closeIds, saveId, saveAction) {
+    const modal = document.getElementById(modalId);
+    
+    // Otevření
+    document.getElementById(triggerId).addEventListener('click', () => {
+        // Předvyplnění hodnot
+        const user = auth.currentUser;
+        if (triggerId === 'edit-name-trigger') document.getElementById('edit-val-name').value = user.displayName || '';
+        if (triggerId === 'edit-email-trigger') document.getElementById('edit-val-email').value = user.email || '';
+        if (triggerId === 'edit-password-trigger') {
+            document.getElementById('edit-val-password').value = '';
+            document.getElementById('edit-val-password-confirm').value = '';
+        }
+        modal.classList.remove('hidden');
+    });
 
-    const newName = document.getElementById('profile-name').value.trim();
-    const newEmail = document.getElementById('profile-email').value.trim();
-    const newPassword = document.getElementById('profile-password').value;
+    // Zavření
+    closeIds.forEach(id => {
+        document.getElementById(id).addEventListener('click', () => modal.classList.add('hidden'));
+    });
 
-    if (!newName || !newEmail) {
-        showToast("Jméno a e-mail musí být vyplněny!", "warning");
-        return;
-    }
+    // Uložení
+    document.getElementById(saveId).addEventListener('click', () => saveAction(modal));
+}
+
+// 1. Změna Jména
+setupSubmodal('edit-name-trigger', 'submodal-name', ['close-submodal-name', 'cancel-submodal-name'], 'save-submodal-name', async (modal) => {
+    const newName = document.getElementById('edit-val-name').value.trim();
+    if (!newName) return showToast("Zadej jméno.", "warning");
+    
+    try {
+        await updateProfile(auth.currentUser, { displayName: newName });
+        document.getElementById('profile-display-name').innerText = newName;
+        document.getElementById('profile-val-name').innerText = newName;
+        document.getElementById('desktop-user-name').innerText = newName;
+        document.getElementById('dropdown-user-name').innerText = newName;
+        document.getElementById('mobile-user-name').innerText = newName;
+        modal.classList.add('hidden');
+        showToast("Jméno upraveno.", "success");
+    } catch (e) { showToast("Chyba: " + e.message, "error"); }
+});
+
+// 2. Změna E-mailu
+setupSubmodal('edit-email-trigger', 'submodal-email', ['close-submodal-email', 'cancel-submodal-email'], 'save-submodal-email', async (modal) => {
+    const newEmail = document.getElementById('edit-val-email').value.trim();
+    if (!newEmail) return showToast("Zadej e-mail.", "warning");
 
     try {
-        let profileUpdated = false;
+        await updateEmail(auth.currentUser, newEmail);
+        document.getElementById('profile-val-email').innerText = newEmail;
+        modal.classList.add('hidden');
+        showToast("E-mail upraven.", "success");
+    } catch (e) { 
+        if (e.code === 'auth/requires-recent-login') showToast("Pro změnu e-mailu se odhlas a znovu přihlas.", "error");
+        else showToast("Chyba: " + e.message, "error"); 
+    }
+});
 
-        // 1. Aktualizace jména
-        if (newName !== user.displayName) {
-            await updateProfile(user, { displayName: newName });
-            // Přepíšeme jméno všude na obrazovce
-            document.getElementById('desktop-user-name').innerText = newName;
-            document.getElementById('dropdown-user-name').innerText = newName;
-            document.getElementById('mobile-user-name').innerText = newName;
-            profileUpdated = true;
-        }
+// 3. Změna Hesla
+setupSubmodal('open-password-modal-btn', 'submodal-password', ['close-submodal-password', 'cancel-submodal-password'], 'save-submodal-password', async (modal) => {
+    const pwd1 = document.getElementById('edit-val-password').value;
+    const pwd2 = document.getElementById('edit-val-password-confirm').value;
 
-        // 2. Aktualizace emailu
-        if (newEmail !== user.email) {
-            await updateEmail(user, newEmail);
-            profileUpdated = true;
-        }
+    if (!pwd1) return showToast("Zadej heslo.", "warning");
+    if (pwd1 !== pwd2) return showToast("Hesla se neshodují!", "warning");
+    if (pwd1.length < 6) return showToast("Heslo musí mít aspoň 6 znaků.", "warning");
 
-        // 3. Aktualizace hesla
-        if (newPassword) {
-            if (newPassword.length < 6) {
-                showToast("Heslo musí mít alespoň 6 znaků.", "warning");
-                return;
-            }
-            await updatePassword(user, newPassword);
-            profileUpdated = true;
-        }
-
-        if (profileUpdated) {
-            showToast("Profil byl úspěšně upraven.", "success");
-        } else {
-            showToast("Žádné údaje se nezměnily (barva uložena).", "success");
-        }
-        
-        profileModal.classList.add('hidden');
-
-    } catch (error) {
-        console.error("Chyba profilu:", error);
-        
-        // BEZPEČNOSTNÍ POJISTKA FIREBASE
-        // Změna hesla/emailu je citlivá. Pokud je uživatel přihlášený už dlouho, Firebase to zablokuje.
-        if (error.code === 'auth/requires-recent-login') {
-            showToast("Pro změnu hesla nebo e-mailu je nutné se z bezpečnostních důvodů odhlásit a znovu přihlásit.", "error");
-        } else if (error.code === 'auth/email-already-in-use') {
-            showToast("Tento e-mail je již obsazený.", "error");
-        } else {
-            showToast("Chyba: " + error.message, "error");
-        }
+    try {
+        await updatePassword(auth.currentUser, pwd1);
+        modal.classList.add('hidden');
+        showToast("Heslo úspěšně změněno.", "success");
+    } catch (e) {
+        if (e.code === 'auth/requires-recent-login') showToast("Pro změnu hesla se odhlas a znovu přihlas.", "error");
+        else showToast("Chyba: " + e.message, "error"); 
     }
 });
 

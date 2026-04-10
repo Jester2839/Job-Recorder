@@ -25,10 +25,14 @@
             <div class="auth-form">
                 <h2>Sign In</h2>
 
-                <input type="email" id="login-email" placeholder="Tvůj e-mail">
+                <div class="input-wrapper">
+                    <input type="email" id="login-email" placeholder="např. jan@novak.cz">
+                    <label class="floating-label">E-mail</label>
+                </div>
                 
-                <div class="password-wrapper">
-                    <input type="password" id="login-password" class="password-input" placeholder="Heslo">
+                <div class="password-wrapper input-wrapper">
+                    <input type="password" id="login-password" class="password-input" placeholder="••••••••">
+                    <label class="floating-label">Heslo</label>
                     <button id="toggle-login-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
                         <i class="ph ph-eye" id="toggle-login-password-icon"></i>
                     </button>
@@ -41,15 +45,31 @@
 
         <div class="card auth-card hidden" id="register-card">
             <div class="auth-form">
-                <h2 class="">Sign Up</h2>
+                <h2>Sign Up</h2>
 
-                <input type="text" id="reg-name" placeholder="Tvé jméno a příjmení">
-                <input type="email" id="reg-email" placeholder="Tvůj e-mail">
+                <div class="input-wrapper">
+                    <input type="text" id="reg-name" placeholder="např. Zuzana Nová">
+                    <label class="floating-label">Jméno a příjmení</label>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="email" id="reg-email" placeholder="např. zuzana@email.cz">
+                    <label class="floating-label">E-mail</label>
+                </div>
                 
-                <div class="password-wrapper">
-                    <input type="password" id="reg-password" class="password-input" placeholder="Heslo (min. 6 znaků)">
+                <div class="password-wrapper input-wrapper">
+                    <input type="password" id="reg-password" class="password-input" placeholder="Min. 6 znaků">
+                    <label class="floating-label">Nové heslo</label>
                     <button id="toggle-reg-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
                         <i class="ph ph-eye" id="toggle-reg-password-icon"></i>
+                    </button>
+                </div>
+
+                <div class="password-wrapper input-wrapper">
+                    <input type="password" id="reg-password-confirm" class="password-input" placeholder="Zadej heslo znovu">
+                    <label class="floating-label">Potvrdit heslo</label>
+                    <button id="toggle-reg-password-confirm-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
+                        <i class="ph ph-eye" id="toggle-reg-password-confirm-icon"></i>
                     </button>
                 </div>
                 
@@ -133,16 +153,19 @@
                                     <button id="close-filter-cross" class="btn-icon"><i class="ph ph-x"></i></button>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <input type="text" id="monthFilter" placeholder="Měsíc a rok..." onfocus="(this.type='month')" onblur="if(!this.value) this.type='text'">
+                                <div class="input-wrapper mt-15">
+                                    <input type="text" id="monthFilter" placeholder="Vybrat..." onfocus="(this.type='month')" onblur="if(!this.value) this.type='text'">
+                                    <label class="floating-label">Měsíc a rok</label>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <input type="text" id="exactDateFilter" placeholder="Konkrétní den..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                                <div class="input-wrapper">
+                                    <input type="text" id="exactDateFilter" placeholder="Vybrat..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                                    <label class="floating-label">Konkrétní den</label>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <input type="text" id="activityFilter" placeholder="Činnost (např. ostatní)">
+                                <div class="input-wrapper">
+                                    <input type="text" id="activityFilter" placeholder="např. ostatní">
+                                    <label class="floating-label">Činnost</label>
                                 </div>
                                 
                                 <button id="clear-filter-btn" class="btn btn-ghost"><i class="ph ph-x"></i> Zrušit filtry</button>
@@ -195,19 +218,32 @@
                 <button id="close-add-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
             
-            <input type="text" id="dateInput" placeholder="Vyber datum..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
-            <input type="number" id="hoursInput" placeholder="Počet hodin" step="0.5">
+            <div class="input-wrapper mt-15">
+                <input type="text" id="dateInput" placeholder="Vyber datum..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                <label class="floating-label">Datum</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="number" id="hoursInput" placeholder="např. 4.5" step="0.5">
+                <label class="floating-label">Počet hodin</label>
+            </div>
             
             <div class="form-group">
-                <input type="text" id="activityInput" placeholder="Činnost (např. ostatní)">
+                <div class="input-wrapper">
+                    <input type="text" id="activityInput" placeholder="např. úklid, sekání">
+                    <label class="floating-label">Činnost</label>
+                </div>
                 <div class="quick-tags-wrapper" id="quick-tags">
-                    <span class="badge" onclick="document.getElementById('activityInput').value='ostatní'">ostatní</span>
+                    <span class="badge" onclick="document.getElementById('activityInput').value='ostatní'; document.getElementById('activityInput').focus();">ostatní</span>
                 </div>
             </div>
             
-            <input type="text" id="descInput" placeholder="Co jsi dělal? (Poznámka)">
+            <div class="input-wrapper">
+                <input type="text" id="descInput" placeholder="Co jsi přesně dělal?">
+                <label class="floating-label">Poznámka</label>
+            </div>
             
-            <div class="header-actions modal-actions">
+            <div class="header-actions modal-actions mt-15">
                 <button id="close-add-btn" class="btn">Zrušit</button>
                 <button id="add-record-btn" class="btn btn-ghost">Uložit záznam</button>
             </div>
@@ -220,11 +256,28 @@
                 <h3><i class="ph ph-pencil-simple"></i> Upravit záznam</h3>
                 <button id="close-edit-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
-            <input type="date" id="editDateInput">
-            <input type="number" id="editHoursInput" placeholder="Počet hodin" step="0.5">
-            <input type="text" id="editActivityInput" placeholder="Činnost (např. ostatní, úklid)">
-            <input type="text" id="editDescInput" placeholder="Co jsi dělal?">
-            <div class="header-actions modal-actions">
+
+            <div class="input-wrapper mt-15">
+                <input type="text" id="editDateInput" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                <label class="floating-label">Datum</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="number" id="editHoursInput" placeholder="např. 4.5" step="0.5">
+                <label class="floating-label">Počet hodin</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="editActivityInput" placeholder="např. ostatní, úklid">
+                <label class="floating-label">Činnost</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="editDescInput" placeholder="Co jsi dělal?">
+                <label class="floating-label">Poznámka</label>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
                 <button id="close-edit-btn" class="btn">Zrušit</button>
                 <button id="save-edit-btn" class="btn btn-ghost">Uložit změny</button>
             </div>
@@ -245,35 +298,38 @@
         </div>
     </div>
 
+
     <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-content modal-solid">
+        <div class="modal-content modal-solid profile-modal-content">
+            
             <div class="dropdown-header">
-                <h3><i class="ph ph-user-circle"></i> Úprava profilu</h3>
+                <h3><i class="ph ph-user"></i> Úprava profilu</h3>
                 <button id="close-profile-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
 
-            <div class="form-group">
-                <label>Jméno</label>
-                <input type="text" id="profile-name" placeholder="Tvé jméno">
+            <div class="profile-header-info">
+                <i class="ph ph-user-circle profile-avatar"></i>
+                <h2 id="profile-display-name" class="profile-title">Name</h2>
             </div>
 
-            <div class="form-group">
-                <label>E-mail</label>
-                <input type="email" id="profile-email" placeholder="Tvůj e-mail">
-            </div>
+            <div class="profile-fields">
+                <div class="profile-field-wrapper" id="edit-name-trigger">
+                    <span class="floating-label">Jméno</span>
+                    <span id="profile-val-name" class="text-truncate field-value">Jméno jméno</span>
+                    <i class="ph ph-pencil-simple field-icon"></i>
+                </div>
 
-            <div class="form-group">
-                <label>Nové heslo</label>
-                <div class="password-wrapper">
-                    <input type="password" id="profile-password" class="password-input" placeholder="Nevyplňuj, pokud nechceš měnit">
-                    <button id="toggle-profile-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
-                        <i class="ph ph-eye" id="toggle-profile-password-icon"></i>
-                    </button>
+                <div class="profile-field-wrapper" id="edit-email-trigger">
+                    <span class="floating-label">E-mail</span>
+                    <span id="profile-val-email" class="text-truncate field-value">email@email.com</span>
+                    <i class="ph ph-pencil-simple field-icon"></i>
                 </div>
             </div>
 
+            <button id="open-password-modal-btn" class="btn btn-ghost mt-15"><i class="ph ph-lock-key"></i> Změnit heslo</button>
+
             <div class="form-group mt-15">
-                <label>Barva aplikace</label>
+                <label class="profile-label text-secondary" style="font-size: var(--fs-sm);">Barevné schéma</label>
                 <div class="color-picker" id="color-picker">
                     <div class="color-swatch active" data-theme-name="modra" style="background-color: #445da4;"></div>
                     <div class="color-swatch" data-theme-name="oranzova" style="background-color: #c3581e;"></div>
@@ -283,10 +339,62 @@
                     <div class="color-swatch" data-theme-name="invertovana" style="background-color: #242423;"></div>
                 </div>
             </div>
+        </div>
+    </div>
 
+    <div id="submodal-name" class="modal-overlay submodal-overlay hidden">
+        <div class="modal-content submodal-content modal-solid">
+            <div class="dropdown-header">
+                <h3>Změna jména</h3>
+                <button id="close-submodal-name" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="input-wrapper mt-15">
+                <input type="text" id="edit-val-name" placeholder="např. Jan Novák">
+                <label class="floating-label">Nové jméno</label>
+            </div>
             <div class="header-actions modal-actions mt-15">
-                <button id="close-profile-btn" class="btn">Zrušit</button>
-                <button id="save-profile-btn" class="btn btn-accent">Uložit změny</button>
+                <button id="cancel-submodal-name" class="btn">Zrušit</button>
+                <button id="save-submodal-name" class="btn btn-accent">Uložit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="submodal-email" class="modal-overlay submodal-overlay hidden">
+        <div class="modal-content submodal-content modal-solid">
+            <div class="dropdown-header">
+                <h3>Změna e-mailu</h3>
+                <button id="close-submodal-email" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="input-wrapper mt-15">
+                <input type="email" id="edit-val-email" placeholder="např. jan@novak.cz">
+                <label class="floating-label">Nový e-mail</label>
+            </div>
+            <div class="header-actions modal-actions mt-15">
+                <button id="cancel-submodal-email" class="btn">Zrušit</button>
+                <button id="save-submodal-email" class="btn btn-accent">Uložit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="submodal-password" class="modal-overlay submodal-overlay hidden">
+        <div class="modal-content submodal-content modal-solid">
+            <div class="dropdown-header">
+                <h3>Změna hesla</h3>
+                <button id="close-submodal-password" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="password-wrapper input-wrapper mt-15">
+                <input type="password" id="edit-val-password" class="password-input" placeholder="Minimálně 6 znaků">
+                <label class="floating-label">Nové heslo</label>
+                <button id="toggle-edit-password-btn" class="btn-icon password-toggle-btn" type="button"><i class="ph ph-eye" id="toggle-edit-password-icon"></i></button>
+            </div>
+            <div class="password-wrapper input-wrapper mt-15">
+                <input type="password" id="edit-val-password-confirm" class="password-input" placeholder="Zadej heslo znovu">
+                <label class="floating-label">Potvrdit heslo</label>
+                <button id="toggle-edit-password-confirm-btn" class="btn-icon password-toggle-btn" type="button"><i class="ph ph-eye" id="toggle-edit-password-confirm-icon"></i></button>
+            </div>
+            <div class="header-actions modal-actions mt-15">
+                <button id="cancel-submodal-password" class="btn">Zrušit</button>
+                <button id="save-submodal-password" class="btn btn-accent">Uložit</button>
             </div>
         </div>
     </div>
