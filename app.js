@@ -1290,6 +1290,13 @@ document.getElementById('export-btn').addEventListener('click', async () => {
         await workbook.xlsx.load(arrayBuffer);
         const worksheet = workbook.getWorksheet(1); // Vybereme první list
 
+        // Zjištění jména aktuálně přihlášeného uživatele
+        const user = auth.currentUser;
+        const userName = (user && user.displayName) ? user.displayName : "Brigádník";
+
+        // Přepsání buňky A1 v excelové šabloně
+        worksheet.getCell('A1').value = `Výkaz prací ${userName}`;
+
         // 3. Zapisujeme data (předpokládáme, že hlavička končí na řádku 3)
         // Takže začneme zapisovat od řádku 4. 
         // Pokud máš v šabloně pod tím hned součty, použijeme "insertRow", 
