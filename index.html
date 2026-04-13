@@ -202,11 +202,12 @@
             </div>
 
             <div id="admin-dashboard" class="hidden">
-                <div class="dropdown-header" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="dropdown-header admin-header-spacing">
                     <h2><i class="ph ph-briefcase"></i> Přehled zaměstnanců</h2>
-                    <button id="open-manage-workers-btn" class="btn btn-accent btn-lg"><i class="ph ph-users"></i> Správa zaměstnanců</button>
+                    <div id="admin-month-title" class="admin-month-title">Měsíc Rok</div>
+                    <button id="open-manage-workers-btn" class="btn btn-accent"><i class="ph ph-users"></i> Správa zaměstnanců</button>
                 </div>
-                
+
                 <div id="admin-workers-list">
                     <div class="empty-state">
                         <i class="ph ph-users"></i>
@@ -351,6 +352,7 @@
         </div>
     </div>
 
+
     <div id="manage-workers-modal" class="modal-overlay hidden">
         <div class="modal-content modal-solid">
             <div class="dropdown-header">
@@ -358,7 +360,7 @@
                 <button id="close-manage-workers-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
             
-            <p class="text-secondary mt-15" style="font-size: var(--fs-sm);">
+            <p class="text-secondary" style="font-size: var(--fs-xs);">
                 Zaškrtni brigádníky, jejichž výkazy chceš sledovat na své nástěnce.
             </p>
 

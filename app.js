@@ -474,94 +474,7 @@ function renderRecords() {
     
 }
 
-// --- ADMIN: VYKRESLOVÁNÍ NÁSTĚNKY ---
-const adminWorkersList = document.getElementById('admin-workers-list');
 
-async function renderAdminDashboard() {
-    if (!window.currentEmployerId) return;
-
-    adminWorkersList.innerHTML = `<div class="empty-state"><i class="ph ph-spinner-gap"></i><p>Načítám data...</p></div>`;
-
-    try {
-        // 1. Zjistíme, koho admin sleduje
-        const adminDoc = await getDoc(doc(db, "users", window.currentEmployerId));
-        const monitoredIds = adminDoc.data().monitoredWorkers || [];
-
-        if (monitoredIds.length === 0) {
-            adminWorkersList.innerHTML = `
-                <div class="empty-state">
-                    <i class="ph ph-users"></i>
-                    <p>Zatím nesleduješ žádné zaměstnance. Přidej si je přes Správu zaměstnanců nahoře.</p>
-                </div>
-            `;
-            return;
-        }
-
-        // Zjistíme aktuální rok a měsíc pro filtraci dat (např. "2026-04")
-        const now = new Date();
-        const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-        adminWorkersList.innerHTML = ''; // Vyčistíme plochu pro karty
-
-        // 2. Projdeme každé IDčko v seznamu sledovaných
-        for (const workerId of monitoredIds) {
-            
-            // a) Zjistíme jméno pracovníka z kolekce users
-            const workerDoc = await getDoc(doc(db, "users", workerId));
-            const workerName = workerDoc.exists() ? (workerDoc.data().name || 'Neznámé jméno') : 'Smazaný uživatel';
-
-            // b) Vytáhneme JEN jeho záznamy pro AKTUÁLNÍ MĚSÍC z work_records
-            // Využíváme to, že tvoje data ukládáš ve formátu RRRR-MM-DD
-            const recordsQuery = query(
-                collection(db, "work_records"),
-                where("userId", "==", workerId)
-            );
-            
-            // Protože Firestore neumí "startsWith" ve where dotazech jednoduše,
-            // stáhneme jeho data a odfiltrujeme aktuální měsíc v JS
-            const recordsSnapshot = await getDocs(recordsQuery);
-            let currentMonthRecords = 0;
-            let currentMonthHours = 0;
-
-            recordsSnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.date.startsWith(currentMonthPrefix)) {
-                    currentMonthRecords++;
-                    currentMonthHours += Number(data.hours);
-                }
-            });
-
-            // 3. Vytvoříme a vložíme HTML kartu
-            const card = document.createElement('div');
-            card.className = 'admin-worker-card';
-            card.setAttribute('data-worker-id', workerId);
-            
-            // Design podle tvého Obrázku 1
-            card.innerHTML = `
-                <div class="admin-worker-card-header">
-                    <div class="admin-worker-name">${workerName}</div>
-                    <div class="admin-worker-stats">
-                        <div class="admin-stat-block">
-                            <span class="admin-stat-label">Záznamů (tento měsíc):</span>
-                            <span class="admin-stat-value">${currentMonthRecords}</span>
-                        </div>
-                        <div class="admin-stat-block">
-                            <span class="admin-stat-label">Počet hodin:</span>
-                            <span class="admin-stat-value">${currentMonthHours}</span>
-                        </div>
-                    </div>
-                    <i class="ph ph-caret-down"></i>
-                </div>
-            `;
-            
-            adminWorkersList.appendChild(card);
-        }
-
-    } catch (error) {
-        console.error("Chyba při kreslení admin panelu:", error);
-        adminWorkersList.innerHTML = `<div class="empty-state"><p class="text-danger">Chyba při načítání dat.</p></div>`;
-    }
-}
 // --- LOGIKA TOOLBARU (Animace a tlačítka) ---
 // 1. Rozbalování Lupy
 const searchToggleBtn = document.getElementById('search-toggle-btn');
@@ -1171,93 +1084,183 @@ document.getElementById('save-manage-workers-btn').addEventListener('click', asy
         showToast("Něco se pokazilo.", "error");
     }
 });
-// --- ADMIN: ROZBALOVÁNÍ KARET (Lazy Loading) ---
-adminWorkersList.addEventListener('click', async (e) => {
-    // Klikli jsme na hlavičku karty?
-    const header = e.target.closest('.admin-worker-card-header');
-    if (!header) return; 
+// --- ADMIN: VYKRESLOVÁNÍ NÁSTĚNKY ---
+const adminWorkersList = document.getElementById('admin-workers-list');
 
-    const card = header.closest('.admin-worker-card');
-    const workerId = card.getAttribute('data-worker-id');
+async function renderAdminDashboard() {
+    if (!window.currentEmployerId) return;
+
+    adminWorkersList.innerHTML = `<div class="empty-state"><i class="ph ph-spinner-gap"></i><p>Načítám data...</p></div>`;
+
+    try {
+        const adminDoc = await getDoc(doc(db, "users", window.currentEmployerId));
+        const monitoredIds = adminDoc.data().monitoredWorkers || [];
+
+        if (monitoredIds.length === 0) {
+            adminWorkersList.innerHTML = `
+                <div class="empty-state">
+                    <i class="ph ph-users"></i>
+                    <p>Zatím nesleduješ žádné zaměstnance. Přidej si je přes Správu zaměstnanců nahoře.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Zjistíme a vypíšeme aktuální měsíc (Česky)
+        const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+        const now = new Date();
+        const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        
+        document.getElementById('admin-month-title').innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+        adminWorkersList.innerHTML = ''; 
+
+        for (const workerId of monitoredIds) {
+            const workerDoc = await getDoc(doc(db, "users", workerId));
+            const workerName = workerDoc.exists() ? (workerDoc.data().name || 'Neznámé jméno') : 'Smazaný uživatel';
+
+            const recordsQuery = query(collection(db, "work_records"), where("userId", "==", workerId));
+            const recordsSnapshot = await getDocs(recordsQuery);
+            
+            let currentMonthRecords = 0;
+            let currentMonthHours = 0;
+
+            recordsSnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.date.startsWith(currentMonthPrefix)) {
+                    currentMonthRecords++;
+                    currentMonthHours += Number(data.hours);
+                }
+            });
+
+            // Vytvoříme kartu, která má už v sobě připravené oba "stavy" (zavřený i otevřený)
+            const card = document.createElement('div');
+            card.className = 'admin-worker-card';
+            card.setAttribute('data-worker-id', workerId);
+            
+            card.innerHTML = `
+                <div class="admin-card-collapsed">
+                    <div class="admin-worker-name">${workerName}</div>
+                    <div class="admin-worker-stats">
+                        <div class="admin-stat-block">
+                            <span class="admin-stat-label">Záznamů:</span>
+                            <span class="admin-stat-value">${currentMonthRecords}</span>
+                        </div>
+                        <div class="vertical-divider"></div>
+                        <div class="admin-stat-block">
+                            <span class="admin-stat-label">Počet hodin:</span>
+                            <span class="admin-stat-value">${currentMonthHours}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-card-expanded">
+                    </div>
+            `;
+            adminWorkersList.appendChild(card);
+        }
+    } catch (error) {
+        console.error("Chyba při kreslení admin panelu:", error);
+        adminWorkersList.innerHTML = `<div class="empty-state"><p class="text-danger">Chyba při načítání dat.</p></div>`;
+    }
+}
+
+// --- ADMIN: ROZBALOVÁNÍ KARET (Lazy Loading + Grid Layout) ---
+adminWorkersList.addEventListener('click', async (e) => {
+    const card = e.target.closest('.admin-worker-card');
+    if (!card) return;
+
     const isExpanded = card.classList.contains('expanded');
 
-    // Zavřeme všechny ostatní otevřené karty (ať je v tom pořádek)
-    document.querySelectorAll('.admin-worker-card.expanded').forEach(c => {
-        if (c !== card) {
-            c.classList.remove('expanded');
-            const details = c.querySelector('.admin-worker-details');
-            if (details) details.classList.add('hidden');
-        }
-    });
-
-    // Přepneme kliknutou kartu
+    // Chytre zavírání: Pokud je karta otevřená, zavře se POUZE když klikneme na jméno/statistiky vlevo.
+    // Tím dovolíme adminovi normálně skrolovat v záznamech napravo, aniž by se mu to pod rukama zavíralo.
     if (isExpanded) {
-        card.classList.remove('expanded');
-        card.querySelector('.admin-worker-details').classList.add('hidden');
-    } else {
-        card.classList.add('expanded');
+        if (e.target.closest('.expanded-left')) {
+            card.classList.remove('expanded');
+        }
+        return; 
+    }
 
-        let detailsDiv = card.querySelector('.admin-worker-details');
-        
-        // Pokud detaily ještě neexistují, vytvoříme je a stáhneme data
-        if (!detailsDiv) {
-            detailsDiv = document.createElement('div');
-            detailsDiv.className = 'admin-worker-details';
-            detailsDiv.innerHTML = `<div class="empty-state"><i class="ph ph-spinner-gap"></i><p>Stahuji kompletní historii...</p></div>`;
-            card.appendChild(detailsDiv);
+    // --- LOGIKA PRO OTEVŘENÍ ---
+    // Zavřeme všechny ostatní karty
+    document.querySelectorAll('.admin-worker-card.expanded').forEach(c => c.classList.remove('expanded'));
+    card.classList.add('expanded');
 
-            try {
-                // Stáhneme úplně VŠECHNY záznamy tohoto brigádníka
-                const q = query(collection(db, "work_records"), where("userId", "==", workerId));
-                const snapshot = await getDocs(q);
-                
-                let records = [];
-                let totalHours = 0;
-                
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
+    const workerId = card.getAttribute('data-worker-id');
+    const workerName = card.querySelector('.admin-worker-name').innerText;
+    let expandedDiv = card.querySelector('.admin-card-expanded');
+    
+    // Pokud je otevřená poprvé, vygenerujeme obsah
+    if (expandedDiv.innerHTML.trim() === '') {
+        expandedDiv.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><i class="ph ph-spinner-gap"></i><p>Načítám výkazy...</p></div>`;
+
+        try {
+            const now = new Date();
+            const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+            const q = query(collection(db, "work_records"), where("userId", "==", workerId));
+            const snapshot = await getDocs(q);
+            
+            let records = [];
+            let totalHours = 0;
+            
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                // OPRAVA: Ukládáme DO ROZBALENÉ KARTY JEN ZÁZNAMY Z TOHOTO MĚSÍCE
+                if (data.date.startsWith(currentMonthPrefix)) {
                     records.push({ id: docSnap.id, ...data });
                     totalHours += Number(data.hours);
-                });
-
-                // Seřadíme data od nejnovějšího
-                records.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-                // Vykreslíme detaily
-                let detailsHTML = `
-                    <div class="admin-details-stats mb-15">
-                        <span class="text-secondary" style="font-size: var(--fs-sm);">GLOBÁLNÍ STATISTIKY ZAMĚSTNANCE</span><br>
-                        <strong>Celkem odpracováno:</strong> ${totalHours} hodin (${(totalHours * HOURLY_RATE).toLocaleString('cs-CZ')} Kč)
-                    </div>
-                `;
-
-                if (records.length === 0) {
-                    detailsHTML += `<p class="text-secondary">Žádné záznamy k zobrazení.</p>`;
-                } else {
-                    records.forEach(rec => {
-                        const [y, m, d] = rec.date.split('-');
-                        detailsHTML += `
-                            <div class="admin-mini-record">
-                                <div class="admin-mini-record-header">
-                                    <span class="record-date">${d}. ${m}. ${y}</span>
-                                    <span class="badge-display">${rec.activity || 'ostatní'}</span>
-                                    <span class="record-hours text-accent"><i class="ph ph-clock"></i> ${rec.hours} h</span>
-                                </div>
-                                ${rec.description ? `<p class="text-secondary mt-15" style="font-size: var(--fs-sm);">${rec.description}</p>` : ''}
-                            </div>
-                        `;
-                    });
                 }
-                
-                detailsDiv.innerHTML = detailsHTML;
+            });
 
-            } catch(err) {
-                console.error("Chyba detailů:", err);
-                detailsDiv.innerHTML = `<p class="text-danger">Chyba při stahování detailů.</p>`;
+            records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Vygenerování pravého sloupce (Seznam výkazů)
+            let recordsHTML = '';
+            if (records.length === 0) {
+                recordsHTML = `<p class="text-secondary text-center mt-40">Žádné záznamy v tomto měsíci.</p>`;
+            } else {
+                records.forEach(rec => {
+                    const [y, m, d] = rec.date.split('-');
+                    recordsHTML += `
+                        <div class="admin-mini-record">
+                            <div class="admin-mini-record-header">
+                                <span class="record-date">${d}. ${m}. ${y}</span>
+                                <span class="badge-display">${rec.activity || 'ostatní'}</span>
+                                <span class="record-hours text-accent"><i class="ph ph-clock"></i> ${rec.hours} h</span>
+                            </div>
+                            ${rec.description ? `<p class="text-secondary mt-10 text-sm">${rec.description}</p>` : ''}
+                        </div>
+                    `;
+                });
             }
-        } else {
-            // Pokud už byla data stažena dříve, jen okno ukážeme (šetříme data)
-            detailsDiv.classList.remove('hidden');
+
+            // Vygenerování levého sloupce a spojení (Přesně podle tvého nákresu)
+            expandedDiv.innerHTML = `
+                <div class="expanded-left" title="Kliknutím sem kartu opět zavřeš">
+                    <h2 class="expanded-name">${workerName}</h2>
+                    <div class="expanded-stats-box">
+                        <span class="dropdown-header text-sm" style="margin-bottom: 5px;">Měsíční statistiky</span>
+                        <div class="stat-row">
+                            <span class="text-secondary">Záznamů</span>
+                            <strong class="text-accent">${records.length}</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span class="text-secondary">Odpracováno</span>
+                            <strong class="text-accent">${totalHours} h</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span class="text-secondary">Výdělek</span>
+                            <strong class="text-accent">${(totalHours * HOURLY_RATE).toLocaleString('cs-CZ')} Kč</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="expanded-right">
+                    ${recordsHTML}
+                </div>
+            `;
+
+        } catch(err) {
+            console.error(err);
+            expandedDiv.innerHTML = `<p class="text-danger" style="grid-column: 1 / -1;">Chyba stahování dat.</p>`;
         }
     }
 });
