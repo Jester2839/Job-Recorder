@@ -1,7 +1,7 @@
 // Importy Firebase funkcí z CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile, updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // SEM VLOŽ SVŮJ CONFIG Z FIREBASE
 const firebaseConfig = {
@@ -73,22 +73,93 @@ document.getElementById('show-login-link').addEventListener('click', (e) => {
 
 // --- AUTHENTIKACE ---
 // Sledování stavu uživatele (přihlášen/odhlášen)
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         loginSection.classList.add('hidden');
         appSection.classList.remove('hidden');
         
-        // ZÍSKÁNÍ A VYKRESLENÍ JMÉNA UŽIVATELE
-        // (Pokud by starý účet jméno neměl, vezme se část e-mailu před zavináčem jako záchrana)
         const displayName = user.displayName || user.email.split('@')[0];
         document.getElementById('desktop-user-name').innerText = displayName;
         document.getElementById('dropdown-user-name').innerText = displayName;
         document.getElementById('mobile-user-name').innerText = displayName;
         
+        const workerDashboard = document.getElementById('worker-dashboard');
+        const adminDashboard = document.getElementById('admin-dashboard');
+
+        // POJISTKA 1: Než se zeptáme databáze, obě plochy schováme, ať nic neproblikne
+        if (workerDashboard) workerDashboard.classList.add('hidden');
+        if (adminDashboard) adminDashboard.classList.add('hidden');
+
+        // Zjištění role uživatele z databáze
+        try {
+            const userRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            let userData;
+
+            if (userDoc.exists()) {
+                // Účet už v databázi existuje, normálně načteme data
+                userData = userDoc.data();
+            } else {
+                // SAMOOPRAVA: Účet je starý a v databázi chybí! Rovnou ho vytvoříme.
+                console.log("Vytvářím chybějící profil pro starého uživatele...");
+                
+                userData = {
+                    name: user.displayName || user.email.split('@')[0],
+                    email: user.email,
+                    role: "worker",   // Starým účtům dáme automaticky roli brigádníka
+                    employerId: null,
+                    createdAt: serverTimestamp()
+                };
+                
+                // Uložíme nový profil do databáze
+                await setDoc(userRef, userData);
+                showToast("Tvůj profil byl automaticky zaktualizován.", "success");
+            }
+
+            // Teď už máme 100% jistotu, že userData existují (buď se stáhly, nebo vytvořily)
+            window.currentUserRole = userData.role; 
+            window.currentEmployerId = user.uid; 
+
+            // ADMIN POHLED
+            if (userData.role === "admin") {
+                document.getElementById('open-add-modal-btn')?.classList.add('hidden');
+                document.getElementById('filter-toggle-btn')?.classList.add('hidden');
+                document.getElementById('sort-toggle-btn')?.classList.add('hidden');
+                
+                if (adminDashboard) adminDashboard.classList.remove('hidden');
+
+                // ZAVOLÁME VYKRESLENÍ KARET:
+                renderAdminDashboard();
+            } 
+            // BRIGÁDNÍK POHLED
+            else {
+                document.getElementById('open-add-modal-btn')?.classList.remove('hidden');
+                document.getElementById('filter-toggle-btn')?.classList.remove('hidden');
+                document.getElementById('sort-toggle-btn')?.classList.remove('hidden');
+                
+                if (workerDashboard) workerDashboard.classList.remove('hidden');
+            }
+
+        } catch(e) {
+            console.error("Chyba při zjišťování/vytváření role:", e);
+            if (workerDashboard) workerDashboard.classList.remove('hidden'); // Fallback
+        }
+
         loadRecords();
     } else {
+        // POJISTKA 3: ÚKLID PO ODHLÁŠENÍ
         loginSection.classList.remove('hidden');
         appSection.classList.add('hidden');
+
+        // Promažeme stará data z RAM paměti
+        allRecords = [];
+        const recordsList = document.getElementById('records-list');
+        if (recordsList) recordsList.innerHTML = '';
+        
+        // Vyčistíme globální proměnné rolí
+        window.currentUserRole = null;
+        window.currentEmployerId = null;
     }
 });
 
@@ -137,11 +208,22 @@ document.getElementById('register-btn').addEventListener('click', async () => {
             displayName: name
         });
         
+        // NOVÉ: Uložení uživatele do databáze s výchozí rolí "worker"
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+            name: name,
+            email: email,
+            role: "worker",
+            employerId: null,
+            createdAt: serverTimestamp()
+        });
+
         // Vyčištění formuláře pro příště
         document.getElementById('reg-name').value = '';
         document.getElementById('reg-email').value = '';
         document.getElementById('reg-password').value = '';
-        //Ruční přepsání jména v UI hned po registraci
+        document.getElementById('reg-password-confirm').value = '';
+
+        // Ruční přepsání jména v UI hned po registraci
         document.getElementById('desktop-user-name').innerText = name;
         document.getElementById('dropdown-user-name').innerText = name;
         document.getElementById('mobile-user-name').innerText = name;
@@ -390,6 +472,95 @@ function renderRecords() {
         });
     }
     
+}
+
+// --- ADMIN: VYKRESLOVÁNÍ NÁSTĚNKY ---
+const adminWorkersList = document.getElementById('admin-workers-list');
+
+async function renderAdminDashboard() {
+    if (!window.currentEmployerId) return;
+
+    adminWorkersList.innerHTML = `<div class="empty-state"><i class="ph ph-spinner-gap"></i><p>Načítám data...</p></div>`;
+
+    try {
+        // 1. Zjistíme, koho admin sleduje
+        const adminDoc = await getDoc(doc(db, "users", window.currentEmployerId));
+        const monitoredIds = adminDoc.data().monitoredWorkers || [];
+
+        if (monitoredIds.length === 0) {
+            adminWorkersList.innerHTML = `
+                <div class="empty-state">
+                    <i class="ph ph-users"></i>
+                    <p>Zatím nesleduješ žádné zaměstnance. Přidej si je přes Správu zaměstnanců nahoře.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Zjistíme aktuální rok a měsíc pro filtraci dat (např. "2026-04")
+        const now = new Date();
+        const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        adminWorkersList.innerHTML = ''; // Vyčistíme plochu pro karty
+
+        // 2. Projdeme každé IDčko v seznamu sledovaných
+        for (const workerId of monitoredIds) {
+            
+            // a) Zjistíme jméno pracovníka z kolekce users
+            const workerDoc = await getDoc(doc(db, "users", workerId));
+            const workerName = workerDoc.exists() ? (workerDoc.data().name || 'Neznámé jméno') : 'Smazaný uživatel';
+
+            // b) Vytáhneme JEN jeho záznamy pro AKTUÁLNÍ MĚSÍC z work_records
+            // Využíváme to, že tvoje data ukládáš ve formátu RRRR-MM-DD
+            const recordsQuery = query(
+                collection(db, "work_records"),
+                where("userId", "==", workerId)
+            );
+            
+            // Protože Firestore neumí "startsWith" ve where dotazech jednoduše,
+            // stáhneme jeho data a odfiltrujeme aktuální měsíc v JS
+            const recordsSnapshot = await getDocs(recordsQuery);
+            let currentMonthRecords = 0;
+            let currentMonthHours = 0;
+
+            recordsSnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.date.startsWith(currentMonthPrefix)) {
+                    currentMonthRecords++;
+                    currentMonthHours += Number(data.hours);
+                }
+            });
+
+            // 3. Vytvoříme a vložíme HTML kartu
+            const card = document.createElement('div');
+            card.className = 'admin-worker-card';
+            card.setAttribute('data-worker-id', workerId);
+            
+            // Design podle tvého Obrázku 1
+            card.innerHTML = `
+                <div class="admin-worker-card-header">
+                    <div class="admin-worker-name">${workerName}</div>
+                    <div class="admin-worker-stats">
+                        <div class="admin-stat-block">
+                            <span class="admin-stat-label">Záznamů (tento měsíc):</span>
+                            <span class="admin-stat-value">${currentMonthRecords}</span>
+                        </div>
+                        <div class="admin-stat-block">
+                            <span class="admin-stat-label">Počet hodin:</span>
+                            <span class="admin-stat-value">${currentMonthHours}</span>
+                        </div>
+                    </div>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+            `;
+            
+            adminWorkersList.appendChild(card);
+        }
+
+    } catch (error) {
+        console.error("Chyba při kreslení admin panelu:", error);
+        adminWorkersList.innerHTML = `<div class="empty-state"><p class="text-danger">Chyba při načítání dat.</p></div>`;
+    }
 }
 // --- LOGIKA TOOLBARU (Animace a tlačítka) ---
 // 1. Rozbalování Lupy
@@ -921,7 +1092,175 @@ setupSubmodal('open-password-modal-btn', 'submodal-password', ['close-submodal-p
 });
 
 
+// --- ADMIN: SPRÁVA ZAMĚSTNANCŮ ---
+const manageWorkersModal = document.getElementById('manage-workers-modal');
+const workersCheckboxList = document.getElementById('workers-checkbox-list');
 
+// Funkce pro otevření okna a načtení dat
+document.getElementById('open-manage-workers-btn')?.addEventListener('click', async () => {
+    manageWorkersModal.classList.remove('hidden');
+    workersCheckboxList.innerHTML = `<div class="empty-state"><i class="ph ph-spinner-gap"></i><p>Načítám...</p></div>`;
+
+    try {
+        // 1. Zjistíme, koho už admin sleduje (jeho aktuální seznam)
+        const adminDoc = await getDoc(doc(db, "users", window.currentEmployerId));
+        const monitoredWorkers = adminDoc.data().monitoredWorkers || [];
+
+        // 2. Stáhneme VŠECHNY uživatele z databáze
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        
+        workersCheckboxList.innerHTML = ''; // Vyčistíme načítání
+        let workersFound = false;
+
+        usersSnapshot.forEach((userDoc) => {
+            const userData = userDoc.data();
+            const userId = userDoc.id;
+
+            // Vyfiltrujeme jen brigádníky (nechceme, aby si admin přidal sám sebe nebo jiného admina)
+            if (userData.role === 'worker') {
+                workersFound = true;
+                const isChecked = monitoredWorkers.includes(userId) ? 'checked' : '';
+
+                const label = document.createElement('label');
+                label.className = 'checkbox-item';
+                label.innerHTML = `
+                    <input type="checkbox" value="${userId}" ${isChecked}>
+                    <div class="worker-info">
+                        <span class="worker-name">${userData.name || 'Neznámé jméno'}</span>
+                        <span class="worker-email">${userData.email}</span>
+                    </div>
+                `;
+                workersCheckboxList.appendChild(label);
+            }
+        });
+
+        if (!workersFound) {
+            workersCheckboxList.innerHTML = `<div class="empty-state"><p>Zatím se neregistroval žádný brigádník.</p></div>`;
+        }
+
+    } catch (e) {
+        console.error("Chyba při načítání brigádníků:", e);
+        workersCheckboxList.innerHTML = `<div class="empty-state"><p class="text-danger">Chyba připojení.</p></div>`;
+    }
+});
+
+// Zavírání okna
+document.getElementById('close-manage-workers-btn').addEventListener('click', () => manageWorkersModal.classList.add('hidden'));
+document.getElementById('close-manage-workers-cross').addEventListener('click', () => manageWorkersModal.classList.add('hidden'));
+
+// Uložení výběru
+document.getElementById('save-manage-workers-btn').addEventListener('click', async () => {
+    // Najdeme všechny zaškrtnuté checkboxy a získáme jejich 'value' (což je UserID)
+    const checkboxes = workersCheckboxList.querySelectorAll('input[type="checkbox"]:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+    try {
+        // Uložíme pole IDček k profilu admina v databázi
+        await updateDoc(doc(db, "users", window.currentEmployerId), {
+            monitoredWorkers: selectedIds
+        });
+        
+        showToast("Výběr brigádníků byl uložen.", "success");
+        manageWorkersModal.classList.add('hidden');
+        
+        //zavoláme funkci pro překreslení admin karet!
+        renderAdminDashboard(); 
+        
+    } catch (e) {
+        console.error("Chyba při ukládání brigádníků:", e);
+        showToast("Něco se pokazilo.", "error");
+    }
+});
+// --- ADMIN: ROZBALOVÁNÍ KARET (Lazy Loading) ---
+adminWorkersList.addEventListener('click', async (e) => {
+    // Klikli jsme na hlavičku karty?
+    const header = e.target.closest('.admin-worker-card-header');
+    if (!header) return; 
+
+    const card = header.closest('.admin-worker-card');
+    const workerId = card.getAttribute('data-worker-id');
+    const isExpanded = card.classList.contains('expanded');
+
+    // Zavřeme všechny ostatní otevřené karty (ať je v tom pořádek)
+    document.querySelectorAll('.admin-worker-card.expanded').forEach(c => {
+        if (c !== card) {
+            c.classList.remove('expanded');
+            const details = c.querySelector('.admin-worker-details');
+            if (details) details.classList.add('hidden');
+        }
+    });
+
+    // Přepneme kliknutou kartu
+    if (isExpanded) {
+        card.classList.remove('expanded');
+        card.querySelector('.admin-worker-details').classList.add('hidden');
+    } else {
+        card.classList.add('expanded');
+
+        let detailsDiv = card.querySelector('.admin-worker-details');
+        
+        // Pokud detaily ještě neexistují, vytvoříme je a stáhneme data
+        if (!detailsDiv) {
+            detailsDiv = document.createElement('div');
+            detailsDiv.className = 'admin-worker-details';
+            detailsDiv.innerHTML = `<div class="empty-state"><i class="ph ph-spinner-gap"></i><p>Stahuji kompletní historii...</p></div>`;
+            card.appendChild(detailsDiv);
+
+            try {
+                // Stáhneme úplně VŠECHNY záznamy tohoto brigádníka
+                const q = query(collection(db, "work_records"), where("userId", "==", workerId));
+                const snapshot = await getDocs(q);
+                
+                let records = [];
+                let totalHours = 0;
+                
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    records.push({ id: docSnap.id, ...data });
+                    totalHours += Number(data.hours);
+                });
+
+                // Seřadíme data od nejnovějšího
+                records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                // Vykreslíme detaily
+                let detailsHTML = `
+                    <div class="admin-details-stats mb-15">
+                        <span class="text-secondary" style="font-size: var(--fs-sm);">GLOBÁLNÍ STATISTIKY ZAMĚSTNANCE</span><br>
+                        <strong>Celkem odpracováno:</strong> ${totalHours} hodin (${(totalHours * HOURLY_RATE).toLocaleString('cs-CZ')} Kč)
+                    </div>
+                `;
+
+                if (records.length === 0) {
+                    detailsHTML += `<p class="text-secondary">Žádné záznamy k zobrazení.</p>`;
+                } else {
+                    records.forEach(rec => {
+                        const [y, m, d] = rec.date.split('-');
+                        detailsHTML += `
+                            <div class="admin-mini-record">
+                                <div class="admin-mini-record-header">
+                                    <span class="record-date">${d}. ${m}. ${y}</span>
+                                    <span class="badge-display">${rec.activity || 'ostatní'}</span>
+                                    <span class="record-hours text-accent"><i class="ph ph-clock"></i> ${rec.hours} h</span>
+                                </div>
+                                ${rec.description ? `<p class="text-secondary mt-15" style="font-size: var(--fs-sm);">${rec.description}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+                
+                detailsDiv.innerHTML = detailsHTML;
+
+            } catch(err) {
+                console.error("Chyba detailů:", err);
+                detailsDiv.innerHTML = `<p class="text-danger">Chyba při stahování detailů.</p>`;
+            }
+        } else {
+            // Pokud už byla data stažena dříve, jen okno ukážeme (šetříme data)
+            detailsDiv.classList.remove('hidden');
+        }
+    }
+});
 
 
 

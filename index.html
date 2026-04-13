@@ -117,95 +117,104 @@
 
         <main class="main-container">
             
-            <div class="global-actions">
-                <button id="open-add-modal-btn" class="btn btn-accent btn-lg">
-                    <i class="ph ph-plus-circle"></i> <span class="btn-text ">Přidat záznam</span>
-                </button>
-                <button id="export-btn" class="btn btn-ghost btn-lg">
-                    <!-- <span class="export-text-mobile">Export </span> -->
-                    <i class="ph ph-file-xls"></i>
-                    <span class="export-text-desktop">Exportovat do .xlsx</span>
-                </button>
-            </div>
-
-            <div class="main-grid">
-                
-                <div class="records-section card">
-                    
-                    <div class="toolbar-header">
-                        <div class="search-wrapper">
-                            <input type="text" id="searchInput" class="search-input hidden-search" placeholder="Hledat...">
-                            <button id="search-toggle-btn" class="btn-icon" title="Hledat"><i class="ph ph-magnifying-glass"></i></button>
-                        </div>
-                        <button id="sort-toggle-btn" class="btn-icon" title="Seřadit" data-sort="desc">
-                            <i class="ph ph-sort-descending" id="sort-icon"></i>
-                        </button>
-                        
-                        <div class="relative-wrapper">
-                            <button id="filter-toggle-btn" class="btn-icon" title="Filtry">
-                                <i class="ph ph-funnel"></i>
-                                <span id="filter-indicator" class="hidden filter-indicator-dot"></span>
-                            </button>
-                            
-                            <div id="filter-dropdown" class="card-small filter-dropdown hidden">
-                                <div class="dropdown-header">
-                                    <h4>Nastavení filtrů</h4>
-                                    <button id="close-filter-cross" class="btn-icon"><i class="ph ph-x"></i></button>
-                                </div>
-                                
-                                <div class="input-wrapper mt-15">
-                                    <input type="text" id="monthFilter" placeholder="" onfocus="(this.type='month')" onblur="if(!this.value) this.type='text'">
-                                    <label class="floating-label">Měsíc a rok</label>
-                                </div>
-                                
-                                <div class="input-wrapper">
-                                    <input type="text" id="exactDateFilter" placeholder="" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
-                                    <label class="floating-label">Konkrétní den</label>
-                                </div>
-                                
-                                <div class="input-wrapper">
-                                    <input type="text" id="activityFilter" placeholder="např. ostatní">
-                                    <label class="floating-label">Činnost</label>
-                                </div>
-                                
-                                <button id="clear-filter-btn" class="btn btn-ghost"><i class="ph ph-x"></i> Zrušit filtry</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="records-list"></div>
+            <div id="worker-dashboard">
+                <div class="global-actions">
+                    <button id="open-add-modal-btn" class="btn btn-accent btn-lg">
+                        <i class="ph ph-plus-circle"></i> <span class="btn-text ">Přidat záznam</span>
+                    </button>
+                    <button id="export-btn" class="btn btn-ghost btn-lg">
+                        <i class="ph ph-file-xls"></i>
+                        <span class="export-text-desktop">Exportovat do .xlsx</span>
+                    </button>
                 </div>
 
-                <aside id="sidebar-stats" class="stats-sidebar">
-                    <div class="card" id="card-current-stats">
-                        <div class="dropdown-header">
-                            <h3><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
-                            <button class="btn-icon mobile-only close-stats-mobile-btn"><i class="ph ph-x"></i></button>
+                <div class="main-grid">
+                    <div class="records-section card">
+                        <div class="toolbar-header">
+                            <div class="search-wrapper">
+                                <input type="text" id="searchInput" class="search-input hidden-search" placeholder="Hledat...">
+                                <button id="search-toggle-btn" class="btn-icon" title="Hledat"><i class="ph ph-magnifying-glass"></i></button>
+                            </div>
+                            <button id="sort-toggle-btn" class="btn-icon" title="Seřadit" data-sort="desc">
+                                <i class="ph ph-sort-descending" id="sort-icon"></i>
+                            </button>
+                            
+                            <div class="relative-wrapper">
+                                <button id="filter-toggle-btn" class="btn-icon" title="Filtry">
+                                    <i class="ph ph-funnel"></i>
+                                    <span id="filter-indicator" class="hidden filter-indicator-dot"></span>
+                                </button>
+                                
+                                <div id="filter-dropdown" class="card-small filter-dropdown hidden">
+                                    <div class="dropdown-header">
+                                        <h4>Nastavení filtrů</h4>
+                                        <button id="close-filter-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+                                    </div>
+                                    <div class="input-wrapper mt-15">
+                                        <input type="text" id="monthFilter" placeholder="" onfocus="(this.type='month')" onblur="if(!this.value) this.type='text'">
+                                        <label class="floating-label">Měsíc a rok</label>
+                                    </div>
+                                    <div class="input-wrapper mt-15">
+                                        <input type="text" id="exactDateFilter" placeholder="" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                                        <label class="floating-label">Konkrétní den</label>
+                                    </div>
+                                    <div class="input-wrapper mt-15">
+                                        <input type="text" id="activityFilter" placeholder="např. ostatní">
+                                        <label class="floating-label">Činnost</label>
+                                    </div>
+                                    <button id="clear-filter-btn" class="btn btn-ghost mt-15"><i class="ph ph-x"></i> Zrušit filtry</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-row">
-                            <span class="text-secondary">Záznamů</span>
-                            <strong id="stat-count">0</strong>
-                        </div>
-                        <div class="stat-row">
-                            <span class="text-secondary">Odpracováno</span>
-                            <strong id="stat-hours" style="color: var(--text-primary);">0 h</strong>
-                        </div>
-                        <div class="stat-row">
-                            <span class="text-secondary">Výdělek</span>
-                            <strong id="stat-money" style="color: var(--accent-color);">0 Kč</strong>
-                        </div>
+
+                        <div id="records-list"></div>
                     </div>
 
-                    <div class="card" id="card-yearly-stats">
-                        <div class="dropdown-header">
-                            <h3><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
-                            <button class="btn-icon mobile-only close-stats-mobile-btn"><i class="ph ph-x"></i></button>
+                    <aside id="sidebar-stats" class="stats-sidebar">
+                        <div class="card" id="card-current-stats">
+                            <div class="dropdown-header">
+                                <h3><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
+                                <button class="btn-icon mobile-only close-stats-mobile-btn"><i class="ph ph-x"></i></button>
+                            </div>
+                            <div class="stat-row">
+                                <span class="text-secondary">Záznamů</span>
+                                <strong id="stat-count">0</strong>
+                            </div>
+                            <div class="stat-row">
+                                <span class="text-secondary">Odpracováno</span>
+                                <strong id="stat-hours" style="color: var(--text-primary);">0 h</strong>
+                            </div>
+                            <div class="stat-row">
+                                <span class="text-secondary">Výdělek</span>
+                                <strong id="stat-money" style="color: var(--accent-color);">0 Kč</strong>
+                            </div>
                         </div>
-                        <div id="yearly-summary-list"></div>
-                    </div>
-                </aside>
 
+                        <div class="card" id="card-yearly-stats">
+                            <div class="dropdown-header">
+                                <h3><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
+                                <button class="btn-icon mobile-only close-stats-mobile-btn"><i class="ph ph-x"></i></button>
+                            </div>
+                            <div id="yearly-summary-list"></div>
+                        </div>
+                    </aside>
+                </div>
             </div>
+
+            <div id="admin-dashboard" class="hidden">
+                <div class="dropdown-header" style="margin-top: 40px; margin-bottom: 20px;">
+                    <h2><i class="ph ph-briefcase"></i> Přehled zaměstnanců</h2>
+                    <button id="open-manage-workers-btn" class="btn btn-accent btn-lg"><i class="ph ph-users"></i> Správa zaměstnanců</button>
+                </div>
+                
+                <div id="admin-workers-list">
+                    <div class="empty-state">
+                        <i class="ph ph-users"></i>
+                        <p>Zatím nesleduješ žádné zaměstnance. Přidej si je přes Správu zaměstnanců nahoře.</p>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -341,6 +350,32 @@
             </div>
         </div>
     </div>
+
+    <div id="manage-workers-modal" class="modal-overlay hidden">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-users"></i> Správa zaměstnanců</h3>
+                <button id="close-manage-workers-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            
+            <p class="text-secondary mt-15" style="font-size: var(--fs-sm);">
+                Zaškrtni brigádníky, jejichž výkazy chceš sledovat na své nástěnce.
+            </p>
+
+            <div id="workers-checkbox-list" class="checkbox-list mt-15">
+                <div class="empty-state">
+                    <i class="ph ph-spinner-gap"></i>
+                    <p>Načítám seznam...</p>
+                </div>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-manage-workers-btn" class="btn">Zrušit</button>
+                <button id="save-manage-workers-btn" class="btn btn-accent">Uložit výběr</button>
+            </div>
+        </div>
+    </div>
+
 
     <div id="submodal-name" class="modal-overlay submodal-overlay hidden">
         <div class="modal-content submodal-content modal-solid">
