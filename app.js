@@ -127,9 +127,11 @@ onAuthStateChanged(auth, async (user) => {
                 document.getElementById('filter-toggle-btn')?.classList.add('hidden');
                 document.getElementById('sort-toggle-btn')?.classList.add('hidden');
                 
+                // Přepínání obsahu v mobilním menu
+                document.querySelector('.mobile-menu-links')?.classList.add('hidden');
+                document.getElementById('admin-menu-placeholder')?.classList.remove('hidden'); // UKÁZAT TEXT
+                
                 if (adminDashboard) adminDashboard.classList.remove('hidden');
-
-                // ZAVOLÁME VYKRESLENÍ KARET:
                 renderAdminDashboard();
             } 
             // BRIGÁDNÍK POHLED
@@ -137,6 +139,10 @@ onAuthStateChanged(auth, async (user) => {
                 document.getElementById('open-add-modal-btn')?.classList.remove('hidden');
                 document.getElementById('filter-toggle-btn')?.classList.remove('hidden');
                 document.getElementById('sort-toggle-btn')?.classList.remove('hidden');
+                
+                // Přepínání obsahu v mobilním menu
+                document.querySelector('.mobile-menu-links')?.classList.remove('hidden');
+                document.getElementById('admin-menu-placeholder')?.classList.add('hidden'); // SKRÝT TEXT
                 
                 if (workerDashboard) workerDashboard.classList.remove('hidden');
             }
