@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="cs">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,13 +15,16 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
 
     <div id="login-section" class="auth-wrapper">
         <h1 class="auth-title">Job Recorder</h1>
-        
+
         <div class="card auth-card" id="login-card">
             <div class="auth-form">
                 <h2>Sign In</h2>
@@ -29,15 +33,16 @@
                     <input type="email" id="login-email" placeholder="">
                     <label class="floating-label">E-mail</label>
                 </div>
-                
+
                 <div class="password-wrapper input-wrapper">
                     <input type="password" id="login-password" class="password-input" placeholder="">
                     <label class="floating-label">Heslo</label>
-                    <button id="toggle-login-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
+                    <button id="toggle-login-password-btn" class="btn-icon password-toggle-btn" type="button"
+                        title="Zobrazit heslo">
                         <i class="ph ph-eye" id="toggle-login-password-icon"></i>
                     </button>
                 </div>
-                
+
                 <button id="login-btn" class="btn btn-ghost">Přihlásit se</button>
             </div>
             <a href="#" id="show-register-link" class="auth-link">Nemáš účet? Zaregistruj se</a>
@@ -46,37 +51,35 @@
         <div class="card auth-card hidden" id="register-card">
             <div class="auth-form">
                 <h2>Sign Up</h2>
-
                 <div class="input-wrapper">
-                    <input type="text" id="reg-name" placeholder="">
+                    <input type="text" id="reg-name" placeholder="např. Zuzana Nová">
                     <label class="floating-label">Jméno a příjmení</label>
                 </div>
-
                 <div class="input-wrapper">
-                    <input type="email" id="reg-email" placeholder="">
+                    <input type="email" id="reg-email" placeholder="např. zuzana@email.cz">
                     <label class="floating-label">E-mail</label>
                 </div>
-                
+                <div class="input-wrapper">
+                    <input type="number" id="reg-hourly-rate" value="200" step="10">
+                    <label class="floating-label">Hodinová mzda (Kč/h)</label>
+                </div>
                 <div class="password-wrapper input-wrapper">
                     <input type="password" id="reg-password" class="password-input" placeholder="Min. 6 znaků">
                     <label class="floating-label">Nové heslo</label>
-                    <button id="toggle-reg-password-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
-                        <i class="ph ph-eye" id="toggle-reg-password-icon"></i>
-                    </button>
+                    <button id="toggle-reg-password-btn" class="btn-icon password-toggle-btn" type="button"><i
+                            class="ph ph-eye" id="toggle-reg-password-icon"></i></button>
                 </div>
-
                 <div class="password-wrapper input-wrapper">
-                    <input type="password" id="reg-password-confirm" class="password-input" placeholder="Zadej heslo znovu">
+                    <input type="password" id="reg-password-confirm" class="password-input" placeholder="Zadej znovu">
                     <label class="floating-label">Potvrdit heslo</label>
-                    <button id="toggle-reg-password-confirm-btn" class="btn-icon password-toggle-btn" type="button" title="Zobrazit heslo">
-                        <i class="ph ph-eye" id="toggle-reg-password-confirm-icon"></i>
-                    </button>
+                    <button id="toggle-reg-password-confirm-btn" class="btn-icon password-toggle-btn" type="button"><i
+                            class="ph ph-eye" id="toggle-reg-password-confirm-icon"></i></button>
                 </div>
-                
                 <button id="register-btn" class="btn btn-accent">Zaregistrovat se</button>
             </div>
             <a href="#" id="show-login-link" class="auth-link">Už máš účet? Přihlas se</a>
         </div>
+
     </div>
 
     <div id="app-section" class="hidden">
@@ -86,28 +89,32 @@
                 <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 87.66 75.31" width="1.2em" height="1.2em" fill="currentColor">
                     <path d="M78.39,39.11c3.15-1.31,5.5-3.21,7-5.65,1.51-2.46,2.27-5.13,2.27-7.94v-2.52c0-2.66-.49-5.18-1.45-7.5-.96-2.31-2.37-4.38-4.19-6.13-1.82-1.75-4.13-3.15-6.85-4.15-2.75-1.01-6-1.52-9.65-1.52h-11.26v9.34h-6.31v37.49c0,7.89-2.19,14.02-6.51,18.23-.95.93-1.99,1.73-3.1,2.46v4.1h11.88v-27.76h16.98c2.33,0,4.06.65,5.13,1.94,1.03,1.23,1.55,2.83,1.55,4.74v21.08h11.88v-24.45c0-2.22-.62-4-1.9-5.43-1.28-1.44-2.98-2.26-5.2-2.51l-.89-.1v-3.45l.62-.26ZM75.78,26.26c0,3.16-1,5.65-2.96,7.42-1.93,1.74-4.74,2.62-8.35,2.62h-14.25V14.95h14.25c3.63,0,6.45,1,8.39,2.98,1.93,1.97,2.92,4.35,2.92,7.06v1.26ZM38.34,68.78c-.32.24-.66.47-1,.69-.33.22-.66.42-1,.62-3.44,1.98-7.66,2.99-12.63,2.99-3.59,0-6.88-.5-9.78-1.47-2.87-.96-5.36-2.42-7.42-4.31-2.06-1.89-3.67-4.25-4.8-7-1.14-2.77-1.71-6.06-1.71-9.77v-5.94h11.88v5.94c0,3.55,1.02,6.39,3.02,8.43,2.01,2.05,4.83,3.09,8.39,3.09,3.36,0,6.02-1.03,7.93-3.05,1.89-2.01,2.85-4.85,2.85-8.47V11.04h-7.57V0h25.76v11.04h-6.31v39.49c0,7.33-1.99,12.98-5.9,16.79-.54.52-1.11,1.01-1.71,1.46ZM51.22,18.71h20.4v2h-20.4v-2ZM51.22,24.62h20.4v2h-20.4v-2ZM51.22,30.54h20.4v2h-20.4v-2Z" />
                 </svg> -->
-                <img src="https://www.aprispro.cz/wp-content/uploads/2022/08/LOGO-MENU-1.png" alt="" class="desktop-only-flex dark-only logo-apris">
+                <img src="https://www.aprispro.cz/wp-content/uploads/2022/08/LOGO-MENU-1.png" alt=""
+                    class="desktop-only-flex dark-only logo-apris">
                 <img src="source/apris-logo-full.png" alt="" class="desktop-only-flex light-only logo-apris">
                 <img src="source/apris-logo.png" alt="" class="mobile-only logo-apris">
             </h1>
-            
+
             <h2 class="user-name text-truncate" id="desktop-user-name">Jméno Brigádníka</h2>
-            
+
             <div class="header-actions desktop-only-flex">
                 <button id="theme-toggle" class="btn-icon" title="Změnit motiv"><i class="ph ph-moon" id="theme-icon"></i></button>
-
+            
                 <div class="relative-wrapper">
                     <button id="user-menu-btn" class="btn-icon" title="Můj profil"><i class="ph ph-user-circle"></i></button>
                     <div id="user-dropdown" class="card-small filter-dropdown hidden">
-                        <div class="dropdown-header">
+                        <div class="dropdown-header user-dropdown-header">
                             <div class="flex-center-gap">
                                 <i class="ph ph-user-circle icon-xl-accent"></i>
                                 <strong id="dropdown-user-name">Jméno brigádníka</strong>
                             </div>
                             <button id="close-user-cross" class="btn-icon"><i class="ph ph-x"></i></button>
                         </div>
-                        <button id="open-profile-desktop-btn" class="btn btn-ghost"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
-                        <button id="logout-btn" class="btn btn-danger"><i class="ph ph-sign-out"></i> Odhlásit se</button>
+                        <div class="dropdown-body">
+                            <button id="open-profile-desktop-btn" class="btn btn-ghost w-100"><i class="ph ph-pencil-simple"></i>
+                                Upravit profil</button>
+                            <button id="logout-btn" class="btn btn-danger w-100"><i class="ph ph-sign-out"></i> Odhlásit se</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -116,7 +123,7 @@
         </header>
 
         <main class="main-container">
-            
+
             <div id="worker-dashboard">
                 <div class="global-actions">
                     <button id="open-add-modal-btn" class="btn btn-accent btn-lg">
@@ -132,37 +139,43 @@
                     <div class="records-section card">
                         <div class="toolbar-header">
                             <div class="search-wrapper">
-                                <input type="text" id="searchInput" class="search-input hidden-search" placeholder="Hledat...">
-                                <button id="search-toggle-btn" class="btn-icon" title="Hledat"><i class="ph ph-magnifying-glass"></i></button>
+                                <input type="text" id="searchInput" class="search-input hidden-search"
+                                    placeholder="Hledat...">
+                                <button id="search-toggle-btn" class="btn-icon" title="Hledat"><i
+                                        class="ph ph-magnifying-glass"></i></button>
                             </div>
                             <button id="sort-toggle-btn" class="btn-icon" title="Seřadit" data-sort="desc">
                                 <i class="ph ph-sort-descending" id="sort-icon"></i>
                             </button>
-                            
+
                             <div class="relative-wrapper">
                                 <button id="filter-toggle-btn" class="btn-icon" title="Filtry">
                                     <i class="ph ph-funnel"></i>
                                     <span id="filter-indicator" class="hidden filter-indicator-dot"></span>
                                 </button>
-                                
+
                                 <div id="filter-dropdown" class="card-small filter-dropdown hidden">
                                     <div class="dropdown-header">
                                         <h4>Nastavení filtrů</h4>
-                                        <button id="close-filter-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+                                        <button id="close-filter-cross" class="btn-icon"><i
+                                                class="ph ph-x"></i></button>
                                     </div>
                                     <div class="input-wrapper mt-15">
-                                        <input type="text" id="monthFilter" placeholder="" onfocus="(this.type='month')" onblur="if(!this.value) this.type='text'">
+                                        <input type="text" id="monthFilter" placeholder="" onfocus="(this.type='month')"
+                                            onblur="if(!this.value) this.type='text'">
                                         <label class="floating-label">Měsíc a rok</label>
                                     </div>
                                     <div class="input-wrapper mt-15">
-                                        <input type="text" id="exactDateFilter" placeholder="" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                                        <input type="text" id="exactDateFilter" placeholder=""
+                                            onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
                                         <label class="floating-label">Konkrétní den</label>
                                     </div>
                                     <div class="input-wrapper mt-15">
                                         <input type="text" id="activityFilter" placeholder="např. ostatní">
                                         <label class="floating-label">Činnost</label>
                                     </div>
-                                    <button id="clear-filter-btn" class="btn btn-ghost mt-15"><i class="ph ph-x"></i> Zrušit filtry</button>
+                                    <button id="clear-filter-btn" class="btn btn-ghost mt-15"><i class="ph ph-x"></i>
+                                        Zrušit filtry</button>
                                 </div>
                             </div>
                         </div>
@@ -174,7 +187,8 @@
                         <div class="card" id="card-current-stats">
                             <div class="dropdown-header">
                                 <h3><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
-                                <button class="btn-icon mobile-only close-stats-mobile-btn"><i class="ph ph-x"></i></button>
+                                <button class="btn-icon mobile-only close-stats-mobile-btn"><i
+                                        class="ph ph-x"></i></button>
                             </div>
                             <div class="stat-row">
                                 <span class="text-secondary">Záznamů</span>
@@ -193,7 +207,8 @@
                         <div class="card" id="card-yearly-stats">
                             <div class="dropdown-header">
                                 <h3><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
-                                <button class="btn-icon mobile-only close-stats-mobile-btn"><i class="ph ph-x"></i></button>
+                                <button class="btn-icon mobile-only close-stats-mobile-btn"><i
+                                        class="ph ph-x"></i></button>
                             </div>
                             <div id="yearly-summary-list"></div>
                         </div>
@@ -205,7 +220,7 @@
                 <div class="dropdown-header admin-header-spacing">
                     <h2><i class="ph ph-briefcase"></i> Přehled zaměstnanců</h2>
                     <div id="admin-month-title" class="admin-month-title">Měsíc Rok</div>
-                    
+
                     <button id="open-manage-workers-btn" class="btn btn-accent">
                         <i class="ph ph-users"></i>
                         <span class="manage-workers-text">Správa zaměstnanců</span>
@@ -225,15 +240,16 @@
 
     <div id="toast" class="toast hidden">Uloženo!</div>
 
-    <div id="add-modal" class="modal-overlay hidden"> 
-        <div class="modal-content modal-solid"> 
+    <div id="add-modal" class="modal-overlay hidden">
+        <div class="modal-content modal-solid">
             <div class="dropdown-header">
                 <h3><i class="ph ph-plus-circle"></i> Nový záznam</h3>
                 <button id="close-add-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
-            
+
             <div class="input-wrapper mt-15">
-                <input type="text" id="dateInput" placeholder="" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                <input type="text" id="dateInput" placeholder="" onfocus="(this.type='date')"
+                    onblur="if(!this.value) this.type='text'">
                 <label class="floating-label">Datum</label>
             </div>
 
@@ -241,22 +257,23 @@
                 <input type="number" id="hoursInput" placeholder="" step="0.5">
                 <label class="floating-label">Počet hodin</label>
             </div>
-            
+
             <div class="form-group">
                 <div class="input-wrapper">
                     <input type="text" id="activityInput" placeholder="např. ostatní">
                     <label class="floating-label">Činnost</label>
                 </div>
                 <div class="quick-tags-wrapper" id="quick-tags">
-                    <span class="badge" onclick="document.getElementById('activityInput').value='ostatní'; document.getElementById('activityInput').focus();">ostatní</span>
+                    <span class="badge"
+                        onclick="document.getElementById('activityInput').value='ostatní'; document.getElementById('activityInput').focus();">ostatní</span>
                 </div>
             </div>
-            
+
             <div class="input-wrapper">
                 <input type="text" id="descInput" placeholder="">
                 <label class="floating-label">Poznámka</label>
             </div>
-            
+
             <div class="header-actions modal-actions mt-15">
                 <button id="close-add-btn" class="btn">Zrušit</button>
                 <button id="add-record-btn" class="btn btn-ghost">Uložit záznam</button>
@@ -272,7 +289,8 @@
             </div>
 
             <div class="input-wrapper mt-15">
-                <input type="text" id="editDateInput" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                <input type="text" id="editDateInput" onfocus="(this.type='date')"
+                    onblur="if(!this.value) this.type='text'">
                 <label class="floating-label">Datum</label>
             </div>
 
@@ -311,51 +329,129 @@
             </div>
         </div>
     </div>
-
-
+    
     <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-content modal-solid profile-modal-content">
-            
-            <div class="dropdown-header">
-                <h3><i class="ph ph-user"></i> Úprava profilu</h3>
-                <button id="close-profile-cross" class="btn-icon"><i class="ph ph-x"></i></button>
-            </div>
-
-            <div class="profile-header-info">
-                <i class="ph ph-user-circle profile-avatar"></i>
-                <h2 id="profile-display-name" class="profile-title">Name</h2>
-            </div>
-
-            <div class="profile-fields">
-                <div class="profile-field-wrapper" id="edit-name-trigger">
-                    <span class="floating-label">Jméno</span>
-                    <span id="profile-val-name" class="text-truncate field-value">Jméno jméno</span>
-                    <i class="ph ph-pencil-simple field-icon"></i>
+        <div class="profile-page-container">
+            <aside class="profile-sidebar">
+                <div class="profile-sidebar-header">
+                    <i class="ph ph-user-circle"></i>
+                    <h3 id="profile-sidebar-name">Jméno</h3>
                 </div>
-
-                <div class="profile-field-wrapper" id="edit-email-trigger">
-                    <span class="floating-label">E-mail</span>
-                    <span id="profile-val-email" class="text-truncate field-value">email@email.com</span>
-                    <i class="ph ph-pencil-simple field-icon"></i>
+                <nav class="profile-nav">
+                    <a href="#" class="profile-nav-item active" data-category="profile-sec">
+                        <i class="ph ph-lock"></i> 
+                        Profil & zabezpečení</a>
+                    <a href="#" class="profile-nav-item" data-category="appearance-sec">
+                        <i class="ph ph-palette"></i>
+                        Vzhled</a>
+                    <a href="#" class="profile-nav-item" data-category="admin-sec">
+                        <i class="ph ph-wrench"></i>
+                        Nastavení</a>
+                </nav>
+                <button id="close-profile-page-btn" class="btn btn-ghost mt-auto"><i class="ph ph-arrow-left"></i>
+                    Zpět</button>
+            </aside>
+    
+            <main class="profile-main-content">
+                <div class="profile-content-wrapper">
+    
+                    <div id="cat-profile-sec" class="profile-category">
+                        <h1 class="category-title">Profil & zabezpečení</h1>
+    
+                        <div class="card profile-card">
+                            <div class="section-header">
+                                <h2>Osobní údaje</h2>
+                                <p class="text-secondary">Základní informace o vašem účtu.</p>
+                            </div>
+                            <div class="profile-column-layout">
+                                <div class="input-wrapper">
+                                    <input type="text" id="edit-profile-name" placeholder=" ">
+                                    <label class="floating-label">Celé jméno</label>
+                                </div>
+                                <div class="input-wrapper">
+                                    <input type="email" id="edit-profile-email" placeholder=" ">
+                                    <label class="floating-label">E-mailová adresa</label>
+                                </div>
+                                <button id="save-personal-btn" class="btn btn-accent">Uložit změny</button>
+                            </div>
+                        </div>
+    
+                        <div class="card profile-card mt-40">
+                            <div class="section-header">
+                                <h2>Změna hesla</h2>
+                                <p class="text-secondary">Pro zvýšení bezpečnosti doporučujeme heslo občas měnit.</p>
+                            </div>
+                            <div class="profile-column-layout">
+                                <div class="input-wrapper">
+                                    <input type="password" id="edit-profile-pass" placeholder=" ">
+                                    <label class="floating-label">Nové heslo</label>
+                                </div>
+                                <div class="input-wrapper">
+                                    <input type="password" id="edit-profile-pass-confirm" placeholder=" ">
+                                    <label class="floating-label">Potvrdit nové heslo</label>
+                                </div>
+                                <button id="save-security-btn" class="btn btn-accent" disabled>Změnit heslo</button>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div id="cat-appearance-sec" class="profile-category hidden">
+                        <h1 class="category-title">Vzhled</h1>
+                        <div class="card profile-card">
+                            <div class="section-header">
+                                <h2>Motiv a barvy</h2>
+                                <p class="text-secondary">Přizpůsobte si aplikaci tak, aby se vám v ní dobře pracovalo.</p>
+                            </div>
+                            <div class="profile-column-layout">
+                                <div class="appearance-setting-row">
+                                    <span class="text-secondary">Tmavý / Světlý režim</span>
+                                    <button id="profile-theme-toggle" class="btn btn-ghost">
+                                        <i class="ph ph-moon" id="profile-theme-icon"></i>
+                                        <span id="profile-theme-text">Přepnout režim</span>
+                                    </button>
+                                </div>
+                                <div class="appearance-setting-row mt-15">
+                                    <span class="text-secondary">Barevný akcent aplikace</span>
+                                    <div class="color-picker mt-10">
+                                        <div class="color-swatch" data-theme-name="modra"
+                                            style="background-color: #445da4;"></div>
+                                        <div class="color-swatch" data-theme-name="oranzova"
+                                            style="background-color: #c3581e;"></div>
+                                        <div class="color-swatch" data-theme-name="zelena"
+                                            style="background-color: #00c083;"></div>
+                                        <div class="color-swatch" data-theme-name="fialova"
+                                            style="background-color: #985caf;"></div>
+                                        <div class="color-swatch" data-theme-name="cervena"
+                                            style="background-color: #e05666;"></div>
+                                        <div class="color-swatch" data-theme-name="invertovana"
+                                            style="background-color: #242423;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div id="cat-admin-sec" class="profile-category hidden">
+                        <h1 class="category-title">Nastavení</h1>
+                        <div class="card profile-card">
+                            <div class="section-header">
+                                <h2>Pracovní nastavení</h2>
+                                <p class="text-secondary">Zde si nastavíte svou hodinovou sazbu.</p>
+                            </div>
+                            <div class="profile-column-layout">
+                                <div class="input-wrapper">
+                                    <input type="number" id="edit-profile-rate" placeholder=" ">
+                                    <label class="floating-label">Hodinová mzda (Kč/h)</label>
+                                </div>
+                                <button id="save-admin-btn" class="btn btn-accent">Uložit nastavení</button>
+                            </div>
+                        </div>
+                    </div>
+    
                 </div>
-            </div>
-
-            <button id="open-password-modal-btn" class="btn btn-ghost mt-15"><i class="ph ph-lock-key"></i> Změnit heslo</button>
-
-            <div class="form-group mt-15">
-                <label class="profile-label text-secondary" style="font-size: var(--fs-sm);">Barevné schéma</label>
-                <div class="color-picker" id="color-picker">
-                    <div class="color-swatch active" data-theme-name="modra" style="background-color: #445da4;"></div>
-                    <div class="color-swatch" data-theme-name="oranzova" style="background-color: #c3581e;"></div>
-                    <div class="color-swatch" data-theme-name="zelena" style="background-color: #00c083;"></div>
-                    <div class="color-swatch" data-theme-name="fialova" style="background-color: #985caf;"></div>
-                    <div class="color-swatch" data-theme-name="cervena" style="background-color: #e05666;"></div>
-                    <div class="color-swatch" data-theme-name="invertovana" style="background-color: #242423;"></div>
-                </div>
-            </div>
+            </main>
         </div>
     </div>
-
 
     <div id="manage-workers-modal" class="modal-overlay hidden">
         <div class="modal-content modal-solid">
@@ -363,7 +459,7 @@
                 <h3><i class="ph ph-users"></i> Správa zaměstnanců</h3>
                 <button id="close-manage-workers-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
-            
+
             <p class="text-secondary" style="font-size: var(--fs-xs);">
                 Zaškrtni brigádníky, jejichž výkazy chceš sledovat na své nástěnce.
             </p>
@@ -426,12 +522,15 @@
             <div class="password-wrapper input-wrapper mt-15">
                 <input type="password" id="edit-val-password" class="password-input" placeholder="Min. 6 znaků">
                 <label class="floating-label">Nové heslo</label>
-                <button id="toggle-edit-password-btn" class="btn-icon password-toggle-btn" type="button"><i class="ph ph-eye" id="toggle-edit-password-icon"></i></button>
+                <button id="toggle-edit-password-btn" class="btn-icon password-toggle-btn" type="button"><i
+                        class="ph ph-eye" id="toggle-edit-password-icon"></i></button>
             </div>
             <div class="password-wrapper input-wrapper mt-15">
-                <input type="password" id="edit-val-password-confirm" class="password-input" placeholder="Zadej heslo znovu">
+                <input type="password" id="edit-val-password-confirm" class="password-input"
+                    placeholder="Zadej heslo znovu">
                 <label class="floating-label">Potvrdit heslo</label>
-                <button id="toggle-edit-password-confirm-btn" class="btn-icon password-toggle-btn" type="button"><i class="ph ph-eye" id="toggle-edit-password-confirm-icon"></i></button>
+                <button id="toggle-edit-password-confirm-btn" class="btn-icon password-toggle-btn" type="button"><i
+                        class="ph ph-eye" id="toggle-edit-password-confirm-icon"></i></button>
             </div>
             <div class="header-actions modal-actions mt-15">
                 <button id="cancel-submodal-password" class="btn">Zrušit</button>
@@ -445,16 +544,20 @@
             <div class="flex-center-gap">
                 <i class="ph ph-user-circle icon-xl-secondary"></i>
                 <div style="display: flex; flex-direction: column; align-items: flex-start; overflow: hidden;">
-                    <h2 class="mobile-user-name text-truncate" style="max-width: 200px;" id="mobile-user-name">Jméno Brigádníka</h2>
-                    <button id="open-profile-mobile-btn" class="btn-text-small mt-15" style="margin-top: 2px;"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
+                    <h2 class="mobile-user-name text-truncate" style="max-width: 200px;" id="mobile-user-name">Jméno
+                        Brigádníka</h2>
+                    <button id="open-profile-mobile-btn" class="btn-text-small mt-15" style="margin-top: 2px;"><i
+                            class="ph ph-pencil-simple"></i> Upravit profil</button>
                 </div>
             </div>
             <button id="close-mobile-menu-btn" class="btn-icon"><i class="ph ph-x icon-burger-size"></i></button>
         </div>
-        
+
         <div class="mobile-menu-links">
-            <button id="show-stats-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</button>
-            <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční souhrny</button>
+            <button id="show-stats-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-chart-pie-slice"></i>
+                Aktuální přehled</button>
+            <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční
+                souhrny</button>
         </div>
 
         <div id="admin-menu-placeholder" class="admin-placeholder hidden">
@@ -462,11 +565,14 @@
         </div>
 
         <div class="mobile-menu-bottom">
-            <button id="mobile-theme-toggle" class="btn-icon"><i class="ph ph-moon icon-menu-size" id="mobile-theme-icon"></i></button>
-            <button id="mobile-logout-btn" class="btn-icon text-danger"><i class="ph ph-sign-out icon-menu-size"></i></button>
+            <button id="mobile-theme-toggle" class="btn-icon"><i class="ph ph-moon icon-menu-size"
+                    id="mobile-theme-icon"></i></button>
+            <button id="mobile-logout-btn" class="btn-icon text-danger"><i
+                    class="ph ph-sign-out icon-menu-size"></i></button>
         </div>
     </nav>
 
     <script type="module" src="app.js"></script>
 </body>
+
 </html>

@@ -55,6 +55,25 @@ setupPasswordToggle('toggle-reg-password-confirm-btn', 'reg-password-confirm', '
 setupPasswordToggle('toggle-edit-password-btn', 'edit-val-password', 'toggle-edit-password-icon');
 setupPasswordToggle('toggle-edit-password-confirm-btn', 'edit-val-password-confirm', 'toggle-edit-password-confirm-icon');
 
+// Přepínání motivu přímo v profilu
+const profileThemeToggle = document.getElementById('profile-theme-toggle');
+if(profileThemeToggle) {
+    profileThemeToggle.addEventListener('click', () => {
+        toggleTheme();
+        updateProfileThemeUI();
+    });
+}
+
+function updateProfileThemeUI() {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    const icon = document.getElementById('profile-theme-icon');
+    const text = document.getElementById('profile-theme-text');
+    if(icon && text) {
+        icon.className = isDark ? 'ph ph-sun' : 'ph ph-moon';
+        text.innerText = isDark ? 'Světlý režim' : 'Tmavý režim';
+    }
+}
+
 // --- PŘEPÍNÁNÍ PŘIHLÁŠENÍ / REGISTRACE ---
 const loginCard = document.getElementById('login-card');
 const registerCard = document.getElementById('register-card');
@@ -73,8 +92,13 @@ document.getElementById('show-login-link').addEventListener('click', (e) => {
 
 // --- AUTHENTIKACE ---
 // Sledování stavu uživatele (přihlášen/odhlášen)
+// Sledování stavu uživatele (přihlášen/odhlášen)
 onAuthStateChanged(auth, async (user) => {
+    const workerDashboard = document.getElementById('worker-dashboard');
+    const adminDashboard = document.getElementById('admin-dashboard');
+
     if (user) {
+        // 1. ZÁKLADNÍ NASTAVENÍ UI
         loginSection.classList.add('hidden');
         appSection.classList.remove('hidden');
         
@@ -82,88 +106,79 @@ onAuthStateChanged(auth, async (user) => {
         document.getElementById('desktop-user-name').innerText = displayName;
         document.getElementById('dropdown-user-name').innerText = displayName;
         document.getElementById('mobile-user-name').innerText = displayName;
-        
-        const workerDashboard = document.getElementById('worker-dashboard');
-        const adminDashboard = document.getElementById('admin-dashboard');
 
-        // POJISTKA 1: Než se zeptáme databáze, obě plochy schováme, ať nic neproblikne
-        if (workerDashboard) workerDashboard.classList.add('hidden');
-        if (adminDashboard) adminDashboard.classList.add('hidden');
+        // 2. RESET PLOCHY (Než zjistíme roli, vše schováme)
+        workerDashboard?.classList.add('hidden');
+        adminDashboard?.classList.add('hidden');
 
-        // Zjištění role uživatele z databáze
         try {
+            // 3. ZJIŠTĚNÍ ROLE Z DATABÁZE
             const userRef = doc(db, "users", user.uid);
             const userDoc = await getDoc(userRef);
-            
             let userData;
 
             if (userDoc.exists()) {
-                // Účet už v databázi existuje, normálně načteme data
                 userData = userDoc.data();
             } else {
-                // SAMOOPRAVA: Účet je starý a v databázi chybí! Rovnou ho vytvoříme.
-                console.log("Vytvářím chybějící profil pro starého uživatele...");
-                
+                // SAMOOPRAVA: Pokud profil v DB chybí, vytvoříme ho jako brigádníka
                 userData = {
-                    name: user.displayName || user.email.split('@')[0],
+                    name: displayName,
                     email: user.email,
-                    role: "worker",   // Starým účtům dáme automaticky roli brigádníka
+                    role: "worker",
+                    hourlyRate: 200,
                     employerId: null,
                     createdAt: serverTimestamp()
                 };
-                
-                // Uložíme nový profil do databáze
                 await setDoc(userRef, userData);
-                showToast("Tvůj profil byl automaticky zaktualizován.", "success");
             }
 
-            // Teď už máme 100% jistotu, že userData existují (buď se stáhly, nebo vytvořily)
-            window.currentUserRole = userData.role; 
-            window.currentEmployerId = user.uid; 
+            // Uložíme důležité proměnné globálně
+            window.currentUserRole = userData.role;
+            window.currentEmployerId = user.uid;
 
-            // ADMIN POHLED
+            // 4. PŘEPNUTÍ DASHBOARDU PODLE ROLE
             if (userData.role === "admin") {
+                // Skryjeme brigádnické nástroje v hlavičce
                 document.getElementById('open-add-modal-btn')?.classList.add('hidden');
                 document.getElementById('filter-toggle-btn')?.classList.add('hidden');
                 document.getElementById('sort-toggle-btn')?.classList.add('hidden');
-                
-                // Přepínání obsahu v mobilním menu
                 document.querySelector('.mobile-menu-links')?.classList.add('hidden');
-                document.getElementById('admin-menu-placeholder')?.classList.remove('hidden'); // UKÁZAT TEXT
-                
-                if (adminDashboard) adminDashboard.classList.remove('hidden');
+                document.getElementById('admin-menu-placeholder')?.classList.remove('hidden');
+
+                // Ukážeme admin plochu a načteme karty zaměstnanců
+                adminDashboard?.classList.remove('hidden');
                 renderAdminDashboard();
-            } 
-            // BRIGÁDNÍK POHLED
-            else {
+            } else {
+                // Ukážeme brigádnické nástroje
                 document.getElementById('open-add-modal-btn')?.classList.remove('hidden');
                 document.getElementById('filter-toggle-btn')?.classList.remove('hidden');
                 document.getElementById('sort-toggle-btn')?.classList.remove('hidden');
-                
-                // Přepínání obsahu v mobilním menu
                 document.querySelector('.mobile-menu-links')?.classList.remove('hidden');
-                document.getElementById('admin-menu-placeholder')?.classList.add('hidden'); // SKRÝT TEXT
-                
-                if (workerDashboard) workerDashboard.classList.remove('hidden');
+                document.getElementById('admin-menu-placeholder')?.classList.add('hidden');
+
+                // Ukážeme plochu brigádníka a načteme jeho výkazy
+                workerDashboard?.classList.remove('hidden');
+                loadRecords(); 
             }
 
         } catch(e) {
-            console.error("Chyba při zjišťování/vytváření role:", e);
-            if (workerDashboard) workerDashboard.classList.remove('hidden'); // Fallback
+            console.error("Chyba při zjišťování role:", e);
+            workerDashboard?.classList.remove('hidden'); // Nouzový fallback
         }
 
-        loadRecords();
     } else {
-        // POJISTKA 3: ÚKLID PO ODHLÁŠENÍ
+        // 5. LOGIKA PŘI ODHLÁŠENÍ (Úklid)
         loginSection.classList.remove('hidden');
         appSection.classList.add('hidden');
 
-        // Promažeme stará data z RAM paměti
+        // Zastavíme sledování databáze (Real-time snapshot)
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
+
+        // Vymažeme stará data z paměti
         allRecords = [];
         const recordsList = document.getElementById('records-list');
         if (recordsList) recordsList.innerHTML = '';
         
-        // Vyčistíme globální proměnné rolí
         window.currentUserRole = null;
         window.currentEmployerId = null;
     }
@@ -196,6 +211,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     const email = document.getElementById('reg-email').value.trim();
     const password = document.getElementById('reg-password').value;
     const confirmPassword = document.getElementById('reg-password-confirm').value;
+    const hourlyRate = Number(document.getElementById('reg-hourly-rate').value) || 200;
 
     // Kontrola, zda je vše vyplněné
     if (!name || !email || !password || !confirmPassword) {
@@ -219,6 +235,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
             name: name,
             email: email,
             role: "worker",
+            hourlyRate: hourlyRate,
             employerId: null,
             createdAt: serverTimestamp()
         });
@@ -258,6 +275,8 @@ addRecordBtn.addEventListener('click', async () => {
     const hours = document.getElementById('hoursInput').value;
     const activity = document.getElementById('activityInput').value;
     const desc = document.getElementById('descInput').value;
+    const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+    const currentRate = userDoc.data().hourlyRate || 200;
 
     if (!date || !hours || !activity || !desc) {
         showToast("Vyplň všechna pole!", "warning");
@@ -271,8 +290,9 @@ addRecordBtn.addEventListener('click', async () => {
             hours: Number(hours),
             activity: activity,
             description: desc,
-            userId: auth.currentUser.uid, // Abychom věděli, že je to tvůj záznam
-            createdAt: serverTimestamp() // Kdy to bylo reálně zapsáno
+            rate: currentRate,
+            userId: auth.currentUser.uid,
+            createdAt: serverTimestamp()
         });
 
         showToast("Záznam uložen!", "success");
@@ -439,14 +459,14 @@ function renderRecords() {
 
     // --- AKTUALIZACE FILTROVANÝCH STATISTIK ---
     let totalHours = 0;
+    let totalMoney = 0; // Přidali jsme proměnnou pro peníze
     
-    // Sečteme hodiny ze všech aktuálně zobrazených (vyfiltrovaných) záznamů
+    // Sečteme hodiny a peníze ze všech aktuálně zobrazených (vyfiltrovaných) záznamů
     filtered.forEach(record => {
         totalHours += Number(record.hours);
+        // Počítáme peníze podle sazby uložené u záznamu (pokud chybí, dáme 200 jako záchranu)
+        totalMoney += (Number(record.hours) * (record.rate || 200)); 
     });
-
-    // Vypočítáme peníze
-    let totalMoney = totalHours * HOURLY_RATE;
 
     // Pošleme to do HTML pro aktuální přehled
     document.getElementById('stat-count').innerText = filtered.length;
@@ -457,22 +477,24 @@ function renderRecords() {
     const yearlyData = {};
     allRecords.forEach(record => {
         const year = record.date.split('-')[0]; // Vezme rok
-        if (!yearlyData[year]) yearlyData[year] = 0;
-        yearlyData[year] += Number(record.hours); // Přičte hodiny k danému roku
+        // Nyní neukládáme jen číslo, ale objekt {hodiny, peníze}
+        if (!yearlyData[year]) yearlyData[year] = { hours: 0, money: 0 }; 
+        
+        yearlyData[year].hours += Number(record.hours); 
+        yearlyData[year].money += (Number(record.hours) * (record.rate || 200));
     });
 
     const yearlyList = document.getElementById('yearly-summary-list');
     if (yearlyList) { 
-        yearlyList.innerHTML = ''; // Vyčistíme předchozí výpis
+        yearlyList.innerHTML = ''; 
         
-        // Seřadíme roky sestupně a vypíšeme je
         Object.keys(yearlyData).sort((a, b) => b - a).forEach(year => {
             const row = document.createElement('div');
-            row.className = 'stat-row'; // Použití hotové CSS třídy!
+            row.className = 'stat-row'; 
     
             row.innerHTML = `
                 <span><strong>${year}</strong></span>
-                <span>${yearlyData[year]} h <small class="text-secondary">(${(yearlyData[year] * HOURLY_RATE).toLocaleString('cs-CZ')} Kč)</small></span>
+                <span>${yearlyData[year].hours} h <small class="text-secondary">(${yearlyData[year].money.toLocaleString('cs-CZ')} Kč)</small></span>
             `;
             yearlyList.appendChild(row);
         });
@@ -712,7 +734,7 @@ const colorPalettes = {
 };
 
 let currentAccentTheme = localStorage.getItem('app-accent-theme') || 'modra';
-const colorSwatches = document.querySelectorAll('.color-swatch');
+let colorSwatches = document.querySelectorAll('.color-swatch');
 
 // 2. Funkce pro aplikování správné barvy
 function applyAccentTheme(themeName) {
@@ -744,15 +766,21 @@ const currentThemeMode = localStorage.getItem('theme') || (window.matchMedia("(p
 function applyTheme(mode) {
     const themeIcon = document.getElementById('theme-icon');
     const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+    const profileIcon = document.getElementById('profile-theme-icon');
+    const profileText = document.getElementById('profile-theme-text');
 
     if (mode === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
         if (themeIcon) themeIcon.classList.replace('ph-moon', 'ph-sun');
         if (mobileThemeIcon) mobileThemeIcon.classList.replace('ph-moon', 'ph-sun');
+        if (profileIcon) profileIcon.className = 'ph ph-sun';
+        if (profileText) profileText.innerText = 'Světlý režim';
     } else {
         document.body.removeAttribute('data-theme');
         if (themeIcon) themeIcon.classList.replace('ph-sun', 'ph-moon');
         if (mobileThemeIcon) mobileThemeIcon.classList.replace('ph-sun', 'ph-moon');
+        if (profileIcon) profileIcon.className = 'ph ph-moon';
+        if (profileText) profileText.innerText = 'Tmavý režim';
     }
     
     // DŮLEŽITÉ: Po přepnutí režimu musíme znovu přepočítat naši vybranou barvu!
@@ -773,29 +801,40 @@ if(themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
 const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
 if(mobileThemeToggle) mobileThemeToggle.addEventListener('click', toggleTheme);
 
-// 4. Klikání na barevné tečky
-colorSwatches.forEach(swatch => {
-    const themeName = swatch.getAttribute('data-theme-name');
+// 4. Funkce pro oživení barevných kuliček (voláme ji i při otevření profilu)
+function setupColorSwatches() {
+    const swatches = document.querySelectorAll('.color-swatch');
+    
+    swatches.forEach(swatch => {
+        // Pojistka, abychom nepřidávali eventy víckrát na stejnou kuličku
+        if (swatch.getAttribute('data-has-events')) return;
+        
+        const themeName = swatch.getAttribute('data-theme-name');
 
-    // KLIKNUTÍ: Nastaví barvu natrvalo
-    swatch.addEventListener('click', () => {
-        applyAccentTheme(themeName);
-        localStorage.setItem('app-accent-theme', themeName);
-        showToast("Barva aplikace změněna.", "success");
-    });
+        // KLIKNUTÍ: Nastaví barvu natrvalo
+        swatch.addEventListener('click', () => {
+            applyAccentTheme(themeName);
+            localStorage.setItem('app-accent-theme', themeName);
+            showToast("Barva aplikace změněna.", "success");
+        });
 
-    // NAJETÍ MYŠÍ (Preview): Změní barvu jen vizuálně
-    swatch.addEventListener('mouseenter', () => {
-        // Použijeme naši funkci, ale NEUKLÁDÁME do localStorage
-        applyAccentTheme(themeName);
-    });
+        // NAJETÍ MYŠÍ (Preview): Změní barvu jen vizuálně
+        swatch.addEventListener('mouseenter', () => {
+            applyAccentTheme(themeName);
+        });
 
-    // ODJETÍ MYŠÍ: Vrátí barvu na tu, která je uložená v paměti
-    swatch.addEventListener('mouseleave', () => {
-        const savedTheme = localStorage.getItem('app-accent-theme') || 'modra';
-        applyAccentTheme(savedTheme);
+        // ODJETÍ MYŠÍ: Vrátí barvu na tu, která je uložená v paměti
+        swatch.addEventListener('mouseleave', () => {
+            const savedTheme = localStorage.getItem('app-accent-theme') || 'modra';
+            applyAccentTheme(savedTheme);
+        });
+        
+        // Označíme si, že kulička už eventy má
+        swatch.setAttribute('data-has-events', 'true');
     });
-});
+}
+// Spustíme poprvé při načtení aplikace
+setupColorSwatches();
 
 
 // --- ZAVÍRÁNÍ OKEN PŘI KLIKNUTÍ MIMO ---
@@ -911,103 +950,140 @@ sidebarStats.addEventListener('click', (event) => {
 // ==========================================
 // BAREVNÁ SCHÉMATA A ÚPRAVA PROFILU
 // ==========================================
-
 const profileModal = document.getElementById('profile-modal');
 
-// Otevření hlavního profilu
-function openProfileModal() {
+// Otevření hlavního profilu a předvyplnění dat z DB
+async function openProfilePage() {
+    // Zavřeme případná otevřená menu
     document.getElementById('user-dropdown').classList.add('hidden');
-    document.getElementById('mobile-fullscreen-menu').classList.remove('menu-open');
+    const mobileMenu = document.getElementById('mobile-fullscreen-menu');
+    if (mobileMenu) mobileMenu.classList.remove('menu-open');
 
     const user = auth.currentUser;
     if (user) {
-        document.getElementById('profile-display-name').innerText = user.displayName || 'Uživatel';
-        document.getElementById('profile-val-name').innerText = user.displayName || 'Nenastaveno';
-        document.getElementById('profile-val-email').innerText = user.email || '';
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userData = userDoc.data() || {};
+
+        document.getElementById('profile-sidebar-name').innerText = userData.name || user.displayName || 'Uživatel';
+        document.getElementById('edit-profile-name').value = userData.name || user.displayName || '';
+        document.getElementById('edit-profile-email').value = user.email || '';
+        document.getElementById('edit-profile-rate').value = userData.hourlyRate || 200;
     }
+
+    // NOVÉ: Oživíme kuličky v profilu
+    setupColorSwatches();
+    
+    updateProfileThemeUI();
+    
+    // Nastavíme aktivní kuličku podle aktuálního tématu
+    const currentTheme = localStorage.getItem('app-accent-theme') || 'modra';
+    applyAccentTheme(currentTheme);
+
     profileModal.classList.remove('hidden');
 }
 
-document.getElementById('open-profile-desktop-btn')?.addEventListener('click', openProfileModal);
-document.getElementById('open-profile-mobile-btn')?.addEventListener('click', openProfileModal);
-document.getElementById('close-profile-cross').addEventListener('click', () => profileModal.classList.add('hidden'));
+document.getElementById('open-profile-desktop-btn')?.addEventListener('click', openProfilePage);
+document.getElementById('open-profile-mobile-btn')?.addEventListener('click', openProfilePage);
+document.getElementById('close-profile-page-btn')?.addEventListener('click', () => profileModal.classList.add('hidden'));
 
-// --- LOGIKA SUB-MODALŮ (Jméno, Email, Heslo) ---
-function setupSubmodal(triggerId, modalId, closeIds, saveId, saveAction) {
-    const modal = document.getElementById(modalId);
-    
-    // Otevření
-    document.getElementById(triggerId).addEventListener('click', () => {
-        // Předvyplnění hodnot
-        const user = auth.currentUser;
-        if (triggerId === 'edit-name-trigger') document.getElementById('edit-val-name').value = user.displayName || '';
-        if (triggerId === 'edit-email-trigger') document.getElementById('edit-val-email').value = user.email || '';
-        if (triggerId === 'edit-password-trigger') {
-            document.getElementById('edit-val-password').value = '';
-            document.getElementById('edit-val-password-confirm').value = '';
-        }
-        modal.classList.remove('hidden');
+// --- NAVIGACE V PROFILU (KATEGORIE) ---
+document.querySelectorAll('.profile-nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const categoryId = item.getAttribute('data-category');
+
+        // 1. Změna aktivního stavu v menu (rámeček)
+        document.querySelectorAll('.profile-nav-item').forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+
+        // 2. Přepnutí viditelnosti kategorií
+        document.querySelectorAll('.profile-category').forEach(cat => cat.classList.add('hidden'));
+        document.getElementById(`cat-${categoryId}`).classList.remove('hidden');
+
+        // 3. Scroll nahoru v obsahu
+        document.querySelector('.profile-main-content').scrollTop = 0;
     });
+});
 
-    // Zavření
-    closeIds.forEach(id => {
-        document.getElementById(id).addEventListener('click', () => modal.classList.add('hidden'));
-    });
+// --- ZABEZPEČENÍ TLAČÍTKA HESLA ---
+const passInput = document.getElementById('edit-profile-pass');
+const passConfirmInput = document.getElementById('edit-profile-pass-confirm');
+const saveSecurityBtn = document.getElementById('save-security-btn');
 
-    // Uložení
-    document.getElementById(saveId).addEventListener('click', () => saveAction(modal));
+function validatePasswordFields() {
+    if (passInput.value.trim() !== "" && passConfirmInput.value.trim() !== "") {
+        saveSecurityBtn.removeAttribute('disabled');
+    } else {
+        saveSecurityBtn.setAttribute('disabled', 'true');
+    }
 }
 
-// 1. Změna Jména
-setupSubmodal('edit-name-trigger', 'submodal-name', ['close-submodal-name', 'cancel-submodal-name'], 'save-submodal-name', async (modal) => {
-    const newName = document.getElementById('edit-val-name').value.trim();
-    if (!newName) return showToast("Zadej jméno.", "warning");
+passInput.addEventListener('input', validatePasswordFields);
+passConfirmInput.addEventListener('input', validatePasswordFields);
+
+// Uložení Osobních údajů (Jméno a E-mail)
+document.getElementById('save-personal-btn').addEventListener('click', async () => {
+    const newName = document.getElementById('edit-profile-name').value.trim();
+    const newEmail = document.getElementById('edit-profile-email').value.trim();
     
+    if(!newName || !newEmail) return showToast("Vyplň jméno i e-mail.", "warning");
+
     try {
+        // Update Auth
         await updateProfile(auth.currentUser, { displayName: newName });
-        document.getElementById('profile-display-name').innerText = newName;
-        document.getElementById('profile-val-name').innerText = newName;
+        if(auth.currentUser.email !== newEmail) {
+            await updateEmail(auth.currentUser, newEmail);
+        }
+        
+        // Update Firestore
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { 
+            name: newName,
+            email: newEmail
+        });
+        
+        // Update UI napříč aplikací
+        document.getElementById('profile-sidebar-name').innerText = newName;
         document.getElementById('desktop-user-name').innerText = newName;
         document.getElementById('dropdown-user-name').innerText = newName;
         document.getElementById('mobile-user-name').innerText = newName;
-        modal.classList.add('hidden');
-        showToast("Jméno upraveno.", "success");
-    } catch (e) { showToast("Chyba: " + e.message, "error"); }
-});
-
-// 2. Změna E-mailu
-setupSubmodal('edit-email-trigger', 'submodal-email', ['close-submodal-email', 'cancel-submodal-email'], 'save-submodal-email', async (modal) => {
-    const newEmail = document.getElementById('edit-val-email').value.trim();
-    if (!newEmail) return showToast("Zadej e-mail.", "warning");
-
-    try {
-        await updateEmail(auth.currentUser, newEmail);
-        document.getElementById('profile-val-email').innerText = newEmail;
-        modal.classList.add('hidden');
-        showToast("E-mail upraven.", "success");
+        
+        showToast("Osobní údaje uloženy.", "success");
     } catch (e) { 
         if (e.code === 'auth/requires-recent-login') showToast("Pro změnu e-mailu se odhlas a znovu přihlas.", "error");
         else showToast("Chyba: " + e.message, "error"); 
     }
 });
 
-// 3. Změna Hesla
-setupSubmodal('open-password-modal-btn', 'submodal-password', ['close-submodal-password', 'cancel-submodal-password'], 'save-submodal-password', async (modal) => {
-    const pwd1 = document.getElementById('edit-val-password').value;
-    const pwd2 = document.getElementById('edit-val-password-confirm').value;
+// Změna Hesla v profilu
+document.getElementById('save-security-btn').addEventListener('click', async () => {
+    const pwd1 = document.getElementById('edit-profile-pass').value;
+    const pwd2 = document.getElementById('edit-profile-pass-confirm').value;
 
-    if (!pwd1) return showToast("Zadej heslo.", "warning");
+    if (!pwd1) return showToast("Zadej nové heslo.", "warning");
     if (pwd1 !== pwd2) return showToast("Hesla se neshodují!", "warning");
     if (pwd1.length < 6) return showToast("Heslo musí mít aspoň 6 znaků.", "warning");
 
     try {
         await updatePassword(auth.currentUser, pwd1);
-        modal.classList.add('hidden');
+        document.getElementById('edit-profile-pass').value = '';
+        document.getElementById('edit-profile-pass-confirm').value = '';
         showToast("Heslo úspěšně změněno.", "success");
     } catch (e) {
         if (e.code === 'auth/requires-recent-login') showToast("Pro změnu hesla se odhlas a znovu přihlas.", "error");
         else showToast("Chyba: " + e.message, "error"); 
     }
+});
+
+// Uložení Administrace (Hodinová mzda)
+document.getElementById('save-admin-btn').addEventListener('click', async () => {
+    const newRate = Number(document.getElementById('edit-profile-rate').value);
+    if(!newRate || newRate <= 0) return showToast("Zadej platnou mzdu.", "warning");
+    
+    try {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { hourlyRate: newRate });
+        showToast("Nastavení uloženo.", "success");
+        // Protože se mu teď změnila mzda pro BUDOUCÍ záznamy, nemusíme překreslovat ty staré.
+    } catch (e) { showToast("Chyba: " + e.message, "error"); }
 });
 
 
@@ -1207,13 +1283,14 @@ adminWorkersList.addEventListener('click', async (e) => {
             
             let records = [];
             let totalHours = 0;
+            let totalMoney = 0;
             
             snapshot.forEach(docSnap => {
                 const data = docSnap.data();
-                // OPRAVA: Ukládáme DO ROZBALENÉ KARTY JEN ZÁZNAMY Z TOHOTO MĚSÍCE
                 if (data.date.startsWith(currentMonthPrefix)) {
                     records.push({ id: docSnap.id, ...data });
                     totalHours += Number(data.hours);
+                    totalMoney += (Number(data.hours) * (data.rate || 200));
                 }
             });
 
@@ -1255,7 +1332,7 @@ adminWorkersList.addEventListener('click', async (e) => {
                         </div>
                         <div class="stat-row">
                             <span class="text-secondary">Výdělek</span>
-                            <strong class="text-accent">${(totalHours * HOURLY_RATE).toLocaleString('cs-CZ')} Kč</strong>
+                            <strong class="text-accent">${totalMoney.toLocaleString('cs-CZ')} Kč</strong>
                         </div>
                     </div>
                 </div>
