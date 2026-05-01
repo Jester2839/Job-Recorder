@@ -851,6 +851,7 @@ window.addEventListener('click', (event) => {
     // Zavírání profilu
     if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
         userDropdown.classList.add('hidden');
+        document.body.style.overflow = '';
     }
 
     // Zavírání filtrů
@@ -954,6 +955,8 @@ const profileModal = document.getElementById('profile-modal');
 
 // Otevření hlavního profilu a předvyplnění dat z DB
 async function openProfilePage() {
+    //zakazeme body aby se nedalo v nem scrollovat
+    document.body.style.overflow = 'hidden';
     // Zavřeme případná otevřená menu
     document.getElementById('user-dropdown').classList.add('hidden');
     const mobileMenu = document.getElementById('mobile-fullscreen-menu');
@@ -984,7 +987,11 @@ async function openProfilePage() {
 
 document.getElementById('open-profile-desktop-btn')?.addEventListener('click', openProfilePage);
 document.getElementById('open-profile-mobile-btn')?.addEventListener('click', openProfilePage);
-document.getElementById('close-profile-page-btn')?.addEventListener('click', () => profileModal.classList.add('hidden'));
+document.getElementById('close-profile-page-btn')?.addEventListener('click', () => {
+    profileModal.classList.add('hidden');
+    // obnoveni scroolovani
+    document.body.style.overflow = ''; 
+});
 
 // --- NAVIGACE V PROFILU (KATEGORIE) ---
 document.querySelectorAll('.profile-nav-item').forEach(item => {
