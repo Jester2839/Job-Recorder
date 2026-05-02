@@ -59,13 +59,9 @@
                     <input type="email" id="reg-email" placeholder="např. novotny@email.cz">
                     <label class="floating-label">E-mail</label>
                 </div>
-                <div class="input-wrapper">
-                    <input type="number" id="reg-hourly-rate" value="200" step="10">
-                    <label class="floating-label">Hodinová mzda (Kč/h)</label>
-                </div>
                 <div class="password-wrapper input-wrapper">
                     <input type="password" id="reg-password" class="password-input" placeholder="Min. 6 znaků">
-                    <label class="floating-label">Nové heslo</label>
+                    <label class="floating-label">Heslo</label>
                     <button id="toggle-reg-password-btn" class="btn-icon password-toggle-btn" type="button"><i
                             class="ph ph-eye" id="toggle-reg-password-icon"></i></button>
                 </div>
@@ -375,22 +371,39 @@
                                 <button id="save-personal-btn" class="btn btn-accent">Uložit změny</button>
                             </div>
                         </div>
-    
+                        
                         <div class="card profile-card mt-40">
                             <div class="section-header">
                                 <h2>Změna hesla</h2>
                                 <p class="text-secondary">Pro zvýšení bezpečnosti doporučujeme heslo občas měnit.</p>
                             </div>
                             <div class="profile-column-layout">
-                                <div class="input-wrapper">
-                                    <input type="password" id="edit-profile-pass" placeholder=" ">
+                                <div class="password-wrapper input-wrapper">
+                                    <input type="password" id="edit-profile-pass" class="password-input" placeholder=" ">
                                     <label class="floating-label">Nové heslo</label>
+                                    <button id="toggle-profile-pass-btn" class="btn-icon password-toggle-btn" type="button">
+                                        <i class="ph ph-eye" id="toggle-profile-pass-icon"></i>
+                                    </button>
                                 </div>
-                                <div class="input-wrapper">
-                                    <input type="password" id="edit-profile-pass-confirm" placeholder=" ">
+                                <div class="password-wrapper input-wrapper">
+                                    <input type="password" id="edit-profile-pass-confirm" class="password-input" placeholder=" ">
                                     <label class="floating-label">Potvrdit nové heslo</label>
+                                    <button id="toggle-profile-pass-confirm-btn" class="btn-icon password-toggle-btn" type="button">
+                                        <i class="ph ph-eye" id="toggle-profile-pass-confirm-icon"></i>
+                                    </button>
                                 </div>
                                 <button id="save-security-btn" class="btn btn-accent" disabled>Změnit heslo</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card profile-card mt-40" style="border-color: rgba(220, 53, 69, 0.3);">
+                            <div class="section-header">
+                                <h2 class="text-danger">Smazání účtu</h2>
+                                <p class="text-secondary">Tato akce je trvalá. Smaže tvůj profil z databáze a znemožní ti přístup do aplikace.
+                                </p>
+                            </div>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button id="open-delete-account-btn" class="btn btn-danger">Trvale smazat můj účet</button>
                             </div>
                         </div>
                     </div>
@@ -477,67 +490,45 @@
             </div>
         </div>
     </div>
+    
+    <div id="delete-account-modal" class="modal-overlay hidden" style="z-index: 10000;">
+    <div class="modal-content modal-solid">
+        <div class="dropdown-header">
+            <h3 class="text-danger"><i class="ph ph-warning"></i> Smazat účet?</h3>
+            <button id="close-delete-account-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+        </div>
+        <p class="text-secondary">Opravdu chceš trvale smazat svůj účet a veškeré osobní údaje? Tato akce je <strong>nevratná</strong>.</p>
+        
+        <div class="password-wrapper input-wrapper mt-10">
+            <input type="password" id="delete-account-password" class="password-input" placeholder=" ">
+            <label class="floating-label">Zadej své heslo pro potvrzení</label>
+            <button id="toggle-delete-account-pass-btn" class="btn-icon password-toggle-btn" type="button">
+                <i class="ph ph-eye" id="toggle-delete-account-pass-icon"></i>
+            </button>
+        </div>
 
-
-    <div id="submodal-name" class="modal-overlay submodal-overlay hidden">
-        <div class="modal-content submodal-content modal-solid">
-            <div class="dropdown-header">
-                <h3>Změna jména</h3>
-                <button id="close-submodal-name" class="btn-icon"><i class="ph ph-x"></i></button>
-            </div>
+        <div class="header-actions modal-actions mt-15">
+            <button id="close-delete-account-btn" class="btn">Zrušit</button>
+            <button id="confirm-delete-account-btn" class="btn btn-danger">Ano, smazat účet</button>
+        </div>
+    </div>
+</div>
+    
+    <div id="onboarding-modal" class="modal-overlay hidden" style="z-index: 9999;">
+        <div class="modal-content modal-solid" style="text-align: center; gap: 20px;">
+            <i class="ph ph-hand-waving" style="font-size: 3rem; color: var(--accent-color);"></i>
+            <h2>Vítej v aplikaci!</h2>
+            <p class="text-secondary" style="margin-top: -10px;">Než začneš zapisovat hodiny, nastav si prosím svou aktuální
+                hodinovou mzdu. Můžeš ji pak kdykoliv změnit v nastavení profilu.</p>
+    
             <div class="input-wrapper mt-15">
-                <input type="text" id="edit-val-name" placeholder="">
-                <label class="floating-label">Nové jméno</label>
+                <input type="number" id="onboarding-rate" placeholder=" " step="10">
+                <label class="floating-label">Hodinová mzda (Kč/h)</label>
             </div>
-            <div class="header-actions modal-actions mt-15">
-                <button id="cancel-submodal-name" class="btn">Zrušit</button>
-                <button id="save-submodal-name" class="btn btn-accent">Uložit</button>
-            </div>
+    
+            <button id="save-onboarding-btn" class="btn btn-accent w-100">Uložit a začít</button>
         </div>
-    </div>
-
-    <div id="submodal-email" class="modal-overlay submodal-overlay hidden">
-        <div class="modal-content submodal-content modal-solid">
-            <div class="dropdown-header">
-                <h3>Změna e-mailu</h3>
-                <button id="close-submodal-email" class="btn-icon"><i class="ph ph-x"></i></button>
-            </div>
-            <div class="input-wrapper mt-15">
-                <input type="email" id="edit-val-email" placeholder="">
-                <label class="floating-label">Nový e-mail</label>
-            </div>
-            <div class="header-actions modal-actions mt-15">
-                <button id="cancel-submodal-email" class="btn">Zrušit</button>
-                <button id="save-submodal-email" class="btn btn-accent">Uložit</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="submodal-password" class="modal-overlay submodal-overlay hidden">
-        <div class="modal-content submodal-content modal-solid">
-            <div class="dropdown-header">
-                <h3>Změna hesla</h3>
-                <button id="close-submodal-password" class="btn-icon"><i class="ph ph-x"></i></button>
-            </div>
-            <div class="password-wrapper input-wrapper mt-15">
-                <input type="password" id="edit-val-password" class="password-input" placeholder="Min. 6 znaků">
-                <label class="floating-label">Nové heslo</label>
-                <button id="toggle-edit-password-btn" class="btn-icon password-toggle-btn" type="button"><i
-                        class="ph ph-eye" id="toggle-edit-password-icon"></i></button>
-            </div>
-            <div class="password-wrapper input-wrapper mt-15">
-                <input type="password" id="edit-val-password-confirm" class="password-input"
-                    placeholder="Zadej heslo znovu">
-                <label class="floating-label">Potvrdit heslo</label>
-                <button id="toggle-edit-password-confirm-btn" class="btn-icon password-toggle-btn" type="button"><i
-                        class="ph ph-eye" id="toggle-edit-password-confirm-icon"></i></button>
-            </div>
-            <div class="header-actions modal-actions mt-15">
-                <button id="cancel-submodal-password" class="btn">Zrušit</button>
-                <button id="save-submodal-password" class="btn btn-accent">Uložit</button>
-            </div>
-        </div>
-    </div>
+</div>
 
     <nav id="mobile-fullscreen-menu" class="mobile-menu-fullscreen mobile-only">
         <div class="mobile-menu-top">

@@ -1,6 +1,6 @@
 // Importy Firebase funkcí z CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile, updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile, updateEmail, updatePassword, deleteUser, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 // SEM VLOŽ SVŮJ CONFIG Z FIREBASE
@@ -52,8 +52,9 @@ function setupPasswordToggle(btnId, inputId, iconId) {
 setupPasswordToggle('toggle-login-password-btn', 'login-password', 'toggle-login-password-icon');
 setupPasswordToggle('toggle-reg-password-btn', 'reg-password', 'toggle-reg-password-icon');
 setupPasswordToggle('toggle-reg-password-confirm-btn', 'reg-password-confirm', 'toggle-reg-password-confirm-icon');
-setupPasswordToggle('toggle-edit-password-btn', 'edit-val-password', 'toggle-edit-password-icon');
-setupPasswordToggle('toggle-edit-password-confirm-btn', 'edit-val-password-confirm', 'toggle-edit-password-confirm-icon');
+setupPasswordToggle('toggle-profile-pass-btn', 'edit-profile-pass', 'toggle-profile-pass-icon');
+setupPasswordToggle('toggle-profile-pass-confirm-btn', 'edit-profile-pass-confirm', 'toggle-profile-pass-confirm-icon');
+setupPasswordToggle('toggle-delete-account-pass-btn', 'delete-account-password', 'toggle-delete-account-pass-icon');
 
 // Přepínání motivu přímo v profilu
 const profileThemeToggle = document.getElementById('profile-theme-toggle');
@@ -211,7 +212,6 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     const email = document.getElementById('reg-email').value.trim();
     const password = document.getElementById('reg-password').value;
     const confirmPassword = document.getElementById('reg-password-confirm').value;
-    const hourlyRate = Number(document.getElementById('reg-hourly-rate').value) || 200;
 
     // Kontrola, zda je vše vyplněné
     if (!name || !email || !password || !confirmPassword) {
@@ -220,7 +220,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     }
 
     if (password !== confirmPassword) {
-        showToast("Hesla se neshodují!", "warning");
+        showToast("Hesla se neshodují!", "error");
         return;
     }
 
@@ -235,7 +235,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
             name: name,
             email: email,
             role: "worker",
-            hourlyRate: hourlyRate,
+            hourlyRate: null,
             employerId: null,
             createdAt: serverTimestamp()
         });
@@ -251,8 +251,11 @@ document.getElementById('register-btn').addEventListener('click', async () => {
         document.getElementById('dropdown-user-name').innerText = name;
         document.getElementById('mobile-user-name').innerText = name;
 
+        // Zobrazíme Onboarding ihned po registraci a upozornění na úspěch
         showToast("Úspěšně zaregistrováno! Vítej.", "success");
+        document.getElementById('onboarding-modal').classList.remove('hidden');
 
+        showToast("Úspěšně zaregistrováno! Vítej.", "success");
     } catch (error) {
         // Překlad nejčastějších Firebase chyb a volání Toastu
         if (error.code === 'auth/email-already-in-use') {
@@ -264,6 +267,26 @@ document.getElementById('register-btn').addEventListener('click', async () => {
         } else {
             showToast("Chyba při registraci: " + error.message, "error");
         }
+    }
+});
+
+// --- LOGIKA PRO ONBOARDING (Prvotní nastavení mzdy) ---
+document.getElementById('save-onboarding-btn').addEventListener('click', async () => {
+    const rate = Number(document.getElementById('onboarding-rate').value);
+    
+    if (!rate || rate <= 0) {
+        showToast("Zadej platnou mzdu.", "warning");
+        return;
+    }
+
+    try {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { 
+            hourlyRate: rate 
+        });
+        showToast("Registrace proběhla úspěšně, vše je připraveno!", "success");
+        document.getElementById('onboarding-modal').classList.add('hidden');
+    } catch (e) { 
+        showToast("Chyba při ukládání: " + e.message, "error"); 
     }
 });
 
@@ -1067,7 +1090,7 @@ document.getElementById('save-security-btn').addEventListener('click', async () 
     const pwd2 = document.getElementById('edit-profile-pass-confirm').value;
 
     if (!pwd1) return showToast("Zadej nové heslo.", "warning");
-    if (pwd1 !== pwd2) return showToast("Hesla se neshodují!", "warning");
+    if (pwd1 !== pwd2) return showToast("Hesla se neshodují!", "error");
     if (pwd1.length < 6) return showToast("Heslo musí mít aspoň 6 znaků.", "warning");
 
     try {
@@ -1078,6 +1101,70 @@ document.getElementById('save-security-btn').addEventListener('click', async () 
     } catch (e) {
         if (e.code === 'auth/requires-recent-login') showToast("Pro změnu hesla se odhlas a znovu přihlas.", "error");
         else showToast("Chyba: " + e.message, "error"); 
+    }
+});
+
+// --- SMAZÁNÍ ÚČTU ---
+const deleteAccountModal = document.getElementById('delete-account-modal');
+
+// Otevření potvrzovacího okna
+document.getElementById('open-delete-account-btn').addEventListener('click', () => {
+    deleteAccountModal.classList.remove('hidden');
+});
+
+// Zavření okna
+document.getElementById('close-delete-account-btn').addEventListener('click', () => deleteAccountModal.classList.add('hidden'));
+document.getElementById('close-delete-account-cross').addEventListener('click', () => deleteAccountModal.classList.add('hidden'));
+
+// Samotné smazání
+document.getElementById('confirm-delete-account-btn').addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const passwordInput = document.getElementById('delete-account-password');
+    const password = passwordInput.value;
+
+    if (!password) {
+        showToast("Pro smazání účtu musíš zadat své heslo.", "warning");
+        return;
+    }
+
+    const userDocRef = doc(db, "users", user.uid);
+    let backupData = null;
+
+    try {
+        // 1. RE-AUTENTIZACE: Oklame Firebase bezpečnostní pojistku!
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
+
+        // ZÁLOHA: Načteme si data profilu, než je smažeme
+        const snap = await getDoc(userDocRef);
+        if (snap.exists()) backupData = snap.data();
+
+        // 2. Smažeme profil z naší databáze Firestore
+        await deleteDoc(userDocRef);
+        
+        // 3. Smažeme samotný účet z Firebase Authentication
+        await deleteUser(user);
+        
+        showToast("Účet byl úspěšně smazán.", "success");
+        deleteAccountModal.classList.add('hidden');
+        document.getElementById('profile-modal').classList.add('hidden');
+        document.body.style.overflow = ''; // Obnovíme scrollování
+        passwordInput.value = ''; // Vyčistíme heslo
+        
+    } catch (error) {
+        // OBNOVA DAT: Pokud smazání účtu selže, vrátíme profil zpět do databáze!
+        if (backupData) {
+            await setDoc(userDocRef, backupData);
+        }
+
+        // Zkontrolujeme, jestli se uživatel nespletl v hesle
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            showToast("Zadal jsi špatné heslo.", "error");
+        } else {
+            showToast("Chyba při mazání: " + error.message, "error");
+        }
     }
 });
 

@@ -634,7 +634,7 @@ input[type="number"]::-webkit-outer-spin-button {
     padding: 12px 24px;
     border-radius: 50px;
     border: 1px solid var(--border-color);
-    z-index: 2000;
+    z-index: 99999;
     font-weight: bold;
 }
 
