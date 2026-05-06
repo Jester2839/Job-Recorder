@@ -327,54 +327,52 @@
     </div>
     
     <div id="profile-modal" class="modal-overlay hidden">
-        <div class="profile-page-container">
-            <aside class="profile-sidebar">
-                
-                <!-- HLAVIČKA PRO PC (Zůstává beze změny) -->
-                <div class="profile-sidebar-header desktop-only-flex">
-                    <i class="ph ph-user-circle"></i>
-                    <h3 id="profile-sidebar-name">Jméno</h3>
-                </div>
-
-                <!-- NOVÁ HLAVIČKA PRO MOBIL (Tlačítko Zpět je tady nahoře) -->
-                <div class="mobile-only mobile-profile-header">
-                    <div class="mobile-profile-user-info">
-                        <button id="close-profile-mobile-btn" class="btn-icon"><i class="ph ph-arrow-left"></i></button>
-                        <i class="ph ph-user-circle"></i>
-                        <span id="mobile-profile-name" class="text-truncate">Jméno</span>
-                    </div>
+        <div class="profile-page-container" id="profile-page-container">
+            
+            <aside class="profile-sidebar" id="profile-sidebar">
+                <div class="profile-sidebar-header">
+                    <i class="ph ph-user-circle desktop-only-flex"></i>
+                    <h3 id="profile-sidebar-name" class="desktop-only-flex">Jméno</h3>
                     
-                    <div class="relative-wrapper" style="width: 100%;">
-                        <button id="mobile-profile-nav-btn" class="btn btn-ghost w-100 mobile-nav-dropdown-btn">
-                            <span><i class="ph ph-lock"></i> Profil & zabezpečení</span>
-                            <i class="ph ph-caret-down"></i>
+                    <div class="mobile-only flex-center-gap" style="width: 100%; justify-content: space-between;">
+                        <div class="flex-center-gap">
+                            <i class="ph ph-user-circle" style="font-size: 2.5rem; color: var(--accent-color); margin: 0;"></i>
+                            <h3 id="mobile-profile-name" class="text-truncate" style="font-size: var(--fs-xl); margin: 0;">Jméno</h3>
+                        </div>
+                        <button id="close-profile-mobile-cross" class="btn-icon">
+                            <i class="ph ph-x" style="font-size: 1.8rem;"></i>
                         </button>
-                        
-                        <!-- Navigace: Na PC klasický seznam, na mobilu skrytý dropdown -->
-                        <nav id="mobile-profile-nav" class="profile-nav mobile-nav-hidden">
-                            <a href="#" class="profile-nav-item active" data-category="profile-sec" data-text="Profil & zabezpečení">
-                                <i class="ph ph-lock"></i> Profil & zabezpečení
-                            </a>
-                            <a href="#" class="profile-nav-item" data-category="appearance-sec" data-text="Vzhled">
-                                <i class="ph ph-palette"></i> Vzhled
-                            </a>
-                            <a href="#" class="profile-nav-item" data-category="admin-sec" data-text="Nastavení">
-                                <i class="ph ph-wrench"></i> Nastavení
-                            </a>
-                        </nav>
                     </div>
                 </div>
 
-                <!-- Tlačítko Zpět (Zůstává dole, ale JEN pro PC) -->
-                <button id="close-profile-page-btn" class="btn btn-ghost mt-auto desktop-only-flex"><i class="ph ph-arrow-left"></i> Zpět</button>
+                <nav class="profile-nav">
+                    <a href="#" class="profile-nav-item active" data-category="profile-sec" data-text="Profil & zabezpečení">
+                        <i class="ph ph-lock"></i> Profil & zabezpečení
+                        <i class="ph ph-caret-right mobile-only ms-auto text-secondary"></i>
+                    </a>
+                    <a href="#" class="profile-nav-item" data-category="appearance-sec" data-text="Vzhled">
+                        <i class="ph ph-palette"></i> Vzhled
+                        <i class="ph ph-caret-right mobile-only ms-auto text-secondary"></i>
+                    </a>
+                    <a href="#" class="profile-nav-item" data-category="admin-sec" data-text="Nastavení">
+                        <i class="ph ph-wrench"></i> Nastavení
+                        <i class="ph ph-caret-right mobile-only ms-auto text-secondary"></i>
+                    </a>
+                </nav>
+                
+                <button id="close-profile-page-btn" class="btn btn-ghost mt-auto desktop-only-flex"><i class="ph ph-arrow-left"></i> Zpět do aplikace</button>
             </aside>
     
-            <main class="profile-main-content">
+            <main class="profile-main-content" id="profile-main-content">
+                
+                <div class="mobile-only mobile-back-to-menu">
+                    <button id="mobile-back-to-menu-btn" class="btn-icon"><i class="ph ph-arrow-left"></i></button>
+                    <span id="mobile-category-title">Profil & zabezpečení</span>
+                </div>
+
                 <div class="profile-content-wrapper">
-    
                     <div id="cat-profile-sec" class="profile-category">
-                        <h1 class="category-title">Profil & zabezpečení</h1>
-    
+                        <h1 class="category-title desktop-only-flex">Profil & zabezpečení</h1>
                         <div class="card profile-card">
                             <div class="section-header">
                                 <h2>Osobní údaje</h2>
@@ -418,10 +416,9 @@
                         </div>
                         
                         <div class="card profile-card mt-40" style="border-color: rgba(220, 53, 69, 0.3);">
-                            <div class="section-header">
+                            <div class="section-header" style="text-align: center;">
                                 <h2 class="text-danger">Smazání účtu</h2>
-                                <p class="text-secondary">Tato akce je trvalá. Smaže tvůj profil z databáze a znemožní ti přístup do aplikace.
-                                </p>
+                                <p class="text-secondary">Tato akce je trvalá. Smaže tvůj profil z databáze a znemožní ti přístup do aplikace.</p>
                             </div>
                             <div style="text-align: center; margin-top: 20px;">
                                 <button id="open-delete-account-btn" class="btn btn-danger">Trvale smazat můj účet</button>
@@ -430,7 +427,7 @@
                     </div>
     
                     <div id="cat-appearance-sec" class="profile-category hidden">
-                        <h1 class="category-title">Vzhled</h1>
+                        <h1 class="category-title desktop-only-flex">Vzhled</h1>
                         <div class="card profile-card">
                             <div class="section-header">
                                 <h2>Motiv a barvy</h2>
@@ -447,18 +444,12 @@
                                 <div class="appearance-setting-row mt-15">
                                     <span class="text-secondary">Barevný akcent aplikace</span>
                                     <div class="color-picker mt-10">
-                                        <div class="color-swatch" data-theme-name="modra"
-                                            style="background-color: #445da4;"></div>
-                                        <div class="color-swatch" data-theme-name="oranzova"
-                                            style="background-color: #c3581e;"></div>
-                                        <div class="color-swatch" data-theme-name="zelena"
-                                            style="background-color: #00c083;"></div>
-                                        <div class="color-swatch" data-theme-name="fialova"
-                                            style="background-color: #985caf;"></div>
-                                        <div class="color-swatch" data-theme-name="cervena"
-                                            style="background-color: #e05666;"></div>
-                                        <div class="color-swatch" data-theme-name="invertovana"
-                                            style="background-color: #242423;"></div>
+                                        <div class="color-swatch" data-theme-name="modra" style="background-color: #445da4;"></div>
+                                        <div class="color-swatch" data-theme-name="oranzova" style="background-color: #c3581e;"></div>
+                                        <div class="color-swatch" data-theme-name="zelena" style="background-color: #00c083;"></div>
+                                        <div class="color-swatch" data-theme-name="fialova" style="background-color: #985caf;"></div>
+                                        <div class="color-swatch" data-theme-name="cervena" style="background-color: #e05666;"></div>
+                                        <div class="color-swatch" data-theme-name="invertovana" style="background-color: #242423;"></div>
                                     </div>
                                 </div>
                             </div>
@@ -466,7 +457,7 @@
                     </div>
     
                     <div id="cat-admin-sec" class="profile-category hidden">
-                        <h1 class="category-title">Nastavení</h1>
+                        <h1 class="category-title desktop-only-flex">Nastavení</h1>
                         <div class="card profile-card">
                             <div class="section-header">
                                 <h2>Pracovní nastavení</h2>

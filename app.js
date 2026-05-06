@@ -990,7 +990,9 @@ async function openProfilePage() {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         const userData = userDoc.data() || {};
 
-        document.getElementById('profile-sidebar-name').innerText = userData.name || user.displayName || 'Uživatel';
+        const userName = userData.name || user.displayName || 'Uživatel';
+        document.getElementById('profile-sidebar-name').innerText = userName;
+        document.getElementById('mobile-profile-name').innerText = userName;
         document.getElementById('edit-profile-name').value = userData.name || user.displayName || '';
         document.getElementById('edit-profile-email').value = user.email || '';
         document.getElementById('edit-profile-rate').value = userData.hourlyRate || 200;
@@ -1005,14 +1007,25 @@ async function openProfilePage() {
     const currentTheme = localStorage.getItem('app-accent-theme') || 'modra';
     applyAccentTheme(currentTheme);
 
+    const profileContainer = document.querySelector('.profile-page-container');
+    if (profileContainer) {
+        profileContainer.classList.remove('show-detail');
+    }
+
     profileModal.classList.remove('hidden');
 }
 
 document.getElementById('open-profile-desktop-btn')?.addEventListener('click', openProfilePage);
 document.getElementById('open-profile-mobile-btn')?.addEventListener('click', openProfilePage);
+// Zavírání profilu na PC (spodní tlačítko)
 document.getElementById('close-profile-page-btn')?.addEventListener('click', () => {
     profileModal.classList.add('hidden');
-    // obnoveni scroolovani
+    document.body.style.overflow = ''; 
+});
+
+// Zavírání profilu na MOBILU (nový křížek vpravo nahoře)
+document.getElementById('close-profile-mobile-cross')?.addEventListener('click', () => {
+    profileModal.classList.add('hidden');
     document.body.style.overflow = ''; 
 });
 
@@ -1021,7 +1034,7 @@ document.querySelectorAll('.profile-nav-item').forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
         const categoryId = item.getAttribute('data-category');
-        const itemName = item.getAttribute('data-text'); // Přidaný název z HTML
+        const itemName = item.getAttribute('data-text'); // Text pro mobilní hlavičku
 
         // 1. Změna aktivního stavu v menu
         document.querySelectorAll('.profile-nav-item').forEach(nav => nav.classList.remove('active'));
@@ -1034,29 +1047,32 @@ document.querySelectorAll('.profile-nav-item').forEach(item => {
         // 3. Scroll nahoru v obsahu
         document.querySelector('.profile-main-content').scrollTop = 0;
 
-        // 4. --- NOVÉ PRO MOBIL --- : Změna textu na tlačítku a zavření menu
-        if (mobileProfileNavBtn) {
-            mobileProfileNavBtn.querySelector('span').innerHTML = item.innerHTML; 
-            mobileProfileNav.classList.add('mobile-nav-hidden');
+        // 4. MOBILNÍ LOGIKA: Nastavení textu a otevření detailu
+        const mobileTitle = document.getElementById('mobile-category-title');
+        if (mobileTitle) mobileTitle.innerText = itemName;
+        
+        const profileContainer = document.getElementById('profile-page-container');
+        if(profileContainer) {
+            profileContainer.classList.add('show-detail');
         }
     });
 });
 
-// --- LOGIKA PRO MOBILNÍ NAVIGACI V PROFILU ---
-const mobileProfileNavBtn = document.getElementById('mobile-profile-nav-btn');
-const mobileProfileNav = document.getElementById('mobile-profile-nav');
+// --- ZAVÍRÁNÍ PROFILU A NÁVRATY ---
+// Návrat z detailu kategorie zpět do hlavního mobilního menu
+document.getElementById('mobile-back-to-menu-btn')?.addEventListener('click', () => {
+    const profileContainer = document.getElementById('profile-page-container');
+    if(profileContainer) {
+        profileContainer.classList.remove('show-detail');
+    }
+});
 
-if (mobileProfileNavBtn) {
-    // Rozbalení / Sbalení menu
-    mobileProfileNavBtn.addEventListener('click', () => {
-        mobileProfileNav.classList.toggle('mobile-nav-hidden');
-    });
+// Úplné zavření profilu (křížkem na mobilu vpravo nahoře)
+document.getElementById('close-profile-mobile-cross')?.addEventListener('click', () => {
+    profileModal.classList.add('hidden');
+    document.body.style.overflow = ''; 
+});
 
-    // Skrytí menu, pokud kliknu někam do profilové části
-    document.querySelector('.profile-main-content').addEventListener('click', () => {
-        mobileProfileNav.classList.add('mobile-nav-hidden');
-    });
-}
 
 // --- ZABEZPEČENÍ TLAČÍTKA HESLA ---
 const passInput = document.getElementById('edit-profile-pass');
@@ -1096,7 +1112,6 @@ document.getElementById('save-personal-btn').addEventListener('click', async () 
         
         // Update UI napříč aplikací
         document.getElementById('profile-sidebar-name').innerText = newName;
-        document.getElementById('mobile-profile-name').innerText = userData.name || user.displayName || 'Uživatel';
         document.getElementById('desktop-user-name').innerText = newName;
         document.getElementById('dropdown-user-name').innerText = newName;
         document.getElementById('mobile-user-name').innerText = newName;

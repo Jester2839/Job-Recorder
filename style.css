@@ -791,11 +791,13 @@ input[type="number"]::-webkit-outer-spin-button {
     max-width: none !important;
     border-radius: var(--border-radius) 0 0 var(--border-radius);
     display: flex;
+    flex-direction: row;
     background-color: var(--bg-main);
     z-index: 9999;
 
     position: absolute;
     right: 0;
+    overflow: hidden;
 }
 
 /* ŠTÍHLEJŠÍ A VZDUŠNĚJŠÍ BOČNÍ PANEL */
@@ -1042,9 +1044,13 @@ input[type="number"]::-webkit-outer-spin-button {
 .mt-40 {
     margin-top: 40px;
 }
+.w-100 {
+    width: 100%;
+}
 
-.w-100 { width: 100%; }
-
+.ms-auto {
+    margin-left: auto;
+}
 .icon-xl-accent {
     font-size: 1.8rem;
     color: var(--accent-color);
@@ -1613,134 +1619,103 @@ input[type="number"]::-webkit-outer-spin-button {
     }
 
 
-    /* ----- PROFILOVÁ SEKCE ----- */
+    /* ----- PROFILOVÁ SEKCE (MOBIL) ----- */
     .profile-page-container {
-        flex-direction: column;
-        height: 100vh;
-        width: 100%;
-        border-radius: 0;
-        overflow: hidden; 
+        flex-direction: row; 
+        width: 100vw; 
+        border-radius: 0 !important;
     }
     
+    /* 1. Hlavní menu (Sidebar) zobrazené přes celou obrazovku */
     .profile-sidebar {
         width: 100%;
-        height: auto; 
-        flex-shrink: 0;
-        padding: 15px 20px; /* Kompaktnější padding nahoře */
+        padding: 25px 20px;
         border-right: none;
-        border-bottom: 1px solid var(--border-color);
-        background-color: var(--bg-surface);
-        z-index: 10;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Lehký stín, aby to oddělilo od obsahu */
+        box-shadow: none;
+        border-radius: 0 !important;
     }
     
-    /* Nová mobilní hlavička */
-    .mobile-profile-header {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        align-items: center;
-        width: 100%;
+    .profile-sidebar-header {
+        flex-direction: row; 
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
     }
 
-    .mobile-profile-user-info {
+    .profile-nav {
+        border: none;
+        margin: 10px 0;
+        padding: 0;
+        gap: 15px;
+    }
+
+    .profile-nav-item {
+        font-size: var(--fs-lg);
+        padding: 15px 10px;
+        border: none;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius); 
+        white-space: normal;
+        color: var(--text-primary);
+        background-color: var(--glass-bg) !important;
+    }
+
+    .profile-nav-item.active {
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        font-weight: normal;
+        color: var(--text-primary) !important;
+        background-color: var(--glass-bg) !important;
+    }
+
+    #close-profile-mobile-cross {
+    color: var(--accent-color);
+    opacity: 1;
+    }
+
+    /* 2. Detailní zobrazení (Hlavní okno) je na mobilu v základu SCHOVANÉ */
+    .profile-main-content {
+        display: none; 
+        width: 100%;
+        padding: 20px 15px 100px 15px;
+    }
+
+    /* 3. Kouzlo přepínání - Když se oknu přidá třída show-detail */
+    .profile-page-container.show-detail .profile-sidebar {
+        display: none; 
+    }
+    .profile-page-container.show-detail .profile-main-content {
+        display: block; 
+    }
+
+    /* Hlavička s tlačítkem Zpět v detailním okně */
+    .mobile-back-to-menu {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 15px;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+        border-bottom: 1px dashed var(--border-color);
         font-size: var(--fs-xl);
         font-weight: bold;
         color: var(--text-primary);
-        width: 100%;
-        padding-bottom: 10px;
-        border-bottom: 1px dashed var(--border-color);
     }
-    
-    .mobile-profile-user-info i {
-        color: var(--accent-color);
-        font-size: 2rem;
-    }
-
-    /* Tlačítko pro rozbalení menu */
-    .mobile-nav-dropdown-btn {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 15px;
-        background-color: var(--bg-main);
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
-    }
-    .mobile-nav-dropdown-btn span {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    /* Styl samotného menu (Když je rozbalené) */
-    .profile-nav {
-        flex-direction: column; /* Položky pod sebe! */
-        margin: 5px 0 0 0; 
-        padding: 5px;
-        border: 1px solid var(--border-color);
+    .mobile-back-to-menu .btn-icon {
         background-color: var(--bg-surface);
-        border-radius: var(--border-radius);
-        position: absolute; /* Vyskočí přes obsah karty */
-        width: 100%;
-        top: 100%;
-        left: 0;
-        z-index: 50;
-        box-shadow: var(--box-shadow);
-        transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .profile-nav.mobile-nav-hidden {
-        opacity: 0;
-        pointer-events: none;
-        transform: translateY(-10px);
+        border: 1px solid var(--border-color);
+        padding: 8px;
     }
     
-    .profile-nav-item {
-        white-space: normal; /* Ať se text neláme špatně */
-        padding: 12px 15px;
-        font-size: var(--fs-base);
-        border-bottom: 1px solid var(--border-color);
-    }
-    .profile-nav-item:last-child {
-        border-bottom: none;
-    }
-
-    /* Schováme staré tlačítko zpět, na mobilu ho dáme jinam (nebo si ho předěláš) */
-    #close-profile-page-btn {
-        display: none; /* Zatím schováno, můžeš si ho umístit vedle jména, pokud chceš */
-    }
-
-    /* Samotný obsah profilu */
-    .profile-main-content {
-        padding: 25px 15px; /* Menší okraje ať je víc místa pro karty */
-        padding-bottom: 100px; /* Místo pro posouvání */
-        height: 100%; 
-        overflow-y: auto;
-    }
-
-    /* Zrušení obřího odsazení pro hlavní obsah profilu na mobilu */
     .profile-content-wrapper {
         margin-left: 0;
         max-width: 100%;
     }
-
-    /* Zrušení bočního vyosení karet a zmenšení mezer */
     .profile-card {
         margin-left: 0;
         padding: 25px 20px;
         margin-bottom: 25px;
     }
-
-    /* Zmenšení nadpisu kategorie na mobilu */
-    .category-title {
-        font-size: var(--fs-2xl); 
-        margin-bottom: 25px;
-    }
-
 
 
     /*  ===========================================
