@@ -1021,8 +1021,9 @@ document.querySelectorAll('.profile-nav-item').forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
         const categoryId = item.getAttribute('data-category');
+        const itemName = item.getAttribute('data-text'); // Přidaný název z HTML
 
-        // 1. Změna aktivního stavu v menu (rámeček)
+        // 1. Změna aktivního stavu v menu
         document.querySelectorAll('.profile-nav-item').forEach(nav => nav.classList.remove('active'));
         item.classList.add('active');
 
@@ -1032,8 +1033,30 @@ document.querySelectorAll('.profile-nav-item').forEach(item => {
 
         // 3. Scroll nahoru v obsahu
         document.querySelector('.profile-main-content').scrollTop = 0;
+
+        // 4. --- NOVÉ PRO MOBIL --- : Změna textu na tlačítku a zavření menu
+        if (mobileProfileNavBtn) {
+            mobileProfileNavBtn.querySelector('span').innerHTML = item.innerHTML; 
+            mobileProfileNav.classList.add('mobile-nav-hidden');
+        }
     });
 });
+
+// --- LOGIKA PRO MOBILNÍ NAVIGACI V PROFILU ---
+const mobileProfileNavBtn = document.getElementById('mobile-profile-nav-btn');
+const mobileProfileNav = document.getElementById('mobile-profile-nav');
+
+if (mobileProfileNavBtn) {
+    // Rozbalení / Sbalení menu
+    mobileProfileNavBtn.addEventListener('click', () => {
+        mobileProfileNav.classList.toggle('mobile-nav-hidden');
+    });
+
+    // Skrytí menu, pokud kliknu někam do profilové části
+    document.querySelector('.profile-main-content').addEventListener('click', () => {
+        mobileProfileNav.classList.add('mobile-nav-hidden');
+    });
+}
 
 // --- ZABEZPEČENÍ TLAČÍTKA HESLA ---
 const passInput = document.getElementById('edit-profile-pass');
@@ -1073,6 +1096,7 @@ document.getElementById('save-personal-btn').addEventListener('click', async () 
         
         // Update UI napříč aplikací
         document.getElementById('profile-sidebar-name').innerText = newName;
+        document.getElementById('mobile-profile-name').innerText = userData.name || user.displayName || 'Uživatel';
         document.getElementById('desktop-user-name').innerText = newName;
         document.getElementById('dropdown-user-name').innerText = newName;
         document.getElementById('mobile-user-name').innerText = newName;

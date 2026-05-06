@@ -831,7 +831,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .profile-nav {
     display: flex;
     flex-direction: column;
-    gap: 25px; /* Větší mezery mezi položkami */
+    gap: 25px; 
     margin: 50px 0px;
     padding: 25px 0;
     border-top: 1px solid var(--border-color);
@@ -1619,57 +1619,125 @@ input[type="number"]::-webkit-outer-spin-button {
         height: 100vh;
         width: 100%;
         border-radius: 0;
-        overflow: hidden; /* Zabrání dvojitému scrollbaru na mobilu */
+        overflow: hidden; 
     }
     
     .profile-sidebar {
         width: 100%;
-        height: auto; /* Sidebar nesmí mít 100vh na mobilu */
+        height: auto; 
         flex-shrink: 0;
-        padding: 20px;
+        padding: 15px 20px; /* Kompaktnější padding nahoře */
         border-right: none;
         border-bottom: 1px solid var(--border-color);
+        background-color: var(--bg-surface);
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Lehký stín, aby to oddělilo od obsahu */
     }
     
-    .profile-sidebar-header {
-        display: none; /* Na mobilu šetříme místo */
+    /* Nová mobilní hlavička */
+    .mobile-profile-header {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        width: 100%;
     }
-    
-    .profile-nav {
-        flex-direction: row;
-        overflow-x: auto;
+
+    .mobile-profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: var(--fs-xl);
+        font-weight: bold;
+        color: var(--text-primary);
+        width: 100%;
         padding-bottom: 10px;
-        margin: 0; /* Zrušíme obří mezery z PC */
-        border: none;
+        border-bottom: 1px dashed var(--border-color);
+    }
+    
+    .mobile-profile-user-info i {
+        color: var(--accent-color);
+        font-size: 2rem;
+    }
+
+    /* Tlačítko pro rozbalení menu */
+    .mobile-nav-dropdown-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    .mobile-nav-dropdown-btn span {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Styl samotného menu (Když je rozbalené) */
+    .profile-nav {
+        flex-direction: column; /* Položky pod sebe! */
+        margin: 5px 0 0 0; 
+        padding: 5px;
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-surface);
+        border-radius: var(--border-radius);
+        position: absolute; /* Vyskočí přes obsah karty */
+        width: 100%;
+        top: 100%;
+        left: 0;
+        z-index: 50;
+        box-shadow: var(--box-shadow);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .profile-nav.mobile-nav-hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-10px);
     }
     
     .profile-nav-item {
-        white-space: nowrap;
-        padding: 10px 14px;
-        font-size: var(--fs-sm);
+        white-space: normal; /* Ať se text neláme špatně */
+        padding: 12px 15px;
+        font-size: var(--fs-base);
+        border-bottom: 1px solid var(--border-color);
     }
-    
+    .profile-nav-item:last-child {
+        border-bottom: none;
+    }
+
+    /* Schováme staré tlačítko zpět, na mobilu ho dáme jinam (nebo si ho předěláš) */
+    #close-profile-page-btn {
+        display: none; /* Zatím schováno, můžeš si ho umístit vedle jména, pokud chceš */
+    }
+
+    /* Samotný obsah profilu */
     .profile-main-content {
-        padding: 25px 20px;
-        padding-bottom: 60px; 
-        height: 100%; /* Vyplní zbytek displeje a scrolluje */
+        padding: 25px 15px; /* Menší okraje ať je víc místa pro karty */
+        padding-bottom: 100px; /* Místo pro posouvání */
+        height: 100%; 
         overflow-y: auto;
     }
 
+    /* Zrušení obřího odsazení pro hlavní obsah profilu na mobilu */
     .profile-content-wrapper {
-        margin-left: 0; /* Na mobilu musí být vše na středu */
+        margin-left: 0;
         max-width: 100%;
     }
 
-    /* Zrušíme odsazení karet na mobilu a zmenšíme jejich vnitřní okraje */
+    /* Zrušení bočního vyosení karet a zmenšení mezer */
     .profile-card {
         margin-left: 0;
         padding: 25px 20px;
         margin-bottom: 25px;
     }
 
+    /* Zmenšení nadpisu kategorie na mobilu */
     .category-title {
-        font-size: var(--fs-2xl); /* Menší hlavní nadpis na mobilu */
+        font-size: var(--fs-2xl); 
         margin-bottom: 25px;
     }
 

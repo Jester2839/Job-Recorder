@@ -329,23 +329,44 @@
     <div id="profile-modal" class="modal-overlay hidden">
         <div class="profile-page-container">
             <aside class="profile-sidebar">
-                <div class="profile-sidebar-header">
+                
+                <!-- HLAVIČKA PRO PC (Zůstává beze změny) -->
+                <div class="profile-sidebar-header desktop-only-flex">
                     <i class="ph ph-user-circle"></i>
                     <h3 id="profile-sidebar-name">Jméno</h3>
                 </div>
-                <nav class="profile-nav">
-                    <a href="#" class="profile-nav-item active" data-category="profile-sec">
-                        <i class="ph ph-lock"></i> 
-                        Profil & zabezpečení</a>
-                    <a href="#" class="profile-nav-item" data-category="appearance-sec">
-                        <i class="ph ph-palette"></i>
-                        Vzhled</a>
-                    <a href="#" class="profile-nav-item" data-category="admin-sec">
-                        <i class="ph ph-wrench"></i>
-                        Nastavení</a>
-                </nav>
-                <button id="close-profile-page-btn" class="btn btn-ghost mt-auto"><i class="ph ph-arrow-left"></i>
-                    Zpět</button>
+
+                <!-- NOVÁ HLAVIČKA PRO MOBIL (Tlačítko Zpět je tady nahoře) -->
+                <div class="mobile-only mobile-profile-header">
+                    <div class="mobile-profile-user-info">
+                        <button id="close-profile-mobile-btn" class="btn-icon"><i class="ph ph-arrow-left"></i></button>
+                        <i class="ph ph-user-circle"></i>
+                        <span id="mobile-profile-name" class="text-truncate">Jméno</span>
+                    </div>
+                    
+                    <div class="relative-wrapper" style="width: 100%;">
+                        <button id="mobile-profile-nav-btn" class="btn btn-ghost w-100 mobile-nav-dropdown-btn">
+                            <span><i class="ph ph-lock"></i> Profil & zabezpečení</span>
+                            <i class="ph ph-caret-down"></i>
+                        </button>
+                        
+                        <!-- Navigace: Na PC klasický seznam, na mobilu skrytý dropdown -->
+                        <nav id="mobile-profile-nav" class="profile-nav mobile-nav-hidden">
+                            <a href="#" class="profile-nav-item active" data-category="profile-sec" data-text="Profil & zabezpečení">
+                                <i class="ph ph-lock"></i> Profil & zabezpečení
+                            </a>
+                            <a href="#" class="profile-nav-item" data-category="appearance-sec" data-text="Vzhled">
+                                <i class="ph ph-palette"></i> Vzhled
+                            </a>
+                            <a href="#" class="profile-nav-item" data-category="admin-sec" data-text="Nastavení">
+                                <i class="ph ph-wrench"></i> Nastavení
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Tlačítko Zpět (Zůstává dole, ale JEN pro PC) -->
+                <button id="close-profile-page-btn" class="btn btn-ghost mt-auto desktop-only-flex"><i class="ph ph-arrow-left"></i> Zpět</button>
             </aside>
     
             <main class="profile-main-content">
