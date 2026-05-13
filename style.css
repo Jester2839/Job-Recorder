@@ -787,7 +787,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .profile-page-container {
     width: 75vw;
-    height: 100vh;
+    height: 100dvh;
     max-width: none !important;
     border-radius: var(--border-radius) 0 0 var(--border-radius);
     display: flex;
@@ -804,6 +804,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .profile-sidebar {
     width: 280px;
     height: 100vh;
+    height: 100dvh;
     background-color: var(--bg-surface);
     border-right: 1px solid var(--border-color);
     padding: 60px 20px;
@@ -866,14 +867,10 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /* OBSAHOVÁ ČÁST */
-.profile-page-container {
-    /* Přidáme přísný hidden, aby nevznikal scrollbar na celé stránce */
-    overflow: hidden; 
-}
-
 .profile-main-content {
     flex: 1;
     height: 100vh; /* DŮLEŽITÉ: Musí být 100vh, aby scrolloval jen vnitřek */
+    height: 100dvh; 
     overflow-y: auto; /* Jen jeden správný scrollbar */
     overflow-x: hidden;
     padding: 80px 60px; /* Odstraněno těch ulítlých 20vw */

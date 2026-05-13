@@ -182,6 +182,11 @@ onAuthStateChanged(auth, async (user) => {
         
         window.currentUserRole = null;
         window.currentEmployerId = null;
+        document.getElementById('stat-count').innerText = "0";
+        document.getElementById('stat-hours').innerText = "0 h";
+        document.getElementById('stat-money').innerText = "0 Kč";
+        const yearlyList = document.getElementById('yearly-summary-list');
+        if (yearlyList) yearlyList.innerHTML = '';
     }
 });
 
@@ -305,6 +310,11 @@ addRecordBtn.addEventListener('click', async () => {
         showToast("Vyplň všechna pole!", "warning");
         return;
     }
+    //aby nesla zadat 0 hodin
+    if (Number(hours) <= 0) {
+        showToast("Počet hodin musí být větší než 0!", "warning");
+        return;
+    }
 
     try {
         // Vytvoříme/přidáme do kolekce 'work_records' nový dokument
@@ -370,7 +380,7 @@ function renderRecords() {
     };
 
     // 2. Načtení vyhledávání: Převedeme na malá písmena a odstraníme diakritiku
-    const rawSearchValue = document.getElementById('searchInput').value.toLowerCase();
+    const rawSearchValue = document.getElementById('searchInput').value.toLowerCase().trim();
     const searchValue = removeDiacritics(rawSearchValue);
 
     const sortValue = document.getElementById('sort-toggle-btn').getAttribute('data-sort'); 
@@ -378,7 +388,7 @@ function renderRecords() {
     const exactDateValue = document.getElementById('exactDateFilter').value;
     
     // Tady také odstraníme diakritiku (kdybys někdy chtěl, aby i výběr z činností ignoroval háčky)
-    const rawActivityValue = document.getElementById('activityFilter').value.toLowerCase();
+    const rawActivityValue = document.getElementById('activityFilter').value.toLowerCase().trim();
     const activityValue = removeDiacritics(rawActivityValue);
 
     const list = document.getElementById('records-list');
@@ -707,6 +717,11 @@ document.getElementById('save-edit-btn').addEventListener('click', async () => {
         showToast("Vyplň všechna pole!", "warning");
         return;
     }
+    //aby nesla zadat 0
+    if (Number(hours) <= 0) {
+        showToast("Počet hodin musí být větší než 0!", "warning");
+        return;
+    }
 
     try {
         const docRef = doc(db, "work_records", editingRecordId);
@@ -740,6 +755,39 @@ document.getElementById('records-list').addEventListener('click', (event) => {
         openDeleteModal(deleteBtn.getAttribute('data-id'));
     }
 });
+
+
+// ==========================================
+// --- ODESÍLÁNÍ POMOCÍ KLÁVESY ENTER ---
+// ==========================================
+function setupEnterKey(inputId, buttonId) {
+    const input = document.getElementById(inputId);
+    if(input) {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Zabrání výchozímu chování prohlížeče
+                document.getElementById(buttonId).click(); // Simuluje kliknutí
+            }
+        });
+    }
+}
+
+// Přihlášení
+setupEnterKey('login-email', 'login-btn');
+setupEnterKey('login-password', 'login-btn');
+
+// Registrace
+setupEnterKey('reg-name', 'register-btn');
+setupEnterKey('reg-email', 'register-btn');
+setupEnterKey('reg-password', 'register-btn');
+setupEnterKey('reg-password-confirm', 'register-btn');
+
+// Rychlé uložení hodin/záznamů (když zadáš mzdu, hodiny nebo poznámku a dáš enter)
+setupEnterKey('onboarding-rate', 'save-onboarding-btn');
+setupEnterKey('hoursInput', 'add-record-btn');
+setupEnterKey('descInput', 'add-record-btn');
+setupEnterKey('editHoursInput', 'save-edit-btn');
+setupEnterKey('editDescInput', 'save-edit-btn');
 
 
 // ==========================================
