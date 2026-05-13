@@ -1431,10 +1431,39 @@ adminWorkersList.addEventListener('click', async (e) => {
     const card = e.target.closest('.admin-worker-card');
     if (!card) return;
 
+    // 1. Záchyt kliknutí na NOVÉ tlačítko Exportovat v admin panelu
+    const adminExportBtn = e.target.closest('.admin-export-btn');
+    if (adminExportBtn) {
+        const workerId = adminExportBtn.getAttribute('data-worker-id');
+        const workerName = adminExportBtn.getAttribute('data-worker-name');
+        const data = window.adminWorkerRecords ? window.adminWorkerRecords[workerId] : null;
+
+        if (!data || data.length === 0) {
+            showToast("Tento pracovník nemá tento měsíc žádné záznamy.", "warning");
+            return;
+        }
+
+        // Nastavíme globální kontext exportu pro ADMINA
+        const monthText = document.getElementById('admin-month-title').innerText.replace(/\s+/g, '_');
+        window.exportConfig = {
+            data: data,
+            workerId: workerId,
+            workerName: workerName,
+            fileName: `${workerName.replace(/\s+/g, '_')}_${monthText}`
+        };
+
+        // Otevřeme správné okno podle počtu záznamů
+        if (data.length > 13) {
+            document.getElementById('export-limit-modal').classList.remove('hidden');
+        } else {
+            document.getElementById('export-choice-modal').classList.remove('hidden');
+        }
+        return; // DŮLEŽITÉ: Ukončí funkci, aby se karta pod rukama nezavřela
+    }
+
     const isExpanded = card.classList.contains('expanded');
 
-    // Chytre zavírání: Pokud je karta otevřená, zavře se POUZE když klikneme na jméno/statistiky vlevo.
-    // Tím dovolíme adminovi normálně skrolovat v záznamech napravo, aniž by se mu to pod rukama zavíralo.
+    // Chytre zavírání
     if (isExpanded) {
         if (e.target.closest('.expanded-left')) {
             card.classList.remove('expanded');
@@ -1476,6 +1505,10 @@ adminWorkersList.addEventListener('click', async (e) => {
             });
 
             records.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Pojistka globálního objektu a uložení dat pro export!
+            if (!window.adminWorkerRecords) window.adminWorkerRecords = {};
+            window.adminWorkerRecords[workerId] = records;
 
             // Vygenerování pravého sloupce (Seznam výkazů)
             let recordsHTML = '';
@@ -1497,7 +1530,7 @@ adminWorkersList.addEventListener('click', async (e) => {
                 });
             }
 
-            // Vygenerování levého sloupce a spojení (Přesně podle tvého nákresu)
+            // Vygenerování levého sloupce a spojení
             expandedDiv.innerHTML = `
                 <div class="expanded-left" title="Kliknutím sem kartu opět zavřeš">
                     <h2 class="expanded-name">${workerName}</h2>
@@ -1516,6 +1549,11 @@ adminWorkersList.addEventListener('click', async (e) => {
                             <strong class="text-accent">${totalMoney.toLocaleString('cs-CZ')} Kč</strong>
                         </div>
                     </div>
+                    
+                    <button class="btn btn-ghost w-100 mt-15 admin-export-btn" data-worker-id="${workerId}" data-worker-name="${workerName}">
+                        <i class="ph ph-file-xls"></i> Exportovat výkaz
+                    </button>
+                    
                 </div>
                 <div class="expanded-right">
                     ${recordsHTML}
@@ -1531,67 +1569,139 @@ adminWorkersList.addEventListener('click', async (e) => {
 
 
 
-// --- EXPORT POMOCÍ ŠABLONY ---
+
+// ==========================================
+// --- CHYTRÝ EXPORT DO EXCELU ---
+// ==========================================
+
+const exportChoiceModal = document.getElementById('export-choice-modal');
+const exportLimitModal = document.getElementById('export-limit-modal');
+
+// 1. Pomocná funkce pro export DO ČISTÉHO EXCELU
+async function exportToPlainExcel(config) {
+    const { data, fileName } = config;
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Výkaz');
+
+    // Hlavičky
+    worksheet.getRow(1).values = ['Datum', 'Činnost', 'Poznámka', 'Hodiny'];
+    worksheet.getRow(1).font = { bold: true };
+
+    // Data
+    data.forEach((record, index) => {
+        const dateParts = record.date.split('-');
+        const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+        worksheet.getRow(index + 2).values = [
+            formattedDate,
+            record.activity,
+            record.description,
+            Number(record.hours)
+        ];
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `${fileName}_bez_formatu.xlsx`);
+    showToast("Exportováno do čistého Excelu.", "success");
+}
+
+// 2. Pomocná funkce pro export DO ŠABLONY
+async function exportToTemplateExcel(config) {
+    const { data, workerId, workerName, fileName } = config;
+    
+    try {
+        // Sáhneme do DB pro hodinovku SPRÁVNÉHO uživatele (Brigádníka nebo Adminem zvoleného člověka)
+        const userDoc = await getDoc(doc(db, "users", workerId));
+        const currentRate = userDoc.data()?.hourlyRate || 200;
+
+        const response = await fetch('tamplates/sablona.xlsx');
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(arrayBuffer);
+        const worksheet = workbook.getWorksheet(1);
+
+        // Zápis správného jména a sazby do hlavičky
+        worksheet.getCell('A1').value = `Výkaz prací ${workerName}`;
+        worksheet.getCell('K19').value = Number(currentRate);
+
+        let currentRowIndex = 4;
+        data.forEach(record => {
+            const row = worksheet.getRow(currentRowIndex);
+            const dateParts = record.date.split('-');
+            const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+
+            row.getCell(1).value = formattedDate;
+            row.getCell(5).value = record.activity;
+            row.getCell(10).value = record.description;
+            row.getCell(11).value = Number(record.hours);
+
+            row.commit();
+            currentRowIndex++;
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, `${fileName}_sablona.xlsx`);
+        showToast("Export do šablony dokončen.", "success");
+
+    } catch (error) {
+        console.error("Chyba při exportu:", error);
+        showToast("Chyba při práci se šablonou.", "error");
+    }
+}
+
+
+// --- HLAVNÍ TLAČÍTKO EXPORT (Klasické pro Brigádníka na hlavní ploše) ---
 document.getElementById('export-btn').addEventListener('click', async () => {
-    if (!window.currentlyFilteredData || window.currentlyFilteredData.length === 0) {
+    const data = window.currentlyFilteredData;
+    if (!data || data.length === 0) {
         showToast("Žádná data k exportu!", "error");
         return;
     }
 
-    try {
-        // 1. Načteme tvůj soubor se šablonou
-        const response = await fetch('tamplates/sablona.xlsx'); // Musí být ve stejné složce
-        const arrayBuffer = await response.arrayBuffer();
+    const user = auth.currentUser;
+    
+    // Nastavíme globální kontext exportu pro BRIGÁDNÍKA
+    window.exportConfig = {
+        data: data,
+        workerId: user.uid,
+        workerName: user.displayName || "Brigádník",
+        fileName: document.getElementById('monthFilter').value || "Vsechno"
+    };
 
-        // 2. Otevřeme ho pomocí ExcelJS
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(arrayBuffer);
-        const worksheet = workbook.getWorksheet(1); // Vybereme první list
-
-        // Zjištění jména aktuálně přihlášeného uživatele
-        const user = auth.currentUser;
-        const userName = (user && user.displayName) ? user.displayName : "Brigádník";
-
-        // Přepsání buňky A1 v excelové šabloně
-        worksheet.getCell('A1').value = `Výkaz prací ${userName}`;
-
-        // 3. Zapisujeme data (předpokládáme, že hlavička končí na řádku 3)
-        // Takže začneme zapisovat od řádku 4. 
-        // Pokud máš v šabloně pod tím hned součty, použijeme "insertRow", 
-        // aby se součty posunuly dolů a nepřepsali jsme je.
-        let currentRowIndex = 4;
-
-        window.currentlyFilteredData.forEach(record => {
-            // Vložíme nový prázdný řádek na danou pozici (ostatní řádky se posunou dolů)
-            // worksheet.insertRow(currentRowIndex, []); //přidává novyrádek a ty pod ním posouvá dolů
-            const row = worksheet.getRow(currentRowIndex);
-
-            // --- PŘEVOD FORMÁTU DATA ---
-            // record.date je ve formátu "YYYY-MM-DD" (např. "2026-03-30")
-            const dateParts = record.date.split('-'); // Rozsekáme to podle pomlčky na pole ["2026", "03", "30"]
-            // Poskládáme to zpět s tečkami: 3. část + 2. část + 1. část
-            const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-
-            // Vyplníme jen ty buňky, které chceme (A=1, B=2, ... E=5, J=10, K=11)
-            row.getCell(1).value = formattedDate;                  // A: Datum
-            row.getCell(5).value = record.activity;                    // E: Činnost
-            row.getCell(10).value = record.description;          // J: Poznámka
-            row.getCell(11).value = Number(record.hours);        // K: Hodiny
-
-            row.commit(); // Potvrdíme zápis do řádku
-            currentRowIndex++; // Posuneme se na další řádek pro další záznam
-        });
-
-        // 4. Uložíme a stáhneme
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        
-        // Získáme název měsíce z filtru (pokud je) pro hezčí název souboru
-        const monthValue = document.getElementById('monthFilter').value || "Vsechno";
-        saveAs(blob, `${monthValue} - vykaz zahradnika.xlsx`);
-
-    } catch (error) {
-        console.error("Chyba při exportu:", error);
-        showToast("Nepodařilo se načíst šablonu. Ujisti se, že máš soubor 'sablona.xlsx' ve složce s projektem.", "error");
+    if (data.length > 13) {
+        exportLimitModal.classList.remove('hidden');
+    } else {
+        exportChoiceModal.classList.remove('hidden');
     }
+});
+
+
+// --- OBSLUHA TLAČÍTEK VE VÝBĚROVÉM OKNĚ (< 13 záznamů) ---
+document.getElementById('close-export-choice-cross').addEventListener('click', () => {
+    exportChoiceModal.classList.add('hidden');
+});
+document.getElementById('export-plain-btn').addEventListener('click', async () => {
+    exportChoiceModal.classList.add('hidden');
+    // Vezme si data z dynamického configu!
+    await exportToPlainExcel(window.exportConfig); 
+});
+document.getElementById('export-template-btn').addEventListener('click', async () => {
+    exportChoiceModal.classList.add('hidden');
+    // Vezme si data z dynamického configu!
+    await exportToTemplateExcel(window.exportConfig);
+});
+
+
+// --- OBSLUHA TLAČÍTEK V UPOZORŇOVACÍM OKNĚ (> 13 záznamů) ---
+document.getElementById('close-export-limit-cross').addEventListener('click', () => {
+    exportLimitModal.classList.add('hidden');
+});
+document.getElementById('close-export-limit-btn').addEventListener('click', () => {
+    exportLimitModal.classList.add('hidden');
+});
+document.getElementById('confirm-export-limit-btn').addEventListener('click', async () => {
+    exportLimitModal.classList.add('hidden');
+    // Vezme si data z dynamického configu!
+    await exportToPlainExcel(window.exportConfig);
 });

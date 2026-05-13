@@ -260,8 +260,8 @@
                     <label class="floating-label">Činnost</label>
                 </div>
                 <div class="quick-tags-wrapper" id="quick-tags">
-                    <span class="badge"
-                        onclick="document.getElementById('activityInput').value='ostatní'; document.getElementById('activityInput').focus();">ostatní</span>
+                    <span class="badge" onclick="document.getElementById('activityInput').value='ostatní'; document.getElementById('activityInput').focus();">ostatní</span>
+                    <span class="badge" onclick="document.getElementById('activityInput').value='projekce'; document.getElementById('activityInput').focus();">projekce</span>
                 </div>
             </div>
 
@@ -504,27 +504,56 @@
     </div>
     
     <div id="delete-account-modal" class="modal-overlay hidden" style="z-index: 10000;">
-    <div class="modal-content modal-solid">
-        <div class="dropdown-header">
-            <h3 class="text-danger"><i class="ph ph-warning"></i> Smazat účet?</h3>
-            <button id="close-delete-account-cross" class="btn-icon"><i class="ph ph-x"></i></button>
-        </div>
-        <p class="text-secondary">Opravdu chceš trvale smazat svůj účet a veškeré osobní údaje? Tato akce je <strong>nevratná</strong>.</p>
-        
-        <div class="password-wrapper input-wrapper mt-10">
-            <input type="password" id="delete-account-password" class="password-input" placeholder=" ">
-            <label class="floating-label">Zadej své heslo pro potvrzení</label>
-            <button id="toggle-delete-account-pass-btn" class="btn-icon password-toggle-btn" type="button">
-                <i class="ph ph-eye" id="toggle-delete-account-pass-icon"></i>
-            </button>
-        </div>
-
-        <div class="header-actions modal-actions mt-15">
-            <button id="close-delete-account-btn" class="btn">Zrušit</button>
-            <button id="confirm-delete-account-btn" class="btn btn-danger">Ano, smazat účet</button>
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3 class="text-danger"><i class="ph ph-warning"></i> Smazat účet?</h3>
+                <button id="close-delete-account-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <p class="text-secondary">Opravdu chceš trvale smazat svůj účet a veškeré osobní údaje? Tato akce je
+                <strong>nevratná</strong>.</p>
+    
+            <div class="password-wrapper input-wrapper mt-10">
+                <input type="password" id="delete-account-password" class="password-input" placeholder=" ">
+                <label class="floating-label">Zadej své heslo pro potvrzení</label>
+                <button id="toggle-delete-account-pass-btn" class="btn-icon password-toggle-btn" type="button">
+                    <i class="ph ph-eye" id="toggle-delete-account-pass-icon"></i>
+                </button>
+            </div>
+    
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-delete-account-btn" class="btn">Zrušit</button>
+                <button id="confirm-delete-account-btn" class="btn btn-danger">Ano, smazat účet</button>
+            </div>
         </div>
     </div>
-</div>
+
+    <div id="export-choice-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-file-xls"></i> Typ exportu</h3>
+                <button id="close-export-choice-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <p class="text-secondary">Jak chceš data stáhnout? Můžeš použít formátovanou šablonu, nebo si stáhnout čistou tabulku bez formátování.</p>
+            <div class="header-actions modal-actions mt-15">
+                <button id="export-plain-btn" class="btn btn-ghost">Čistý Excel</button>
+                <button id="export-template-btn" class="btn btn-accent">Do šablony</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="export-limit-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-info"></i> Informace k exportu</h3>
+                <button id="close-export-limit-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <p class="text-secondary">Máš vyfiltrováno více než <strong>13 záznamů</strong>. Do šablony se jich bohužel více nevejde, takže se data automaticky stáhnou jako čistá tabulka bez formátování.</p>
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-export-limit-btn" class="btn">Zrušit</button>
+                <button id="confirm-export-limit-btn" class="btn btn-accent">Rozumím, stáhnout Excel</button>
+            </div>
+        </div>
+    </div>
     
     <div id="onboarding-modal" class="modal-overlay hidden" style="z-index: 9999;">
         <div class="modal-content modal-solid" style="text-align: center; gap: 20px;">
@@ -540,8 +569,8 @@
     
             <button id="save-onboarding-btn" class="btn btn-accent w-100">Uložit a začít</button>
         </div>
-</div>
-
+    </div>
+    
     <nav id="mobile-fullscreen-menu" class="mobile-menu-fullscreen mobile-only">
         <div class="mobile-menu-top">
             <div class="flex-center-gap">
@@ -555,18 +584,18 @@
             </div>
             <button id="close-mobile-menu-btn" class="btn-icon"><i class="ph ph-x icon-burger-size"></i></button>
         </div>
-
+    
         <div class="mobile-menu-links">
             <button id="show-stats-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-chart-pie-slice"></i>
                 Aktuální přehled</button>
             <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční
                 souhrny</button>
         </div>
-
+    
         <div id="admin-menu-placeholder" class="admin-placeholder hidden">
             <span>Další funkce připravujeme...</span>
         </div>
-
+    
         <div class="mobile-menu-bottom">
             <button id="mobile-theme-toggle" class="btn-icon"><i class="ph ph-moon icon-menu-size"
                     id="mobile-theme-icon"></i></button>
@@ -574,7 +603,7 @@
                     class="ph ph-sign-out icon-menu-size"></i></button>
         </div>
     </nav>
-
+    
     <script type="module" src="app.js"></script>
 </body>
 
