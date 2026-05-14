@@ -132,8 +132,9 @@ onAuthStateChanged(auth, async (user) => {
                     name: displayName,
                     email: user.email,
                     role: "worker",
-                    hourlyRate: 200,
+                    hourlyRate: null,
                     employerId: null,
+                    seenNewsVersion: CURRENT_NEWS_VERSION,
                     createdAt: serverTimestamp()
                 };
                 await setDoc(userRef, userData);
@@ -168,8 +169,8 @@ onAuthStateChanged(auth, async (user) => {
                 loadRecords(); 
             }
 
-            // Pokud uživatel nemá v databázi uloženo, že tuto verzi novinek viděl, ukážeme mu ji.
-            if ((userData.seenNewsVersion || 0) < CURRENT_NEWS_VERSION) {
+            // Pokud uživatel nemá v databázi uloženo, že tuto verzi novinek viděl, ukážeme mu ji.            
+            if (userData.hourlyRate !== null && (userData.seenNewsVersion || 0) < CURRENT_NEWS_VERSION) {
                 document.getElementById('news-modal').classList.remove('hidden');
             }
 
@@ -292,7 +293,7 @@ document.getElementById('save-onboarding-btn').addEventListener('click', async (
     const rateInput = document.getElementById('onboarding-rate');
     const rate = rateInput.value === "" ? 0 : Number(rateInput.value);
     
-    if (!rate || rate < 0) {
+    if (rate < 0) {
         showToast("Mzda nemůže být záporná.", "warning");
         return;
     }
@@ -304,8 +305,10 @@ document.getElementById('save-onboarding-btn').addEventListener('click', async (
         showToast("Registrace proběhla úspěšně, vše je připraveno!", "success");
         document.getElementById('onboarding-modal').classList.add('hidden');
         
-        // NOVÉ: Hned po zadání mzdy vyskočí info okno pro nováčka
-        document.getElementById('info-modal').classList.remove('hidden');
+        // Po mzdě hned ukážeme novinky i nováčkovi
+        document.getElementById('news-modal').classList.remove('hidden');
+        // Nastavíme si v paměti, že jde o nováčka, abychom mu pak ukázali i Průvodce
+        window.isFirstTimeUser = true;
     } catch (e) { 
         showToast("Chyba při ukládání: " + e.message, "error"); 
     }
@@ -320,7 +323,7 @@ addRecordBtn.addEventListener('click', async () => {
     const activity = document.getElementById('activityInput').value;
     const desc = document.getElementById('descInput').value;
     const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
-    const currentRate = userDoc.data().hourlyRate || 200;
+    const currentRate = userDoc.data().hourlyRate ?? 200;
 
     if (!date || !hours || !activity || !desc) {
         showToast("Vyplň všechna pole!", "warning");
@@ -514,7 +517,7 @@ function renderRecords() {
     filtered.forEach(record => {
         totalHours += Number(record.hours);
         // Počítáme peníze podle sazby uložené u záznamu (pokud chybí, dáme 200 jako záchranu)
-        totalMoney += (Number(record.hours) * (record.rate || 200)); 
+        totalMoney += (Number(record.hours) * (record.rate ?? 200)); 
     });
 
     // Pošleme to do HTML pro aktuální přehled
@@ -530,7 +533,7 @@ function renderRecords() {
         if (!yearlyData[year]) yearlyData[year] = { hours: 0, money: 0 }; 
         
         yearlyData[year].hours += Number(record.hours); 
-        yearlyData[year].money += (Number(record.hours) * (record.rate || 200));
+        yearlyData[year].money += (Number(record.hours) * (record.rate ?? 200));
     });
 
     const yearlyList = document.getElementById('yearly-summary-list');
@@ -1059,7 +1062,7 @@ async function openProfilePage() {
         document.getElementById('mobile-profile-name').innerText = userName;
         document.getElementById('edit-profile-name').value = userData.name || user.displayName || '';
         document.getElementById('edit-profile-email').value = user.email || '';
-        document.getElementById('edit-profile-rate').value = userData.hourlyRate || 200;
+        document.getElementById('edit-profile-rate').value = userData.hourlyRate ?? 200;
     }
 
     // NOVÉ: Oživíme kuličky v profilu
@@ -1516,7 +1519,7 @@ adminWorkersList.addEventListener('click', async (e) => {
                 if (data.date.startsWith(currentMonthPrefix)) {
                     records.push({ id: docSnap.id, ...data });
                     totalHours += Number(data.hours);
-                    totalMoney += (Number(data.hours) * (data.rate || 200));
+                    totalMoney += (Number(data.hours) * (data.rate ?? 200));
                 }
             });
 
@@ -1609,20 +1612,22 @@ document.getElementById('close-info-btn')?.addEventListener('click', () => {
 
 // --- OKNO AKTUALIT (ZAVŘENÍ A ULOŽENÍ) ---
 document.getElementById('close-news-btn')?.addEventListener('click', async () => {
-    // 1. Schováme okno
+    // Schováme okno
     document.getElementById('news-modal').classList.add('hidden');
     
-    // 2. Zapíšeme do databáze, že tuto verzi už uživatel viděl
+    // Pokud je to nováček, hned mu po novinkách otevřeme Průvodce
+    if (window.isFirstTimeUser) {
+        document.getElementById('info-modal').classList.remove('hidden');
+        window.isFirstTimeUser = false; // Resetujeme příznak
+    }
+
+    // Uložení do DB, že uživatel novinky viděl (tohle už tam máš)
     try {
         const user = auth.currentUser;
         if (user) {
-            await updateDoc(doc(db, "users", user.uid), { 
-                seenNewsVersion: CURRENT_NEWS_VERSION 
-            });
+            await updateDoc(doc(db, "users", user.uid), { seenNewsVersion: CURRENT_NEWS_VERSION });
         }
-    } catch (e) {
-        console.error("Chyba při ukládání přečtení novinek: ", e);
-    }
+    } catch (e) { console.error(e); }
 });
 
 
@@ -1669,7 +1674,7 @@ async function exportToTemplateExcel(config) {
     try {
         // Sáhneme do DB pro hodinovku SPRÁVNÉHO uživatele (Brigádníka nebo Adminem zvoleného člověka)
         const userDoc = await getDoc(doc(db, "users", workerId));
-        const currentRate = userDoc.data()?.hourlyRate || 200;
+        const currentRate = userDoc.data()?.hourlyRate ?? 200;
 
         const response = await fetch('tamplates/sablona.xlsx');
         const arrayBuffer = await response.arrayBuffer();

@@ -690,6 +690,23 @@ input[type="number"]::-webkit-outer-spin-button {
     -webkit-backdrop-filter: none;
 }
 
+.onboarding-modal-p{
+    line-height: 1.65;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 2vh 0;
+}
+.onboarding-modal-p strong {
+    font-weight: 700;
+    margin-right: 4px;
+    letter-spacing: normal;
+    color: var(--accent-color);
+}
+
+
 /* --- NÁPOVĚDA A INFO OKNO --- */
 /* Speciální širší okno pro delší texty a nápovědy */
 .modal-wide {

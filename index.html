@@ -107,8 +107,7 @@
                             <button id="close-user-cross" class="btn-icon"><i class="ph ph-x"></i></button>
                         </div>
                         <div class="dropdown-body">
-                            <button id="open-profile-desktop-btn" class="btn btn-ghost w-100"><i class="ph ph-pencil-simple"></i>
-                                Upravit profil</button>
+                            <button id="open-profile-desktop-btn" class="btn btn-ghost w-100"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
                             <button id="open-info-desktop-btn" class="btn btn-ghost w-100"><i class="ph ph-info"></i> Jak to funguje?</button>
                             <button id="logout-btn" class="btn btn-danger w-100"><i class="ph ph-sign-out"></i> Odhlásit se</button>
                         </div>
@@ -535,7 +534,7 @@
                 <button id="close-export-choice-cross" class="btn-icon"><i class="ph ph-x"></i></button>
             </div>
             <p class="text-secondary">Jak chceš data stáhnout? Můžeš použít formátovanou šablonu, nebo si stáhnout čistou tabulku bez formátování.</p>
-            <div class="header-actions modal-actions mt-15">
+            <div class="header-actions modal-actions mt-15" style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
                 <button id="export-plain-btn" class="btn btn-ghost">Čistý Excel</button>
                 <button id="export-template-btn" class="btn btn-accent">Do šablony</button>
             </div>
@@ -560,7 +559,7 @@
         <div class="modal-content modal-solid" style="text-align: center; gap: 20px;">
             <i class="ph ph-hand-waving" style="font-size: 3rem; color: var(--accent-color);"></i>
             <h2>Vítej v aplikaci!</h2>
-            <p class="text-secondary text-sm">
+            <p class="onboarding-modal-p">
                     Než začneš, nastav si prosím svou aktuální hodinovou mzdu. Tento údaj slouží pouze pro tvé statistiky. 
                     <br><strong>Pokud jsi na praxích</strong> a svou mzdu neznáš, můžeš pole ponechat na hodnotě <strong>0</strong>.
                 </p>
@@ -586,22 +585,23 @@
                 
                 <ul class="info-list">
                     <li class="info-list-item">
-                        <span><strong>Zápis hodin:</strong> Zadej potřebné údaje jako jsou např. datum, odpracované hodiny nebo činnost. Můžeš také u některých kolonek využít i rychlé štítky pod políčkem.</span>
+                        <span><strong>Zápis hodin:</strong> Zadej potřebné údaje, jako je datum, počet odpracovaných hodin nebo vykonávaná činnost. U některých polí můžeš využít také rychlé štítky zobrazené pod formulářem.</span>
                     </li>
                     <li class="info-list-item">
-                        <span><strong>Filtrování:</strong> Lupa slouží k hledání v textu poznámek nebo mezi činnostmi. Trychtýřem si snadno vyfiltruješ konkrétní měsíc v roce nebo den.</span>
+                        <span><strong>Vyhledávání a filtrování:</strong> Ikona lupy slouží k vyhledávání v poznámkách a činnostech. Pomocí trychtýře si můžeš snadno vyfiltrovat konkrétní měsíc nebo den.</span>
                     </li>
                     <li class="info-list-item">
-                        <span><strong>Export do Excelu:</strong> Vyfiltruj si měsíc a klikni na Export, vždy se exportují všechny záznamy co máš v tu chvíli zobrazené na hlavní stránce. Pokud máš 13 a méně záznamů, můžes si vybrat mezi šablonou s tabulkou nebo prázdným Excelem. Při větším počtu se stáhne automaticky čistý Excel.</span>
+                        <span><strong>Export záznamů:</strong> Vyfiltruj si požadovaný měsíc a klikni na tlačítko Export. Exportují se vždy všechny záznamy, které máš aktuálně zobrazené na hlavní stránce. Pokud máš 13 nebo méně záznamů, můžeš si vybrat mezi šablonou s tabulkou nebo prázdným Excelem. Při větším počtu záznamů se automaticky stáhne čistý Excel soubor.</span>
                     </li>
                     <li class="info-list-item">
-                        <span><strong>Profil a vzhled:</strong> V nabídce "Upravit profil" si můžeš změnit sazbu (pokud máš patřičná práva), heslo, jméno nebo E-mail a obarvit si aplikaci podle svého vkusu!</span>
+                        <span><strong>Profil a vzhled:</strong> V sekci „Upravit profil“ si můžeš změnit sazbu, heslo, jméno nebo e-mail. Zároveň si zde můžeš přizpůsobit vzhled aplikace podle svého vkusu.</span>
                     </li>
                 </ul>
             </div>
 
-            <div class="header-actions modal-actions mt-15">
+            <div class="header-actions modal-actions mt-15" style="flex-direction: column; align-items: center; gap: 10px;">
                 <button id="close-info-btn" class="btn btn-accent w-100">Rozumím, jdeme na to!</button>
+                <small class="text-secondary" style="font-size: 0.75rem;">Vytvořil <a href="https://jester2839.github.io/WebPortfolio/index.html" target="_blank" style="color: var(--accent-color);">Jakub Nový</a> v roce 2026</small>
             </div>
         </div>
     </div>
