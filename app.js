@@ -253,6 +253,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
             role: "worker",
             hourlyRate: null,
             employerId: null,
+            seenNewsVersion: CURRENT_NEWS_VERSION,
             createdAt: serverTimestamp()
         });
 
@@ -288,10 +289,11 @@ document.getElementById('register-btn').addEventListener('click', async () => {
 
 // --- LOGIKA PRO ONBOARDING (Prvotní nastavení mzdy) ---
 document.getElementById('save-onboarding-btn').addEventListener('click', async () => {
-    const rate = Number(document.getElementById('onboarding-rate').value);
+    const rateInput = document.getElementById('onboarding-rate');
+    const rate = rateInput.value === "" ? 0 : Number(rateInput.value);
     
-    if (!rate || rate <= 0) {
-        showToast("Zadej platnou mzdu.", "warning");
+    if (!rate || rate < 0) {
+        showToast("Mzda nemůže být záporná.", "warning");
         return;
     }
 
