@@ -690,6 +690,59 @@ input[type="number"]::-webkit-outer-spin-button {
     -webkit-backdrop-filter: none;
 }
 
+/* --- NÁPOVĚDA A INFO OKNO --- */
+/* Speciální širší okno pro delší texty a nápovědy */
+.modal-wide {
+    max-width: 650px; /* Okno bude výrazně širší, ať se text nezalamuje */
+    padding: calc(var(--card-padding) + 15px) calc(var(--card-padding) + 10px);
+}
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Větší mezera mezi úvodním textem a seznamem */
+    padding-bottom: 2vh;
+    border-bottom: 1px solid var(--border-color);
+}
+.info-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    /* gap: 18px; */
+}
+.info-list-item {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 18px 5px;
+    border-bottom: 1px solid var(--border-color);
+}
+.info-list-item:last-child {
+    border-bottom: none;
+}
+.info-list-item span {
+    line-height: 1.65;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+}
+.info-list-item span strong {
+    font-weight: 700;
+    margin-right: 4px;
+    letter-spacing: normal;
+    color: var(--accent-color);
+}
+.info-list-item::before {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    margin-top: 10px;
+    flex-shrink: 0;
+    box-shadow: 0 0 2px var(--accent-color);
+}
+
 
 /* ----- GLOBÁLNÍ INPUTY (Material Outlined Style) -----*/
 .input-wrapper {

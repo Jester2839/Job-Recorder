@@ -14,8 +14,14 @@ const firebaseConfig = {
   measurementId: "G-2HCMHQJZWV"
 };
 
-// --- HODINOVKA ---
+// --- základní HODINOVKA ---
 const HOURLY_RATE = 200;
+// --------------------
+
+// --- VERZE AKTUALIT ---
+// Kdykoliv budeš chtít uživatelům ukázat nové okno s aktualitami, 
+// stačí toto číslo zvětšit (např. na 2) a upravit text v HTML.
+const CURRENT_NEWS_VERSION = 1;
 // --------------------
 
 // Inicializace Firebase
@@ -162,6 +168,11 @@ onAuthStateChanged(auth, async (user) => {
                 loadRecords(); 
             }
 
+            // Pokud uživatel nemá v databázi uloženo, že tuto verzi novinek viděl, ukážeme mu ji.
+            if ((userData.seenNewsVersion || 0) < CURRENT_NEWS_VERSION) {
+                document.getElementById('news-modal').classList.remove('hidden');
+            }
+
         } catch(e) {
             console.error("Chyba při zjišťování role:", e);
             workerDashboard?.classList.remove('hidden'); // Nouzový fallback
@@ -290,6 +301,9 @@ document.getElementById('save-onboarding-btn').addEventListener('click', async (
         });
         showToast("Registrace proběhla úspěšně, vše je připraveno!", "success");
         document.getElementById('onboarding-modal').classList.add('hidden');
+        
+        // NOVÉ: Hned po zadání mzdy vyskočí info okno pro nováčka
+        document.getElementById('info-modal').classList.remove('hidden');
     } catch (e) { 
         showToast("Chyba při ukládání: " + e.message, "error"); 
     }
@@ -1567,6 +1581,47 @@ adminWorkersList.addEventListener('click', async (e) => {
     }
 });
 
+
+// --- INFORMAČNÍ OKNO (Nápověda / Průvodce) ---
+const infoModal = document.getElementById('info-modal');
+
+// Otevírání na PC
+document.getElementById('open-info-desktop-btn')?.addEventListener('click', () => {
+    infoModal.classList.remove('hidden');
+    document.getElementById('user-dropdown').classList.add('hidden'); // Schováme menu, ať nezavazí
+});
+
+// Otevírání na mobilu
+document.getElementById('open-info-mobile-btn')?.addEventListener('click', () => {
+    infoModal.classList.remove('hidden');
+    document.getElementById('mobile-fullscreen-menu').classList.remove('menu-open'); // Schováme mobilní menu
+});
+
+// Zavírání
+document.getElementById('close-info-cross')?.addEventListener('click', () => {
+    infoModal.classList.add('hidden');
+});
+document.getElementById('close-info-btn')?.addEventListener('click', () => {
+    infoModal.classList.add('hidden');
+});
+
+// --- OKNO AKTUALIT (ZAVŘENÍ A ULOŽENÍ) ---
+document.getElementById('close-news-btn')?.addEventListener('click', async () => {
+    // 1. Schováme okno
+    document.getElementById('news-modal').classList.add('hidden');
+    
+    // 2. Zapíšeme do databáze, že tuto verzi už uživatel viděl
+    try {
+        const user = auth.currentUser;
+        if (user) {
+            await updateDoc(doc(db, "users", user.uid), { 
+                seenNewsVersion: CURRENT_NEWS_VERSION 
+            });
+        }
+    } catch (e) {
+        console.error("Chyba při ukládání přečtení novinek: ", e);
+    }
+});
 
 
 

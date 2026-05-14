@@ -109,6 +109,7 @@
                         <div class="dropdown-body">
                             <button id="open-profile-desktop-btn" class="btn btn-ghost w-100"><i class="ph ph-pencil-simple"></i>
                                 Upravit profil</button>
+                            <button id="open-info-desktop-btn" class="btn btn-ghost w-100"><i class="ph ph-info"></i> Jak to funguje?</button>
                             <button id="logout-btn" class="btn btn-danger w-100"><i class="ph ph-sign-out"></i> Odhlásit se</button>
                         </div>
                     </div>
@@ -570,6 +571,65 @@
             <button id="save-onboarding-btn" class="btn btn-accent w-100">Uložit a začít</button>
         </div>
     </div>
+
+    <div id="info-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid modal-wide">
+            <div class="dropdown-header">
+                <h2><i class="ph ph-info"></i> Jak to funguje?</h2>
+                <button id="close-info-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            
+            <div class="info-content">
+                <p class=" text-secondary text-sm">Vítej v beta verzi <strong>Job Recorderu</strong>! Tady je rychlý přehled toho nejdůležitějšího:</p>
+                
+                <ul class="info-list">
+                    <li class="info-list-item">
+                        <span><strong>Zápis hodin:</strong> Zadej potřebné údaje jako jsou např. datum, odpracované hodiny nebo činnost. Můžeš také u některých kolonek využít i rychlé štítky pod políčkem.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Filtrování:</strong> Lupa slouží k hledání v textu poznámek nebo mezi činnostmi. Trychtýřem si snadno vyfiltruješ konkrétní měsíc v roce nebo den.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Export do Excelu:</strong> Vyfiltruj si měsíc a klikni na Export, vždy se exportují všechny záznamy co máš v tu chvíli zobrazené na hlavní stránce. Pokud máš 13 a méně záznamů, můžes si vybrat mezi šablonou s tabulkou nebo prázdným Excelem. Při větším počtu se stáhne automaticky čistý Excel.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Profil a vzhled:</strong> V nabídce "Upravit profil" si můžeš změnit sazbu (pokud máš patřičná práva), heslo, jméno nebo E-mail a obarvit si aplikaci podle svého vkusu!</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-info-btn" class="btn btn-accent w-100">Rozumím, jdeme na to!</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="news-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid modal-wide">
+            <div class="dropdown-header">
+                <h2><i class="ph ph-megaphone"></i> Co je nového?</h2>
+            </div>
+            
+            <div class="info-content">
+                <p class="text-secondary text-sm">Nasadili jsme novou aktualizaci! Tady je přehled toho, co přibylo za vylepšení:</p>
+                
+                <ul class="info-list mt-10">
+                    <li class="info-list-item">
+                        <span><strong> Info:</strong> Aplikace je stále v rané fázi vývoje a patříte mezi první uživatele, kteří k ní mají přístup. Pokud narazíte na jakékoli chyby nebo nedostatky, neváhejte kontaktovat
+                        <a href="https://jester2839.github.io/WebPortfolio/link.html" class="contact-btn" target="_blank">mě</a> nebo své nadřízené.
+                        </span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong> Pro uživatele na praxi:</strong> Pokud jste na praxích, po zavření tohoto okna budete vyzváni k zadání hodinové mzdy. Tento údaj slouží pouze pro vaše statistiky v aplikaci. Pokud svou hodinovou mzdu neznáte, můžete pole ponechat na hodnotě 0 nebo zadat částku, kterou vám sdělil váš nadřízený. <br>(pokud se okno nezobrazí můžete si ho otevřít v úpravě profilu)</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-news-btn" class="btn btn-accent w-100">Rozumím</button>
+            </div>
+        </div>
+    </div>
     
     <nav id="mobile-fullscreen-menu" class="mobile-menu-fullscreen mobile-only">
         <div class="mobile-menu-top">
@@ -590,6 +650,7 @@
                 Aktuální přehled</button>
             <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční
                 souhrny</button>
+            <button id="open-info-mobile-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-info"></i> Jak to funguje</button>
         </div>
     
         <div id="admin-menu-placeholder" class="admin-placeholder hidden">
