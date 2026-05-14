@@ -682,6 +682,8 @@ input[type="number"]::-webkit-outer-spin-button {
     flex-direction: column;
     gap: 15px;
     backdrop-filter: blur(2px);
+    max-height: 90dvh; /* Okno nikdy nebude vyšší než 90 % obrazovky */
+    overflow-y: auto;  /* Zapne scrollování čistě uvnitř tohoto okna */
 }
 
 .modal-solid{

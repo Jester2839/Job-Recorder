@@ -172,6 +172,7 @@ onAuthStateChanged(auth, async (user) => {
             // Pokud uživatel nemá v databázi uloženo, že tuto verzi novinek viděl, ukážeme mu ji.            
             if (userData.hourlyRate !== null && (userData.seenNewsVersion || 0) < CURRENT_NEWS_VERSION) {
                 document.getElementById('news-modal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
             }
 
         } catch(e) {
@@ -967,6 +968,7 @@ modalOverlays.forEach(overlay => {
         // Zkontrolujeme, jestli uživatel klikl přímo na ten tmavý overlay, a NE dovnitř na to bílé/skleněné okno
         if (event.target === overlay) {
             overlay.classList.add('hidden');
+            document.body.style.overflow = '';
         }
     });
 });
@@ -1594,30 +1596,36 @@ const infoModal = document.getElementById('info-modal');
 document.getElementById('open-info-desktop-btn')?.addEventListener('click', () => {
     infoModal.classList.remove('hidden');
     document.getElementById('user-dropdown').classList.add('hidden'); // Schováme menu, ať nezavazí
+    document.body.style.overflow = 'hidden';
 });
 
 // Otevírání na mobilu
 document.getElementById('open-info-mobile-btn')?.addEventListener('click', () => {
     infoModal.classList.remove('hidden');
     document.getElementById('mobile-fullscreen-menu').classList.remove('menu-open'); // Schováme mobilní menu
+    document.body.style.overflow = 'hidden';
 });
 
 // Zavírání
 document.getElementById('close-info-cross')?.addEventListener('click', () => {
     infoModal.classList.add('hidden');
+    document.body.style.overflow = '';
 });
 document.getElementById('close-info-btn')?.addEventListener('click', () => {
     infoModal.classList.add('hidden');
+    document.body.style.overflow = '';
 });
 
 // --- OKNO AKTUALIT (ZAVŘENÍ A ULOŽENÍ) ---
 document.getElementById('close-news-btn')?.addEventListener('click', async () => {
     // Schováme okno
     document.getElementById('news-modal').classList.add('hidden');
+    document.body.style.overflow = '';
     
     // Pokud je to nováček, hned mu po novinkách otevřeme Průvodce
     if (window.isFirstTimeUser) {
         document.getElementById('info-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden'
         window.isFirstTimeUser = false; // Resetujeme příznak
     }
 
