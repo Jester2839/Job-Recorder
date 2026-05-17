@@ -21,7 +21,7 @@ const HOURLY_RATE = 200;
 // --- VERZE AKTUALIT ---
 // Kdykoliv budeš chtít uživatelům ukázat nové okno s aktualitami, 
 // stačí toto číslo zvětšit (např. na 2) a upravit text v HTML.
-const CURRENT_NEWS_VERSION = 1;
+const CURRENT_NEWS_VERSION = 3;
 // --------------------
 
 // Inicializace Firebase
@@ -1520,12 +1520,12 @@ adminWorkersList.addEventListener('click', async (e) => {
         }
 
         // Nastavíme globální kontext exportu pro ADMINA
-        const monthText = document.getElementById('admin-month-title').innerText.replace(/\s+/g, '_');
+        const monthText = document.getElementById('admin-month-title').innerText; // Už nepřidáváme podtržítka
         window.exportConfig = {
             data: data,
             workerId: workerId,
             workerName: workerName,
-            fileName: `${workerName.replace(/\s+/g, '_')}_${monthText}`
+            fileName: `${workerName} - ${monthText} - výkaz prací` // Krásný český název
         };
 
         // Otevřeme správné okno podle počtu záznamů
@@ -1754,7 +1754,7 @@ async function exportToPlainExcel(config) {
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    saveAs(blob, `${fileName}_bez_formatu.xlsx`);
+    saveAs(blob, `${fileName} - prazdny.xlsx`);
     showToast("Exportováno do čistého Excelu.", "success");
 }
 // 2. Pomocná funkce pro export DO ŠABLONY
@@ -1818,11 +1818,7 @@ async function exportToTemplateExcel(config) {
 
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        
-        // Hezčí název souboru podle toho, jaká to byla šablona
-        const finalFileName = hasOrder ? `${fileName}_sablona_praxe.xlsx` : `${fileName}_sablona.xlsx`;
-        saveAs(blob, finalFileName);
-        
+        saveAs(blob, `${fileName}.xlsx`);
         showToast("Export do šablony dokončen.", "success");
 
     } catch (error) {
@@ -1842,12 +1838,21 @@ document.getElementById('export-btn').addEventListener('click', async () => {
 
     const user = auth.currentUser;
     
+    //Převod RRRR-MM na hezký český název
+    const rawMonth = document.getElementById('monthFilter').value;
+    let monthText = "všechno";
+    if (rawMonth) {
+        const [y, m] = rawMonth.split('-');
+        const months = ["leden", "unor", "brezen", "duben", "kveten", "cerven", "cervenec", "srpen", "zari", "rijen", "listopad", "prosinec"];
+        monthText = `${months[parseInt(m) - 1]} ${y}`;
+    }
+
     // Nastavíme globální kontext exportu pro BRIGÁDNÍKA
     window.exportConfig = {
         data: data,
         workerId: user.uid,
         workerName: user.displayName || "Brigádník",
-        fileName: document.getElementById('monthFilter').value || "Vsechno"
+        fileName: `${monthText} - výkaz prací` // Výsledek: např. "květen 2026 - výkaz prací"
     };
 
     if (data.length > 15) {

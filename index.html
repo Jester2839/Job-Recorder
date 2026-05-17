@@ -7,7 +7,7 @@
     <title>Job Recorder</title>
     <link rel="icon" type="image/svg+xml" href="source/favicon.svg">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.3">
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -601,7 +601,7 @@
                 
                 <ul class="info-list">
                     <li class="info-list-item">
-                        <span><strong>Zápis hodin a zakázek:</strong> Zadej datum, odpracované hodiny, činnost, poznámku (neboli co jsi dělal/a) a případně i název zakázky na které pracuješ. Políčko <em>Zakázka</em> je dobrovolné. Pokud jsi u nás na školní praxi a nemáš hodinovou mzdu, nechej při prvním spuštění (nebo v profilu) částku nastavenou na <strong>0 Kč/h</strong>.</span>
+                        <span><strong>Zápis hodin a zakázek:</strong> Zadej datum, odpracované hodiny, činnost a případně i název zakázky. Políčko <em>Zakázka</em> je dobrovolné. Pokud jsi u nás na školní praxi a nemáš hodinovou mzdu, nechej při prvním spuštění (nebo v profilu) částku nastavenou na <strong>0 Kč/h</strong>.</span>
                     </li>
                     <li class="info-list-item">
                         <span><strong>Chytré zadávání:</strong> Abychom ti ušetřili čas, po kliknutí do políčka data se ti automaticky předvyplní dnešní den. U vybraných kolonek můžeš navíc využít rychlé štítky, které najdeš pod políčky.</span>
@@ -610,7 +610,7 @@
                         <span><strong>Hledání a filtrace:</strong> Hlavní lupa nahoře prohledává text poznámek, činností i názvy zakázek. Pokud potřebuješ detailnější filtr, rozklikni trychtýř – tam můžeš filtrovat konkrétní činnost, specifickou zakázku nebo měsíc (který se ti po kliknutí opět sám předvyplní na ten aktuální).</span>
                     </li>
                     <li class="info-list-item">
-                        <span><strong>Automatický export:</strong> Vyfiltruj si požadovaný měsíc a klikni na Export. Systém data zkontroluje: Pokud máš 15 a méně záznamů a aspoň u jednoho máš vyplněnou zakázku, exportuje se ti speciální <strong>šablona pro praxe</strong>. Pokud žádnou zakázku nemáš, stáhne se klasická firemní šablona. Při počtu nad 15 záznamů se data stáhnou do čistého Excelu bez formátování, aby se tabulka nepřebila.</span>
+                        <span><strong>Automatický export:</strong> Vyfiltruj si požadovaný měsíc a klikni na Export. Systém data zkontroluje: Pokud máš <strong>15 a méně záznamů</strong> a aspoň u jednoho máš vyplněnou zakázku, exportuje se ti speciální šablona pro praxe. Pokud žádnou zakázku nemáš, stáhne se klasická firemní šablona. Při počtu nad <strong>15 záznamů</strong> se data stáhnou do čistého Excelu bez formátování, aby se tabulka nepřebila.</span>
                     </li>
                     <li class="info-list-item">
                         <span><strong>Profil a úpravy:</strong> V nabídce "Upravit profil" si můžeš kdykoli změnit svou hodinovou sazbu, upravit přihlašovací heslo nebo si celou aplikaci kompletně obarvit a přepnout do tmavého režimu.</span>
@@ -635,6 +635,9 @@
                 <p class="text-secondary text-sm">Nasadili jsme velkou aktualizaci systému! Tady je přehled nových funkcí a vylepšení, které ti usnadní práci:</p>
                 
                 <ul class="info-list">
+                    <li class="info-list-item">
+                        <span><strong>Navýšení limitu šablon:</strong> Limit pro export do formátovaných firemních šablon jsme lehce zvedli. Nyní můžeš v rámci jednoho měsíce vyexportovat až <strong>15 záznamů</strong>.</span>
+                    </li>
                     <li class="info-list-item">
                         <span><strong>Inteligentní střídání šablon:</strong> Pokud budeš exportovat data, kde je vyplněná aspoň jedna zakázka, aplikace automaticky rozpozná změnu a vygeneruje ti novou, rozšířenou <strong>šablonu pro praxe</strong>. V opačném případě využije původní klasický formát.</span>
                     </li>
@@ -687,7 +690,7 @@
         </div>
     </nav>
     
-    <script type="module" src="app.js"></script>
+    <script type="module" src="app.js?v=1.3"></script>
 </body>
 
 </html>
