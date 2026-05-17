@@ -306,9 +306,11 @@ document.getElementById('save-onboarding-btn').addEventListener('click', async (
         showToast("Registrace proběhla úspěšně, vše je připraveno!", "success");
         document.getElementById('onboarding-modal').classList.add('hidden');
         
-        // Po mzdě hned ukážeme novinky i nováčkovi
-        document.getElementById('news-modal').classList.remove('hidden');
-        // Nastavíme si v paměti, že jde o nováčka, abychom mu pak ukázali i Průvodce
+        // Po mzdě ukážeme nováčkovi jako první NÁVOD (info-modal)
+        document.getElementById('info-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        // Nastavíme si v paměti, že jde o nováčka
         window.isFirstTimeUser = true;
     } catch (e) { 
         showToast("Chyba při ukládání: " + e.message, "error"); 
@@ -1652,6 +1654,23 @@ adminWorkersList.addEventListener('click', async (e) => {
 // --- INFORMAČNÍ OKNO (Nápověda / Průvodce) ---
 const infoModal = document.getElementById('info-modal');
 
+// Pomocná funkce pro zavření nápovědy a případné otevření novinek
+const closeInfoModalLogic = () => {
+    infoModal.classList.add('hidden');
+    document.body.style.overflow = '';
+    
+    // ZMĚNA TADY: Pokud to zavírá nováček, ukážeme mu teď Novinky
+    if (window.isFirstTimeUser) {
+        document.getElementById('news-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        window.isFirstTimeUser = false; // Zde už označení nováčka mažeme, viděl vše
+    }
+};
+
+// Zavírání
+document.getElementById('close-info-cross')?.addEventListener('click', closeInfoModalLogic);
+document.getElementById('close-info-btn')?.addEventListener('click', closeInfoModalLogic);
+
 // Otevírání na PC
 document.getElementById('open-info-desktop-btn')?.addEventListener('click', () => {
     infoModal.classList.remove('hidden');
@@ -1681,13 +1700,6 @@ document.getElementById('close-news-btn')?.addEventListener('click', async () =>
     // Schováme okno
     document.getElementById('news-modal').classList.add('hidden');
     document.body.style.overflow = '';
-    
-    // Pokud je to nováček, hned mu po novinkách otevřeme Průvodce
-    if (window.isFirstTimeUser) {
-        document.getElementById('info-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden'
-        window.isFirstTimeUser = false; // Resetujeme příznak
-    }
 
     // Uložení do DB, že uživatel novinky viděl (tohle už tam máš)
     try {
