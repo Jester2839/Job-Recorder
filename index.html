@@ -597,27 +597,30 @@
             </div>
             
             <div class="info-content">
-                <p class=" text-secondary text-sm">Vítej v beta verzi <strong>Job Recorderu</strong>! Tady je rychlý přehled toho nejdůležitějšího:</p>
+                <p class="text-secondary text-sm">Vítej v beta verzi aplikace <strong>Job Recorder</strong>! Tady máš rychlý přehled toho, jak systém správně používat:</p>
                 
                 <ul class="info-list">
                     <li class="info-list-item">
-                        <span><strong>Zápis hodin:</strong> Zadej potřebné údaje, jako je datum, počet odpracovaných hodin nebo vykonávaná činnost. U některých polí můžeš využít také rychlé štítky zobrazené pod formulářem.</span>
+                        <span><strong>Zápis hodin a zakázek:</strong> Zadej datum, odpracované hodiny, činnost, poznámku (neboli co jsi dělal/a) a případně i název zakázky na které pracuješ. Políčko <em>Zakázka</em> je dobrovolné. Pokud jsi u nás na školní praxi a nemáš hodinovou mzdu, nechej při prvním spuštění (nebo v profilu) částku nastavenou na <strong>0 Kč/h</strong>.</span>
                     </li>
                     <li class="info-list-item">
-                        <span><strong>Vyhledávání a filtrování:</strong> Ikona lupy slouží k vyhledávání v poznámkách a činnostech. Pomocí trychtýře si můžeš snadno vyfiltrovat konkrétní měsíc nebo den.</span>
+                        <span><strong>Chytré zadávání:</strong> Abychom ti ušetřili čas, po kliknutí do políčka data se ti automaticky předvyplní dnešní den. U vybraných kolonek můžeš navíc využít rychlé štítky, které najdeš pod políčky.</span>
                     </li>
                     <li class="info-list-item">
-                        <span><strong>Export záznamů:</strong> Vyfiltruj si požadovaný měsíc a klikni na tlačítko Export. Exportují se vždy všechny záznamy, které máš aktuálně zobrazené na hlavní stránce. Pokud máš 13 nebo méně záznamů, můžeš si vybrat mezi šablonou s tabulkou nebo prázdným Excelem. Při větším počtu záznamů se automaticky stáhne čistý Excel soubor.</span>
+                        <span><strong>Hledání a filtrace:</strong> Hlavní lupa nahoře prohledává text poznámek, činností i názvy zakázek. Pokud potřebuješ detailnější filtr, rozklikni trychtýř – tam můžeš filtrovat konkrétní činnost, specifickou zakázku nebo měsíc (který se ti po kliknutí opět sám předvyplní na ten aktuální).</span>
                     </li>
                     <li class="info-list-item">
-                        <span><strong>Profil a vzhled:</strong> V sekci „Upravit profil“ si můžeš změnit sazbu, heslo, jméno nebo e-mail. Zároveň si zde můžeš přizpůsobit vzhled aplikace podle svého vkusu.</span>
+                        <span><strong>Automatický export:</strong> Vyfiltruj si požadovaný měsíc a klikni na Export. Systém data zkontroluje: Pokud máš 13 a méně záznamů a aspoň u jednoho máš vyplněnou zakázku, exportuje se ti speciální <strong>šablona pro praxe</strong>. Pokud žádnou zakázku nemáš, stáhne se klasická firemní šablona. Při počtu nad 13 záznamů se data stáhnou do čistého Excelu bez formátování, aby se tabulka nepřebila.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Profil a úpravy:</strong> V nabídce "Upravit profil" si můžeš kdykoli změnit svou hodinovou sazbu, upravit přihlašovací heslo nebo si celou aplikaci kompletně obarvit a přepnout do tmavého režimu.</span>
                     </li>
                 </ul>
             </div>
 
             <div class="header-actions modal-actions mt-15" style="flex-direction: column; align-items: center; gap: 10px;">
                 <button id="close-info-btn" class="btn btn-accent w-100">Rozumím, jdeme na to!</button>
-                <small class="text-secondary" style="font-size: 0.75rem;">@2026 <a href="https://jester2839.github.io/WebPortfolio/index.html" target="_blank" style="color: var(--accent-color);">Jakub Nový</a></small>
+                <small class="text-secondary" style="font-size: 0.75rem;">Vytvořil <a href="https://jester2839.github.io/WebPortfolio/index.html" target="_blank" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">Jakub Nový</a> v roce 2026</small>
             </div>
         </div>
     </div>
@@ -625,23 +628,27 @@
     <div id="news-modal" class="modal-overlay hidden" style="z-index: 10000;">
         <div class="modal-content modal-solid modal-wide">
             <div class="dropdown-header">
-                <h2><i class="ph ph-megaphone"></i> Co je nového?</h2>
+                <h2><i class="ph ph-megaphone"></i> Co je nového v beta verzi?</h2>
             </div>
             
             <div class="info-content">
-                <p class="text-secondary text-sm">Nasadili jsme novou aktualizaci! Tady je přehled toho, co přibylo za vylepšení:</p>
+                <p class="text-secondary text-sm">Nasadili jsme velkou aktualizaci systému! Tady je přehled nových funkcí a vylepšení, které ti usnadní práci:</p>
                 
-                <ul class="info-list mt-10">
+                <ul class="info-list">
                     <li class="info-list-item">
-                        <span><strong> Info:</strong> Aplikace je stále v rané fázi vývoje a patříte mezi první uživatele, kteří k ní mají přístup. Pokud narazíte na jakékoli chyby nebo nedostatky, neváhejte kontaktovat
-                        <a href="https://jester2839.github.io/WebPortfolio/link.html" class="contact-btn" target="_blank">mě</a> nebo své nadřízené.
-                        </span>
+                        <span><strong>Inteligentní střídání šablon:</strong> Pokud budeš exportovat data, kde je vyplněná aspoň jedna zakázka, aplikace automaticky rozpozná změnu a vygeneruje ti novou, rozšířenou <strong>šablonu pro praxe</strong>. V opačném případě využije původní klasický formát.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Chytré předvyplňování datumů:</strong> Už nemusíš zdlouhavě klikat v kalendáři. Při zápisu hodin ti systém po kliknutí sám nabídne dnešní den a v menu filtrů ti rovnou skočí aktuální měsíc.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Podpora vývoje:</strong> Aplikace je stále v živém vývoji. Pokud narazíš na jakoukoli chybu nebo tě napadne zlepšení, můžeš <a href="https://jester2839.github.io/WebPortfolio/link.html">mě</a> nebo své nadřízené kdykoli kontaktovat.</span>
                     </li>
                 </ul>
             </div>
 
             <div class="header-actions modal-actions mt-15">
-                <button id="close-news-btn" class="btn btn-accent w-100">Rozumím</button>
+                <button id="close-news-btn" class="btn btn-accent w-100">Super, rozumím</button>
             </div>
         </div>
     </div>
