@@ -307,6 +307,10 @@ input[type="number"]::-webkit-outer-spin-button {
     margin-top: 15px;
 }
 
+#filter-toggle-btn{
+    border: 1px solid var(--accent-color);
+}
+
 .btn-icon:hover {
     color: var(--accent-color);
     background-color: rgba(201, 190, 126, 0.1);
@@ -1152,8 +1156,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .filter-indicator-dot {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: -2px;
+    right: -2px;
     width: 8px;
     height: 8px;
     background-color: var(--accent-color);

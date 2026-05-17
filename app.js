@@ -323,6 +323,7 @@ addRecordBtn.addEventListener('click', async () => {
     const hours = document.getElementById('hoursInput').value;
     const activity = document.getElementById('activityInput').value;
     const desc = document.getElementById('descInput').value;
+    const order = document.getElementById('orderInput').value.trim();
     const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
     const currentRate = userDoc.data().hourlyRate ?? 200;
 
@@ -343,6 +344,7 @@ addRecordBtn.addEventListener('click', async () => {
             hours: Number(hours),
             activity: activity,
             description: desc,
+            order: order,
             rate: currentRate,
             userId: auth.currentUser.uid,
             createdAt: serverTimestamp()
@@ -354,6 +356,7 @@ addRecordBtn.addEventListener('click', async () => {
         document.getElementById('hoursInput').value = '';
         document.getElementById('activityInput').value = '';
         document.getElementById('descInput').value = '';
+        document.getElementById('orderInput').value = '';
 
         addModal.classList.add('hidden');
         
@@ -411,6 +414,10 @@ function renderRecords() {
     const rawActivityValue = document.getElementById('activityFilter').value.toLowerCase().trim();
     const activityValue = removeDiacritics(rawActivityValue);
 
+    // --- Načtení filtru pro Zakázku ---
+    const rawOrderValue = document.getElementById('orderFilter').value.toLowerCase().trim();
+    const orderFilterValue = removeDiacritics(rawOrderValue);
+
     const list = document.getElementById('records-list');
     list.innerHTML = '';
 
@@ -418,14 +425,21 @@ function renderRecords() {
     let filtered = allRecords.filter(record => {
         // Texty z databáze očešeme o háčky a čárky, abychom porovnávali jablka s jablky
         const safeDesc = record.description ? removeDiacritics(record.description.toLowerCase()) : '';
-        const safeAct = record.activity ? removeDiacritics(record.activity.toLowerCase()) : 'ostatni'; // "ostatní" je teď taky bez háčku
+        const safeAct = record.activity ? removeDiacritics(record.activity.toLowerCase()) : 'ostatni'; 
+        const safeOrder = record.order ? removeDiacritics(record.order.toLowerCase()) : ''; // NOVÉ: bezpečný text zakázky
 
-        const matchesSearch = !searchValue || safeDesc.includes(searchValue) || safeAct.includes(searchValue);
+        // UPRAVENO: Přidali jsme safeOrder.includes(searchValue) pro hlavní lupu!
+        const matchesSearch = !searchValue || safeDesc.includes(searchValue) || safeAct.includes(searchValue) || safeOrder.includes(searchValue);
+        
         const matchesMonth = !monthValue || record.date.startsWith(monthValue);
         const matchesExactDate = !exactDateValue || record.date === exactDateValue;
         const matchesActivity = !activityValue || safeAct.includes(activityValue);
+        
+        // NOVÉ: Filtr specificky jen pro políčko zakázky v menu filtrů
+        const matchesOrder = !orderFilterValue || safeOrder.includes(orderFilterValue);
 
-        return matchesSearch && matchesMonth && matchesExactDate && matchesActivity;
+        // Musí splňovat všechno vybrané
+        return matchesSearch && matchesMonth && matchesExactDate && matchesActivity && matchesOrder;
     });
 
     if (sortValue === 'asc') {
@@ -436,7 +450,7 @@ function renderRecords() {
 
     // --- OVLÁDÁNÍ BAREVNÉ TEČKY U FILTRU ---
     const filterIndicator = document.getElementById('filter-indicator');
-    if (monthValue || exactDateValue || activityValue) {
+    if (monthValue || exactDateValue || activityValue || orderFilterValue) {
         filterIndicator.classList.remove('hidden');
     } else {
         filterIndicator.classList.add('hidden');
@@ -490,11 +504,15 @@ function renderRecords() {
                 const item = document.createElement('div');
                 item.className = "card record-item"; // Karta a specifický layout záznamu
                 
+                // OPRAVA: Tady musí být 'data.order', protože proměnná z cyklu se jmenuje 'data'
+                const orderBadge = data.order ? `<span class="badge-display" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);"><i class="ph ph-house"></i> ${data.order}</span>` : '';
+
                 item.innerHTML = `
                     <div style="flex: 1;">
                         <div class="record-info">
                             <span class="record-date">${day}. ${month}. ${year}</span>
                             <span class="badge-display">${activityName}</span>
+                            ${orderBadge}
                             <span class="record-hours"><i class="ph ph-clock"></i> ${data.hours} hod.</span>
                         </div>
                         <p class="record-desc">${data.description}</p>
@@ -611,8 +629,8 @@ exactDateFilterInput.addEventListener('input', () => {
     }
     renderRecords();
 });
-// Ostatní filtry (hledání a činnost) jen překreslují data
-['searchInput', 'activityFilter'].forEach(inputId => {
+// Ostatní filtry (hledání, činnost a zakázka) jen překreslují data
+['searchInput', 'activityFilter', 'orderFilter'].forEach(inputId => {
     document.getElementById(inputId).addEventListener('input', renderRecords);
 });
 // 5. Zrušení filtrů
@@ -620,6 +638,7 @@ document.getElementById('clear-filter-btn').addEventListener('click', () => {
     document.getElementById('monthFilter').value = '';
     document.getElementById('exactDateFilter').value = '';
     document.getElementById('activityFilter').value = '';
+    document.getElementById('orderFilter').value = '';
     renderRecords(); 
     filterDropdown.classList.add('hidden'); 
 });
@@ -646,6 +665,40 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
+
+// --- CHYTRÉ PŘEDVYPLŇOVÁNÍ DATUMŮ (Smart Defaults) ---
+// Pomocná funkce pro získání dneška ve formátu YYYY-MM-DD
+function getTodayString() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+// Pomocná funkce pro získání aktuálního měsíce ve formátu YYYY-MM
+function getCurrentMonthString() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    return `${yyyy}-${mm}`;
+}
+
+// 1. PŘIDÁNÍ ZÁZNAMU: Při kliknutí předvyplní dnešek
+document.getElementById('dateInput')?.addEventListener('focus', function() {
+    // Doplní se pouze tehdy, když je políčko úplně prázdné
+    if (!this.value) { 
+        this.value = getTodayString();
+    }
+});
+
+// 2. FILTR MĚSÍCE: Při kliknutí předvyplní aktuální měsíc
+document.getElementById('monthFilter')?.addEventListener('focus', function() {
+    if (!this.value) {
+        this.value = getCurrentMonthString();
+        renderRecords(); // Rovnou i aplikujeme filtr!
+    }
+});
 
 
 
@@ -715,9 +768,9 @@ function openEditModal(id){
     // Předvyplníme okno aktuálními daty
     document.getElementById('editDateInput').value = record.date;
     document.getElementById('editHoursInput').value = record.hours;
-    // Předvyplnění činnosti (pokud u starých záznamů chybí, dáme "ostatní")
     document.getElementById('editActivityInput').value = record.activity || 'ostatní';
     document.getElementById('editDescInput').value = record.description;
+    document.getElementById('editOrderInput').value = record.order || '';
 
     document.getElementById('edit-modal').classList.remove('hidden'); // Ukážeme okno
 };
@@ -732,6 +785,7 @@ document.getElementById('save-edit-btn').addEventListener('click', async () => {
     const hours = document.getElementById('editHoursInput').value;
     const activity = document.getElementById('editActivityInput').value;
     const desc = document.getElementById('editDescInput').value;
+    const order = document.getElementById('editOrderInput').value.trim();
 
     if (!date || !hours || !activity || !desc) {
         showToast("Vyplň všechna pole!", "warning");
@@ -749,7 +803,8 @@ document.getElementById('save-edit-btn').addEventListener('click', async () => {
             date: date,
             hours: Number(hours),
             activity: activity,
-            description: desc
+            description: desc,
+            order: order
         });
 
         showToast("Záznam úspěšně upraven!", "success");
@@ -1538,11 +1593,16 @@ adminWorkersList.addEventListener('click', async (e) => {
             } else {
                 records.forEach(rec => {
                     const [y, m, d] = rec.date.split('-');
+                    
+                    // NOVÉ: Vygenerování štítku pro admina (Tady je proměnná správně 'rec')
+                    const orderBadge = rec.order ? `<span class="badge-display" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);"><i class="ph ph-folder"></i> ${rec.order}</span>` : '';
+
                     recordsHTML += `
                         <div class="admin-mini-record">
                             <div class="admin-mini-record-header">
                                 <span class="record-date">${d}. ${m}. ${y}</span>
                                 <span class="badge-display">${rec.activity || 'ostatní'}</span>
+                                ${orderBadge}
                                 <span class="record-hours text-accent"><i class="ph ph-clock"></i> ${rec.hours} h</span>
                             </div>
                             ${rec.description ? `<p class="text-secondary mt-10 text-sm">${rec.description}</p>` : ''}
@@ -1640,6 +1700,11 @@ document.getElementById('close-news-btn')?.addEventListener('click', async () =>
 
 
 
+
+
+
+
+
 // ==========================================
 // --- CHYTRÝ EXPORT DO EXCELU ---
 // ==========================================
@@ -1653,20 +1718,38 @@ async function exportToPlainExcel(config) {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Výkaz');
 
-    // Hlavičky
-    worksheet.getRow(1).values = ['Datum', 'Činnost', 'Poznámka', 'Hodiny'];
+    // NOVÉ: Zjistíme, jestli alespoň 1 záznam má zakázku
+    const hasOrder = data.some(r => r.order && r.order.trim() !== '');
+
+    // Dynamické hlavičky
+    if (hasOrder) {
+        worksheet.getRow(1).values = ['Datum', 'Zakázka', 'Činnost', 'Poznámka', 'Hodiny'];
+    } else {
+        worksheet.getRow(1).values = ['Datum', 'Činnost', 'Poznámka', 'Hodiny'];
+    }
     worksheet.getRow(1).font = { bold: true };
 
     // Data
     data.forEach((record, index) => {
         const dateParts = record.date.split('-');
         const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-        worksheet.getRow(index + 2).values = [
-            formattedDate,
-            record.activity,
-            record.description,
-            Number(record.hours)
-        ];
+        
+        if (hasOrder) {
+            worksheet.getRow(index + 2).values = [
+                formattedDate,
+                record.order || '',
+                record.activity,
+                record.description,
+                Number(record.hours)
+            ];
+        } else {
+            worksheet.getRow(index + 2).values = [
+                formattedDate,
+                record.activity,
+                record.description,
+                Number(record.hours)
+            ];
+        }
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
@@ -1674,44 +1757,72 @@ async function exportToPlainExcel(config) {
     saveAs(blob, `${fileName}_bez_formatu.xlsx`);
     showToast("Exportováno do čistého Excelu.", "success");
 }
-
 // 2. Pomocná funkce pro export DO ŠABLONY
 async function exportToTemplateExcel(config) {
     const { data, workerId, workerName, fileName } = config;
     
     try {
-        // Sáhneme do DB pro hodinovku SPRÁVNÉHO uživatele (Brigádníka nebo Adminem zvoleného člověka)
         const userDoc = await getDoc(doc(db, "users", workerId));
         const currentRate = userDoc.data()?.hourlyRate ?? 200;
 
-        const response = await fetch('tamplates/sablona.xlsx');
+        // NOVÉ: Zjistíme, jakou šablonu budeme stahovat
+        const hasOrder = data.some(r => r.order && r.order.trim() !== '');
+        const templatePath = hasOrder ? 'tamplates/sablona_praxe.xlsx' : 'tamplates/sablona.xlsx';
+
+        const response = await fetch(templatePath);
         const arrayBuffer = await response.arrayBuffer();
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.load(arrayBuffer);
         const worksheet = workbook.getWorksheet(1);
 
-        // Zápis správného jména a sazby do hlavičky
         worksheet.getCell('A1').value = `Výkaz prací ${workerName}`;
-        worksheet.getCell('K19').value = Number(currentRate);
 
-        let currentRowIndex = 4;
-        data.forEach(record => {
-            const row = worksheet.getRow(currentRowIndex);
-            const dateParts = record.date.split('-');
-            const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+        if (hasOrder) {
+            // LOGIKA PRO ŠABLONU PRAXE (S MÍSTEM PRO ZAKÁZKU)
+            worksheet.getCell('L17').value = Number(currentRate); // Hodinovka v nové šabloně
+            
+            let currentRowIndex = 3; // Praxe začíná už na 3. řádku
+            data.forEach(record => {
+                const row = worksheet.getRow(currentRowIndex);
+                const dateParts = record.date.split('-');
+                const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
 
-            row.getCell(1).value = formattedDate;
-            row.getCell(5).value = record.activity;
-            row.getCell(10).value = record.description;
-            row.getCell(11).value = Number(record.hours);
+                row.getCell(1).value = formattedDate;       // A: Datum
+                row.getCell(5).value = record.order || '';  // E: Zakázka
+                row.getCell(6).value = record.activity;     // F: Činnost
+                row.getCell(11).value = record.description; // K: Poznámka
+                row.getCell(12).value = Number(record.hours); // L: Hodiny
 
-            row.commit();
-            currentRowIndex++;
-        });
+                row.commit();
+                currentRowIndex++;
+            });
+        } else {
+            // LOGIKA PRO KLASICKOU ŠABLONU (Původní)
+            worksheet.getCell('K19').value = Number(currentRate);
+            
+            let currentRowIndex = 4; // Klasická začíná na 4. řádku
+            data.forEach(record => {
+                const row = worksheet.getRow(currentRowIndex);
+                const dateParts = record.date.split('-');
+                const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+
+                row.getCell(1).value = formattedDate;                  
+                row.getCell(5).value = record.activity;                    
+                row.getCell(10).value = record.description;          
+                row.getCell(11).value = Number(record.hours);        
+
+                row.commit();
+                currentRowIndex++;
+            });
+        }
 
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `${fileName}_sablona.xlsx`);
+        
+        // Hezčí název souboru podle toho, jaká to byla šablona
+        const finalFileName = hasOrder ? `${fileName}_sablona_praxe.xlsx` : `${fileName}_sablona.xlsx`;
+        saveAs(blob, finalFileName);
+        
         showToast("Export do šablony dokončen.", "success");
 
     } catch (error) {
@@ -1746,7 +1857,6 @@ document.getElementById('export-btn').addEventListener('click', async () => {
     }
 });
 
-
 // --- OBSLUHA TLAČÍTEK VE VÝBĚROVÉM OKNĚ (< 13 záznamů) ---
 document.getElementById('close-export-choice-cross').addEventListener('click', () => {
     exportChoiceModal.classList.add('hidden');
@@ -1761,8 +1871,6 @@ document.getElementById('export-template-btn').addEventListener('click', async (
     // Vezme si data z dynamického configu!
     await exportToTemplateExcel(window.exportConfig);
 });
-
-
 // --- OBSLUHA TLAČÍTEK V UPOZORŇOVACÍM OKNĚ (> 13 záznamů) ---
 document.getElementById('close-export-limit-cross').addEventListener('click', () => {
     exportLimitModal.classList.add('hidden');
