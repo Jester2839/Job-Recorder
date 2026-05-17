@@ -1529,7 +1529,7 @@ adminWorkersList.addEventListener('click', async (e) => {
         };
 
         // Otevřeme správné okno podle počtu záznamů
-        if (data.length > 13) {
+        if (data.length > 15) {
             document.getElementById('export-limit-modal').classList.remove('hidden');
         } else {
             document.getElementById('export-choice-modal').classList.remove('hidden');
@@ -1850,7 +1850,7 @@ document.getElementById('export-btn').addEventListener('click', async () => {
         fileName: document.getElementById('monthFilter').value || "Vsechno"
     };
 
-    if (data.length > 13) {
+    if (data.length > 15) {
         exportLimitModal.classList.remove('hidden');
     } else {
         exportChoiceModal.classList.remove('hidden');
