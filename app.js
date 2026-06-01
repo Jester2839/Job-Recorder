@@ -1428,6 +1428,21 @@ document.getElementById('save-manage-workers-btn').addEventListener('click', asy
 // --- ADMIN: VYKRESLOVÁNÍ NÁSTĚNKY ---
 const adminWorkersList = document.getElementById('admin-workers-list');
 
+// Globální proměnná pro vybraný měsíc v adminovi (výchozí je aktuální měsíc)
+let adminSelectedMonth = new Date().toISOString().slice(0, 7);
+const adminMonthInput = document.getElementById('admin-month-input');
+if (adminMonthInput) adminMonthInput.value = adminSelectedMonth;
+
+document.getElementById('admin-month-input')?.addEventListener('input', (e) => {
+    adminSelectedMonth = e.target.value;
+    renderAdminDashboard();
+});
+
+// Programové otevření kalendáře při kliknutí na textový nadpis
+document.getElementById('admin-month-title')?.addEventListener('click', () => {
+    document.getElementById('admin-month-input')?.showPicker();
+});
+
 async function renderAdminDashboard() {
     if (!window.currentEmployerId) return;
 
@@ -1447,12 +1462,11 @@ async function renderAdminDashboard() {
             return;
         }
 
-        // Zjistíme a vypíšeme aktuální měsíc (Česky)
+        // Zjistíme a vypíšeme zvolený měsíc (Česky)
         const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
-        const now = new Date();
-        const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        
-        document.getElementById('admin-month-title').innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+        const [year, month] = adminSelectedMonth.split('-');
+
+        document.getElementById('admin-month-title').innerHTML = `<span>${monthNames[parseInt(month) - 1]} ${year}</span> <i class="ph ph-caret-down"></i>`;
         adminWorkersList.innerHTML = ''; 
 
         for (const workerId of monitoredIds) {
@@ -1467,7 +1481,7 @@ async function renderAdminDashboard() {
 
             recordsSnapshot.forEach((doc) => {
                 const data = doc.data();
-                if (data.date.startsWith(currentMonthPrefix)) {
+                if (data.date.startsWith(adminSelectedMonth)) {
                     currentMonthRecords++;
                     currentMonthHours += Number(data.hours);
                 }
@@ -1563,8 +1577,7 @@ adminWorkersList.addEventListener('click', async (e) => {
         expandedDiv.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><i class="ph ph-spinner-gap"></i><p>Načítám výkazy...</p></div>`;
 
         try {
-            const now = new Date();
-            const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const currentMonthPrefix = adminSelectedMonth;
 
             const q = query(collection(db, "work_records"), where("userId", "==", workerId));
             const snapshot = await getDocs(q);

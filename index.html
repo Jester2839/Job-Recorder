@@ -221,7 +221,12 @@
             <div id="admin-dashboard" class="hidden">
                 <div class="dropdown-header admin-header-spacing">
                     <h2><i class="ph ph-briefcase"></i> Přehled zaměstnanců</h2>
-                    <div id="admin-month-title" class="admin-month-title">Měsíc Rok</div>
+                    <div class="relative-wrapper">
+                        <div id="admin-month-title" class="admin-month-title" title="Klikni pro změnu měsíce">
+                            <span>Měsíc Rok</span> <i class="ph ph-caret-down"></i>
+                        </div>
+                        <input type="month" id="admin-month-input" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+                    </div>
 
                     <button id="open-manage-workers-btn" class="btn btn-accent">
                         <i class="ph ph-users"></i>
