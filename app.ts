@@ -1,7 +1,7 @@
 // Importy Firebase funkcí z CDN
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile, updateEmail, updatePassword, deleteUser, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile, updateEmail, updatePassword, deleteUser, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDoc, getDocs } from "firebase/firestore";
 
 // SEM VLOŽ SVŮJ CONFIG Z FIREBASE
 const firebaseConfig = {
@@ -43,8 +43,8 @@ function setupPasswordToggle(btnId, inputId, iconId) {
     const icon = document.getElementById(iconId);
 
     btn.addEventListener('click', () => {
-        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-        input.setAttribute('type', type);
+        const type = input?.getAttribute('type') === 'password' ? 'text' : 'password';
+        input?.setAttribute('type', type);
         
         if (type === 'text') {
             icon.classList.replace('ph-eye', 'ph-eye-slash');
@@ -77,7 +77,7 @@ function updateProfileThemeUI() {
     const text = document.getElementById('profile-theme-text');
     if(icon && text) {
         icon.className = isDark ? 'ph ph-sun' : 'ph ph-moon';
-        text.innerText = isDark ? 'Světlý režim' : 'Tmavý režim';
+        text.textContent = isDark ? 'Světlý režim' : 'Tmavý režim';
     }
 }
 
@@ -110,9 +110,9 @@ onAuthStateChanged(auth, async (user) => {
         appSection.classList.remove('hidden');
         
         const displayName = user.displayName || user.email.split('@')[0];
-        document.getElementById('desktop-user-name').innerText = displayName;
-        document.getElementById('dropdown-user-name').innerText = displayName;
-        document.getElementById('mobile-user-name').innerText = displayName;
+        document.getElementById('desktop-user-name').textContent = displayName;
+        document.getElementById('dropdown-user-name').textContent = displayName;
+        document.getElementById('mobile-user-name').textContent = displayName;
 
         // 2. RESET PLOCHY (Než zjistíme roli, vše schováme)
         workerDashboard?.classList.add('hidden');
@@ -195,9 +195,9 @@ onAuthStateChanged(auth, async (user) => {
         
         window.currentUserRole = null;
         window.currentEmployerId = null;
-        document.getElementById('stat-count').innerText = "0";
-        document.getElementById('stat-hours').innerText = "0 h";
-        document.getElementById('stat-money').innerText = "0 Kč";
+        document.getElementById('stat-count').textContent = "0";
+        document.getElementById('stat-hours').textContent = "0 h";
+        document.getElementById('stat-money').textContent = "0 Kč";
         const yearlyList = document.getElementById('yearly-summary-list');
         if (yearlyList) yearlyList.innerHTML = '';
     }
@@ -206,8 +206,8 @@ onAuthStateChanged(auth, async (user) => {
 // Přihlášení
 loginBtn.addEventListener('click', () => {
     // Upravená IDčka na nová
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+    const email = (document.getElementById('login-email') as HTMLInputElement).value;
+    const password = (document.getElementById('login-password') as HTMLInputElement).value;
 
     signInWithEmailAndPassword(auth, email, password)
         .then(() => { 
@@ -226,10 +226,10 @@ logoutBtn.addEventListener('click', () => {
 
 // Registrace Nového Uživatele
 document.getElementById('register-btn').addEventListener('click', async () => {
-    const name = document.getElementById('reg-name').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const password = document.getElementById('reg-password').value;
-    const confirmPassword = document.getElementById('reg-password-confirm').value;
+    const name = (document.getElementById('reg-name') as HTMLInputElement).value.trim();
+    const email = (document.getElementById('reg-email') as HTMLInputElement).value.trim();
+    const password = (document.getElementById('reg-password') as HTMLInputElement).value;
+    const confirmPassword = (document.getElementById('reg-password-confirm') as HTMLInputElement).value;
 
     // Kontrola, zda je vše vyplněné
     if (!name || !email || !password || !confirmPassword) {
@@ -260,15 +260,15 @@ document.getElementById('register-btn').addEventListener('click', async () => {
         });
 
         // Vyčištění formuláře pro příště
-        document.getElementById('reg-name').value = '';
-        document.getElementById('reg-email').value = '';
-        document.getElementById('reg-password').value = '';
-        document.getElementById('reg-password-confirm').value = '';
+        (document.getElementById('reg-name') as HTMLInputElement).value = '';
+        (document.getElementById('reg-email') as HTMLInputElement).value = '';
+        (document.getElementById('reg-password') as HTMLInputElement).value = '';
+        (document.getElementById('reg-password-confirm') as HTMLInputElement).value = '';
 
         // Ruční přepsání jména v UI hned po registraci
-        document.getElementById('desktop-user-name').innerText = name;
-        document.getElementById('dropdown-user-name').innerText = name;
-        document.getElementById('mobile-user-name').innerText = name;
+        document.getElementById('desktop-user-name').textContent = name;
+        document.getElementById('dropdown-user-name').textContent = name;
+        document.getElementById('mobile-user-name').textContent = name;
 
         // Zobrazíme Onboarding ihned po registraci a upozornění na úspěch
         showToast("Úspěšně zaregistrováno! Vítej.", "success");
@@ -292,7 +292,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
 // --- LOGIKA PRO ONBOARDING (Prvotní nastavení mzdy) ---
 document.getElementById('save-onboarding-btn').addEventListener('click', async () => {
     const rateInput = document.getElementById('onboarding-rate');
-    const rate = rateInput.value === "" ? 0 : Number(rateInput.value);
+    const rate = (rateInput as HTMLInputElement).value === "" ? 0 : Number((rateInput as HTMLInputElement).value);
     
     if (rate < 0) {
         showToast("Mzda nemůže být záporná.", "warning");
@@ -321,11 +321,11 @@ document.getElementById('save-onboarding-btn').addEventListener('click', async (
 // --- PRÁCE S DATABÁZÍ ---
 // Přidání záznamu
 addRecordBtn.addEventListener('click', async () => {
-    const date = document.getElementById('dateInput').value;
-    const hours = document.getElementById('hoursInput').value;
-    const activity = document.getElementById('activityInput').value;
-    const desc = document.getElementById('descInput').value;
-    const order = document.getElementById('orderInput').value.trim();
+    const date = (document.getElementById('dateInput') as HTMLInputElement).value;
+    const hours = (document.getElementById('hoursInput') as HTMLInputElement).value;
+    const activity = (document.getElementById('activityInput') as HTMLInputElement).value;
+    const desc = (document.getElementById('descInput') as HTMLInputElement).value;
+    const order = (document.getElementById('orderInput') as HTMLInputElement).value.trim();
     const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
     const currentRate = userDoc.data().hourlyRate ?? 200;
 
@@ -354,11 +354,11 @@ addRecordBtn.addEventListener('click', async () => {
 
         showToast("Záznam uložen!", "success");
         // Vyčištění formuláře
-        document.getElementById('dateInput').value = '';
-        document.getElementById('hoursInput').value = '';
-        document.getElementById('activityInput').value = '';
-        document.getElementById('descInput').value = '';
-        document.getElementById('orderInput').value = '';
+        (document.getElementById('dateInput') as HTMLInputElement).value = '';
+        (document.getElementById('hoursInput') as HTMLInputElement).value = '';
+        (document.getElementById('activityInput') as HTMLInputElement).value = '';
+        (document.getElementById('descInput') as HTMLInputElement).value = '';
+        (document.getElementById('orderInput') as HTMLInputElement).value = '';
 
         addModal.classList.add('hidden');
         
@@ -390,7 +390,7 @@ function loadRecords() {
         }));
 
         // Seřadíme data podle data (od nejnovějšího po nejstarší) bezpečně v JavaScriptu
-        allRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+        allRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
         renderRecords();
     }, (error) => {
@@ -405,19 +405,19 @@ function renderRecords() {
     };
 
     // 2. Načtení vyhledávání: Převedeme na malá písmena a odstraníme diakritiku
-    const rawSearchValue = document.getElementById('searchInput').value.toLowerCase().trim();
+    const rawSearchValue = (document.getElementById('searchInput') as HTMLInputElement).value.toLowerCase().trim();
     const searchValue = removeDiacritics(rawSearchValue);
 
     const sortValue = document.getElementById('sort-toggle-btn').getAttribute('data-sort'); 
-    const monthValue = document.getElementById('monthFilter').value; 
-    const exactDateValue = document.getElementById('exactDateFilter').value;
+    const monthValue = (document.getElementById('monthFilter') as HTMLInputElement).value; 
+    const exactDateValue = (document.getElementById('exactDateFilter') as HTMLInputElement).value;
     
     // Tady také odstraníme diakritiku (kdybys někdy chtěl, aby i výběr z činností ignoroval háčky)
-    const rawActivityValue = document.getElementById('activityFilter').value.toLowerCase().trim();
+    const rawActivityValue = (document.getElementById('activityFilter') as HTMLInputElement).value.toLowerCase().trim();
     const activityValue = removeDiacritics(rawActivityValue);
 
     // --- Načtení filtru pro Zakázku ---
-    const rawOrderValue = document.getElementById('orderFilter').value.toLowerCase().trim();
+    const rawOrderValue = (document.getElementById('orderFilter') as HTMLInputElement).value.toLowerCase().trim();
     const orderFilterValue = removeDiacritics(rawOrderValue);
 
     const list = document.getElementById('records-list');
@@ -482,7 +482,7 @@ function renderRecords() {
     const sortMultiplier = sortValue === 'asc' ? -1 : 1; 
 
     // Vykreslení
-    Object.keys(grouped).sort((a, b) => (b - a) * sortMultiplier).forEach(year => {
+    Object.keys(grouped).sort((a, b) => (Number(b) - Number(a)) * sortMultiplier).forEach(year => {
         
         // Hlavička roku
         const yearHeader = document.createElement('h3');
@@ -490,12 +490,12 @@ function renderRecords() {
         yearHeader.innerHTML = `<i class="ph ph-calendar-blank"></i> ${year}`;
         list.appendChild(yearHeader);
 
-        Object.keys(grouped[year]).sort((a, b) => (b - a) * sortMultiplier).forEach(month => {
+        Object.keys(grouped[year]).sort((a, b) => (Number(b) - Number(a)) * sortMultiplier).forEach(month => {
             
             // Hlavička měsíce
             const monthHeader = document.createElement('h4');
             monthHeader.className = 'month-title';
-            monthHeader.innerText = monthNames[parseInt(month) - 1]; 
+            monthHeader.textContent = monthNames[parseInt(month) - 1]; 
             list.appendChild(monthHeader);
 
             // Záznamy
@@ -542,9 +542,9 @@ function renderRecords() {
     });
 
     // Pošleme to do HTML pro aktuální přehled
-    document.getElementById('stat-count').innerText = filtered.length;
-    document.getElementById('stat-hours').innerText = totalHours + " h";
-    document.getElementById('stat-money').innerText = totalMoney.toLocaleString('cs-CZ') + " Kč";
+    document.getElementById('stat-count').textContent = String(filtered.length);
+    document.getElementById('stat-hours').textContent = totalHours + " h";
+    document.getElementById('stat-money').textContent = totalMoney.toLocaleString('cs-CZ') + " Kč";
 
     // --- GLOBÁLNÍ ROČNÍ SOUHRNY (Vždy ze všech záznamů) ---
     const yearlyData = {};
@@ -561,7 +561,7 @@ function renderRecords() {
     if (yearlyList) { 
         yearlyList.innerHTML = ''; 
         
-        Object.keys(yearlyData).sort((a, b) => b - a).forEach(year => {
+        Object.keys(yearlyData).sort((a, b) => Number(b) - Number(a)).forEach(year => {
             const row = document.createElement('div');
             row.className = 'stat-row'; 
     
@@ -585,7 +585,7 @@ searchToggleBtn.addEventListener('click', () => {
     if (!searchInput.classList.contains('hidden-search')) {
         searchInput.focus(); 
     } else {
-        searchInput.value = '';
+        (searchInput as HTMLInputElement).value = '';
         renderRecords();
     }
 });
@@ -619,15 +619,15 @@ const monthFilterInput = document.getElementById('monthFilter');
 const exactDateFilterInput = document.getElementById('exactDateFilter');
 // Když vyberu Měsíc, smažu Přesný den
 monthFilterInput.addEventListener('input', () => {
-    if (monthFilterInput.value) {
-        exactDateFilterInput.value = ''; 
+    if ((monthFilterInput as HTMLInputElement).value) {
+        (exactDateFilterInput as HTMLInputElement).value = ''; 
     }
     renderRecords();
 });
 // Když vyberu Přesný den, smažu Měsíc
 exactDateFilterInput.addEventListener('input', () => {
-    if (exactDateFilterInput.value) {
-        monthFilterInput.value = ''; 
+    if ((exactDateFilterInput as HTMLInputElement).value) {
+        (monthFilterInput as HTMLInputElement).value = ''; 
     }
     renderRecords();
 });
@@ -637,17 +637,17 @@ exactDateFilterInput.addEventListener('input', () => {
 });
 // 5. Zrušení filtrů
 document.getElementById('clear-filter-btn').addEventListener('click', () => {
-    document.getElementById('monthFilter').value = '';
-    document.getElementById('exactDateFilter').value = '';
-    document.getElementById('activityFilter').value = '';
-    document.getElementById('orderFilter').value = '';
+    (document.getElementById('monthFilter') as HTMLInputElement).value = '';
+    (document.getElementById('exactDateFilter') as HTMLInputElement).value = '';
+    (document.getElementById('activityFilter') as HTMLInputElement).value = '';
+    (document.getElementById('orderFilter') as HTMLInputElement).value = '';
     renderRecords(); 
     filterDropdown.classList.add('hidden'); 
 });
 //Funkce pro zobrazení Toastu (upozorneni)
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
-    toast.innerText = message;
+    toast.textContent = message;
 
     // Nejprve vyčistíme všechny předchozí barvy a odkryjeme bublinu
     toast.classList.remove('hidden', 'toast-success', 'toast-error', 'toast-warning');
@@ -689,15 +689,15 @@ function getCurrentMonthString() {
 // 1. PŘIDÁNÍ ZÁZNAMU: Při kliknutí předvyplní dnešek
 document.getElementById('dateInput')?.addEventListener('focus', function() {
     // Doplní se pouze tehdy, když je políčko úplně prázdné
-    if (!this.value) { 
-        this.value = getTodayString();
+    if (!(this as HTMLInputElement).value) { 
+        (this as HTMLInputElement).value = getTodayString();
     }
 });
 
 // 2. FILTR MĚSÍCE: Při kliknutí předvyplní aktuální měsíc
 document.getElementById('monthFilter')?.addEventListener('focus', function() {
-    if (!this.value) {
-        this.value = getCurrentMonthString();
+    if (!(this as HTMLInputElement).value) {
+        (this as HTMLInputElement).value = getCurrentMonthString();
         renderRecords(); // Rovnou i aplikujeme filtr!
     }
 });
@@ -768,11 +768,11 @@ function openEditModal(id){
     editingRecordId = id; // Zapamatujeme si ID
 
     // Předvyplníme okno aktuálními daty
-    document.getElementById('editDateInput').value = record.date;
-    document.getElementById('editHoursInput').value = record.hours;
-    document.getElementById('editActivityInput').value = record.activity || 'ostatní';
-    document.getElementById('editDescInput').value = record.description;
-    document.getElementById('editOrderInput').value = record.order || '';
+    (document.getElementById('editDateInput') as HTMLInputElement).value = record.date;
+    (document.getElementById('editHoursInput') as HTMLInputElement).value = record.hours;
+    (document.getElementById('editActivityInput') as HTMLInputElement).value = record.activity || 'ostatní';
+    (document.getElementById('editDescInput') as HTMLInputElement).value = record.description;
+    (document.getElementById('editOrderInput') as HTMLInputElement).value = record.order || '';
 
     document.getElementById('edit-modal').classList.remove('hidden'); // Ukážeme okno
 };
@@ -783,11 +783,11 @@ document.getElementById('close-edit-cross').addEventListener('click', () => {
     document.getElementById('edit-modal').classList.add('hidden'); 
 });
 document.getElementById('save-edit-btn').addEventListener('click', async () => {
-    const date = document.getElementById('editDateInput').value;
-    const hours = document.getElementById('editHoursInput').value;
-    const activity = document.getElementById('editActivityInput').value;
-    const desc = document.getElementById('editDescInput').value;
-    const order = document.getElementById('editOrderInput').value.trim();
+    const date = (document.getElementById('editDateInput') as HTMLInputElement).value;
+    const hours = (document.getElementById('editHoursInput') as HTMLInputElement).value;
+    const activity = (document.getElementById('editActivityInput') as HTMLInputElement).value;
+    const desc = (document.getElementById('editDescInput') as HTMLInputElement).value;
+    const order = (document.getElementById('editOrderInput') as HTMLInputElement).value.trim();
 
     if (!date || !hours || !activity || !desc) {
         showToast("Vyplň všechna pole!", "warning");
@@ -823,8 +823,8 @@ document.getElementById('save-edit-btn').addEventListener('click', async () => {
 // --- EVENT DELEGATION PRO TLAČÍTKA U ZÁZNAMŮ ---
 document.getElementById('records-list').addEventListener('click', (event) => {
     // Zjistíme, jestli bylo kliknuto na editační tlačítko (nebo jeho ikonu)
-    const editBtn = event.target.closest('.action-edit-btn');
-    const deleteBtn = event.target.closest('.action-delete-btn');
+    const editBtn = (event.target as HTMLElement).closest('.action-edit-btn');
+    const deleteBtn = (event.target as HTMLElement).closest('.action-delete-btn');
 
     if (editBtn) {
         openEditModal(editBtn.getAttribute('data-id'));
@@ -922,13 +922,13 @@ function applyTheme(mode) {
         if (themeIcon) themeIcon.classList.replace('ph-moon', 'ph-sun');
         if (mobileThemeIcon) mobileThemeIcon.classList.replace('ph-moon', 'ph-sun');
         if (profileIcon) profileIcon.className = 'ph ph-sun';
-        if (profileText) profileText.innerText = 'Světlý režim';
+        if (profileText) profileText.textContent = 'Světlý režim';
     } else {
         document.body.removeAttribute('data-theme');
         if (themeIcon) themeIcon.classList.replace('ph-sun', 'ph-moon');
         if (mobileThemeIcon) mobileThemeIcon.classList.replace('ph-sun', 'ph-moon');
         if (profileIcon) profileIcon.className = 'ph ph-moon';
-        if (profileText) profileText.innerText = 'Tmavý režim';
+        if (profileText) profileText.textContent = 'Tmavý režim';
     }
     
     // DŮLEŽITÉ: Po přepnutí režimu musíme znovu přepočítat naši vybranou barvu!
@@ -997,21 +997,21 @@ window.addEventListener('click', (event) => {
     const searchToggleBtn = document.getElementById('search-toggle-btn');
 
     // Zavírání profilu
-    if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+    if (!userMenuBtn.contains(event.target as Node) && !userDropdown.contains(event.target as Node)) {
         userDropdown.classList.add('hidden');
         document.body.style.overflow = '';
     }
 
     // Zavírání filtrů
-    if (!filterToggleBtn.contains(event.target) && !filterDropdown.contains(event.target)) {
+    if (!filterToggleBtn.contains(event.target as Node) && !filterDropdown.contains(event.target as Node)) {
         filterDropdown.classList.add('hidden');
     }
 
     // CHYTRÉ ZAVÍRÁNÍ LUPY
     // Pokud kliknu mimo lupu a mimo její tlačítko...
-    if (!searchToggleBtn.contains(event.target) && !searchInput.contains(event.target)) {
+    if (!searchToggleBtn.contains(event.target as Node) && !searchInput.contains(event.target as Node)) {
         // ... a pokud je lupa prázdná, tak ji schovám
-        if (searchInput.value.trim() === '') {
+        if ((searchInput as HTMLInputElement).value.trim() === '') {
             searchInput.classList.add('hidden-search');
         }
     }
@@ -1117,11 +1117,11 @@ async function openProfilePage() {
         const userData = userDoc.data() || {};
 
         const userName = userData.name || user.displayName || 'Uživatel';
-        document.getElementById('profile-sidebar-name').innerText = userName;
-        document.getElementById('mobile-profile-name').innerText = userName;
-        document.getElementById('edit-profile-name').value = userData.name || user.displayName || '';
-        document.getElementById('edit-profile-email').value = user.email || '';
-        document.getElementById('edit-profile-rate').value = userData.hourlyRate ?? 200;
+        document.getElementById('profile-sidebar-name').textContent = userName;
+        document.getElementById('mobile-profile-name').textContent = userName;
+        (document.getElementById('edit-profile-name') as HTMLInputElement).value = userData.name || user.displayName || '';
+        (document.getElementById('edit-profile-email') as HTMLInputElement).value = user.email || '';
+        (document.getElementById('edit-profile-rate') as HTMLInputElement).value = userData.hourlyRate ?? 200;
     }
 
     // NOVÉ: Oživíme kuličky v profilu
@@ -1175,7 +1175,7 @@ document.querySelectorAll('.profile-nav-item').forEach(item => {
 
         // 4. MOBILNÍ LOGIKA: Nastavení textu a otevření detailu
         const mobileTitle = document.getElementById('mobile-category-title');
-        if (mobileTitle) mobileTitle.innerText = itemName;
+        if (mobileTitle) mobileTitle.textContent = itemName;
         
         const profileContainer = document.getElementById('profile-page-container');
         if(profileContainer) {
@@ -1206,7 +1206,7 @@ const passConfirmInput = document.getElementById('edit-profile-pass-confirm');
 const saveSecurityBtn = document.getElementById('save-security-btn');
 
 function validatePasswordFields() {
-    if (passInput.value.trim() !== "" && passConfirmInput.value.trim() !== "") {
+    if ((passInput as HTMLInputElement).value.trim() !== "" && (passConfirmInput as HTMLInputElement).value.trim() !== "") {
         saveSecurityBtn.removeAttribute('disabled');
     } else {
         saveSecurityBtn.setAttribute('disabled', 'true');
@@ -1218,8 +1218,8 @@ passConfirmInput.addEventListener('input', validatePasswordFields);
 
 // Uložení Osobních údajů (Jméno a E-mail)
 document.getElementById('save-personal-btn').addEventListener('click', async () => {
-    const newName = document.getElementById('edit-profile-name').value.trim();
-    const newEmail = document.getElementById('edit-profile-email').value.trim();
+    const newName = (document.getElementById('edit-profile-name') as HTMLInputElement).value.trim();
+    const newEmail = (document.getElementById('edit-profile-email') as HTMLInputElement).value.trim();
     
     if(!newName || !newEmail) return showToast("Vyplň jméno i e-mail.", "warning");
 
@@ -1237,10 +1237,10 @@ document.getElementById('save-personal-btn').addEventListener('click', async () 
         });
         
         // Update UI napříč aplikací
-        document.getElementById('profile-sidebar-name').innerText = newName;
-        document.getElementById('desktop-user-name').innerText = newName;
-        document.getElementById('dropdown-user-name').innerText = newName;
-        document.getElementById('mobile-user-name').innerText = newName;
+        document.getElementById('profile-sidebar-name').textContent = newName;
+        document.getElementById('desktop-user-name').textContent = newName;
+        document.getElementById('dropdown-user-name').textContent = newName;
+        document.getElementById('mobile-user-name').textContent = newName;
         
         showToast("Osobní údaje uloženy.", "success");
     } catch (e) { 
@@ -1251,8 +1251,8 @@ document.getElementById('save-personal-btn').addEventListener('click', async () 
 
 // Změna Hesla v profilu
 document.getElementById('save-security-btn').addEventListener('click', async () => {
-    const pwd1 = document.getElementById('edit-profile-pass').value;
-    const pwd2 = document.getElementById('edit-profile-pass-confirm').value;
+    const pwd1 = (document.getElementById('edit-profile-pass') as HTMLInputElement).value;
+    const pwd2 = (document.getElementById('edit-profile-pass-confirm') as HTMLInputElement).value;
 
     if (!pwd1) return showToast("Zadej nové heslo.", "warning");
     if (pwd1 !== pwd2) return showToast("Hesla se neshodují!", "error");
@@ -1260,8 +1260,8 @@ document.getElementById('save-security-btn').addEventListener('click', async () 
 
     try {
         await updatePassword(auth.currentUser, pwd1);
-        document.getElementById('edit-profile-pass').value = '';
-        document.getElementById('edit-profile-pass-confirm').value = '';
+        (document.getElementById('edit-profile-pass') as HTMLInputElement).value = '';
+        (document.getElementById('edit-profile-pass-confirm') as HTMLInputElement).value = '';
         showToast("Heslo úspěšně změněno.", "success");
     } catch (e) {
         if (e.code === 'auth/requires-recent-login') showToast("Pro změnu hesla se odhlas a znovu přihlas.", "error");
@@ -1287,7 +1287,7 @@ document.getElementById('confirm-delete-account-btn').addEventListener('click', 
     if (!user) return;
 
     const passwordInput = document.getElementById('delete-account-password');
-    const password = passwordInput.value;
+    const password = (passwordInput as HTMLInputElement).value;
 
     if (!password) {
         showToast("Pro smazání účtu musíš zadat své heslo.", "warning");
@@ -1316,7 +1316,7 @@ document.getElementById('confirm-delete-account-btn').addEventListener('click', 
         deleteAccountModal.classList.add('hidden');
         document.getElementById('profile-modal').classList.add('hidden');
         document.body.style.overflow = ''; // Obnovíme scrollování
-        passwordInput.value = ''; // Vyčistíme heslo
+        (passwordInput as HTMLInputElement).value = ''; // Vyčistíme heslo
         
     } catch (error) {
         // OBNOVA DAT: Pokud smazání účtu selže, vrátíme profil zpět do databáze!
@@ -1335,7 +1335,7 @@ document.getElementById('confirm-delete-account-btn').addEventListener('click', 
 
 // Uložení Administrace (Hodinová mzda)
 document.getElementById('save-admin-btn').addEventListener('click', async () => {
-    const newRate = Number(document.getElementById('edit-profile-rate').value);
+    const newRate = Number((document.getElementById('edit-profile-rate') as HTMLInputElement).value);
     if(!newRate || newRate <= 0) return showToast("Zadej platnou mzdu.", "warning");
     
     try {
@@ -1406,7 +1406,7 @@ document.getElementById('close-manage-workers-cross').addEventListener('click', 
 document.getElementById('save-manage-workers-btn').addEventListener('click', async () => {
     // Najdeme všechny zaškrtnuté checkboxy a získáme jejich 'value' (což je UserID)
     const checkboxes = workersCheckboxList.querySelectorAll('input[type="checkbox"]:checked');
-    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+    const selectedIds = Array.from(checkboxes).map(cb => (cb as HTMLInputElement).value);
 
     try {
         // Uložíme pole IDček k profilu admina v databázi
@@ -1431,16 +1431,16 @@ const adminWorkersList = document.getElementById('admin-workers-list');
 // Globální proměnná pro vybraný měsíc v adminovi (výchozí je aktuální měsíc)
 let adminSelectedMonth = new Date().toISOString().slice(0, 7);
 const adminMonthInput = document.getElementById('admin-month-input');
-if (adminMonthInput) adminMonthInput.value = adminSelectedMonth;
+if (adminMonthInput) (adminMonthInput as HTMLInputElement).value = adminSelectedMonth;
 
 document.getElementById('admin-month-input')?.addEventListener('input', (e) => {
-    adminSelectedMonth = e.target.value;
+    adminSelectedMonth = (e.target as HTMLInputElement).value;
     renderAdminDashboard();
 });
 
 // Programové otevření kalendáře při kliknutí na textový nadpis
 document.getElementById('admin-month-title')?.addEventListener('click', () => {
-    document.getElementById('admin-month-input')?.showPicker();
+    (document.getElementById('admin-month-input') as HTMLInputElement)?.showPicker();
 });
 
 async function renderAdminDashboard() {
@@ -1520,11 +1520,11 @@ async function renderAdminDashboard() {
 
 // --- ADMIN: ROZBALOVÁNÍ KARET (Lazy Loading + Grid Layout) ---
 adminWorkersList.addEventListener('click', async (e) => {
-    const card = e.target.closest('.admin-worker-card');
+    const card = (e.target as HTMLElement).closest('.admin-worker-card');
     if (!card) return;
 
     // 1. Záchyt kliknutí na NOVÉ tlačítko Exportovat v admin panelu
-    const adminExportBtn = e.target.closest('.admin-export-btn');
+    const adminExportBtn = (e.target as HTMLElement).closest('.admin-export-btn');
     if (adminExportBtn) {
         const workerId = adminExportBtn.getAttribute('data-worker-id');
         const workerName = adminExportBtn.getAttribute('data-worker-name');
@@ -1536,7 +1536,7 @@ adminWorkersList.addEventListener('click', async (e) => {
         }
 
         // Nastavíme globální kontext exportu pro ADMINA
-        const monthText = document.getElementById('admin-month-title').innerText; // Už nepřidáváme podtržítka
+        const monthText = document.getElementById('admin-month-title').textContent; // Už nepřidáváme podtržítka
         window.exportConfig = {
             data: data,
             workerId: workerId,
@@ -1557,7 +1557,7 @@ adminWorkersList.addEventListener('click', async (e) => {
 
     // Chytre zavírání
     if (isExpanded) {
-        if (e.target.closest('.expanded-left')) {
+        if ((e.target as HTMLElement).closest('.expanded-left')) {
             card.classList.remove('expanded');
         }
         return; 
@@ -1569,7 +1569,7 @@ adminWorkersList.addEventListener('click', async (e) => {
     card.classList.add('expanded');
 
     const workerId = card.getAttribute('data-worker-id');
-    const workerName = card.querySelector('.admin-worker-name').innerText;
+    const workerName = card.querySelector('.admin-worker-name').textContent;
     let expandedDiv = card.querySelector('.admin-card-expanded');
     
     // Pokud je otevřená poprvé, vygenerujeme obsah
@@ -1595,7 +1595,7 @@ adminWorkersList.addEventListener('click', async (e) => {
                 }
             });
 
-            records.sort((a, b) => new Date(b.date) - new Date(a.date));
+            records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
             
             // Pojistka globálního objektu a uložení dat pro export!
             if (!window.adminWorkerRecords) window.adminWorkerRecords = {};
@@ -1864,7 +1864,7 @@ document.getElementById('export-btn').addEventListener('click', async () => {
     const user = auth.currentUser;
     
     //Převod RRRR-MM na hezký český název
-    const rawMonth = document.getElementById('monthFilter').value;
+    const rawMonth = (document.getElementById('monthFilter') as HTMLInputElement).value;
     let monthText = "všechno";
     if (rawMonth) {
         const [y, m] = rawMonth.split('-');

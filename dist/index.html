@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Recorder</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-4D7D2pq3.svg">
+
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+  <script type="module" crossorigin src="/assets/index-Cf4zQX5E.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-XvzUHn9e.css">
+</head>
+
+<body>
+
+    <div id="login-section" class="auth-wrapper">
+        <h1 class="auth-title">Job Recorder</h1>
+
+        <div class="card auth-card" id="login-card">
+            <div class="auth-form">
+                <h2>Sign In</h2>
+
+                <div class="input-wrapper">
+                    <input type="email" id="login-email" placeholder="">
+                    <label class="floating-label">E-mail</label>
+                </div>
+
+                <div class="password-wrapper input-wrapper">
+                    <input type="password" id="login-password" class="password-input" placeholder="">
+                    <label class="floating-label">Heslo</label>
+                    <button id="toggle-login-password-btn" class="btn-icon password-toggle-btn" type="button"
+                        title="Zobrazit heslo">
+                        <i class="ph ph-eye" id="toggle-login-password-icon"></i>
+                    </button>
+                </div>
+
+                <button id="login-btn" class="btn btn-ghost">Přihlásit se</button>
+            </div>
+            <a href="#" id="show-register-link" class="auth-link">Nemáš účet? Zaregistruj se</a>
+        </div>
+
+        <div class="card auth-card hidden" id="register-card">
+            <div class="auth-form">
+                <h2>Sign Up</h2>
+                <div class="input-wrapper">
+                    <input type="text" id="reg-name" placeholder="např. Petr Novák">
+                    <label class="floating-label">Jméno a příjmení</label>
+                </div>
+                <div class="input-wrapper">
+                    <input type="email" id="reg-email" placeholder="např. novotny@email.cz">
+                    <label class="floating-label">E-mail</label>
+                </div>
+                <div class="password-wrapper input-wrapper">
+                    <input type="password" id="reg-password" class="password-input" placeholder="Min. 6 znaků">
+                    <label class="floating-label">Heslo</label>
+                    <button id="toggle-reg-password-btn" class="btn-icon password-toggle-btn" type="button"><i
+                            class="ph ph-eye" id="toggle-reg-password-icon"></i></button>
+                </div>
+                <div class="password-wrapper input-wrapper">
+                    <input type="password" id="reg-password-confirm" class="password-input" placeholder="Zadej znovu">
+                    <label class="floating-label">Potvrdit heslo</label>
+                    <button id="toggle-reg-password-confirm-btn" class="btn-icon password-toggle-btn" type="button"><i
+                            class="ph ph-eye" id="toggle-reg-password-confirm-icon"></i></button>
+                </div>
+                <button id="register-btn" class="btn btn-accent">Zaregistrovat se</button>
+            </div>
+            <a href="#" id="show-login-link" class="auth-link">Už máš účet? Přihlas se</a>
+        </div>
+
+    </div>
+
+    <div id="app-section" class="hidden">
+
+        <header class="app-header">
+            <h1 class="app-title">
+                <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 87.66 75.31" width="1.2em" height="1.2em" fill="currentColor">
+                    <path d="M78.39,39.11c3.15-1.31,5.5-3.21,7-5.65,1.51-2.46,2.27-5.13,2.27-7.94v-2.52c0-2.66-.49-5.18-1.45-7.5-.96-2.31-2.37-4.38-4.19-6.13-1.82-1.75-4.13-3.15-6.85-4.15-2.75-1.01-6-1.52-9.65-1.52h-11.26v9.34h-6.31v37.49c0,7.89-2.19,14.02-6.51,18.23-.95.93-1.99,1.73-3.1,2.46v4.1h11.88v-27.76h16.98c2.33,0,4.06.65,5.13,1.94,1.03,1.23,1.55,2.83,1.55,4.74v21.08h11.88v-24.45c0-2.22-.62-4-1.9-5.43-1.28-1.44-2.98-2.26-5.2-2.51l-.89-.1v-3.45l.62-.26ZM75.78,26.26c0,3.16-1,5.65-2.96,7.42-1.93,1.74-4.74,2.62-8.35,2.62h-14.25V14.95h14.25c3.63,0,6.45,1,8.39,2.98,1.93,1.97,2.92,4.35,2.92,7.06v1.26ZM38.34,68.78c-.32.24-.66.47-1,.69-.33.22-.66.42-1,.62-3.44,1.98-7.66,2.99-12.63,2.99-3.59,0-6.88-.5-9.78-1.47-2.87-.96-5.36-2.42-7.42-4.31-2.06-1.89-3.67-4.25-4.8-7-1.14-2.77-1.71-6.06-1.71-9.77v-5.94h11.88v5.94c0,3.55,1.02,6.39,3.02,8.43,2.01,2.05,4.83,3.09,8.39,3.09,3.36,0,6.02-1.03,7.93-3.05,1.89-2.01,2.85-4.85,2.85-8.47V11.04h-7.57V0h25.76v11.04h-6.31v39.49c0,7.33-1.99,12.98-5.9,16.79-.54.52-1.11,1.01-1.71,1.46ZM51.22,18.71h20.4v2h-20.4v-2ZM51.22,24.62h20.4v2h-20.4v-2ZM51.22,30.54h20.4v2h-20.4v-2Z" />
+                </svg> -->
+                <img src="https://www.aprispro.cz/wp-content/uploads/2022/08/LOGO-MENU-1.png" alt=""
+                    class="desktop-only-flex dark-only logo-apris">
+                <img src="/assets/apris-logo-full-BN0HM1pH.png" alt="" class="desktop-only-flex light-only logo-apris">
+                <img src="/assets/apris-logo-BGPZS52d.png" alt="" class="mobile-only logo-apris">
+            </h1>
+
+            <h2 class="user-name text-truncate" id="desktop-user-name">Jméno Brigádníka</h2>
+
+            <div class="header-actions desktop-only-flex">
+                <button id="theme-toggle" class="btn-icon" title="Změnit motiv"><i class="ph ph-moon" id="theme-icon"></i></button>
+            
+                <div class="relative-wrapper">
+                    <button id="user-menu-btn" class="btn-icon" title="Můj profil"><i class="ph ph-user-circle"></i></button>
+                    <div id="user-dropdown" class="card-small filter-dropdown hidden">
+                        <div class="dropdown-header user-dropdown-header">
+                            <div class="flex-center-gap">
+                                <i class="ph ph-user-circle icon-xl-accent"></i>
+                                <strong id="dropdown-user-name">Jméno brigádníka</strong>
+                            </div>
+                            <button id="close-user-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+                        </div>
+                        <div class="dropdown-body">
+                            <button id="open-profile-desktop-btn" class="btn btn-ghost w-100"><i class="ph ph-pencil-simple"></i> Upravit profil</button>
+                            <button id="open-info-desktop-btn" class="btn btn-ghost w-100"><i class="ph ph-info"></i> Jak to funguje?</button>
+                            <button id="logout-btn" class="btn btn-danger w-100"><i class="ph ph-sign-out"></i> Odhlásit se</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="hamburger-btn" class="btn-icon mobile-only"><i class="ph ph-list icon-burger-size"></i></button>
+        </header>
+
+        <main class="main-container">
+
+            <div id="worker-dashboard">
+                <div class="global-actions">
+                    <button id="open-add-modal-btn" class="btn btn-accent btn-lg">
+                        <i class="ph ph-plus-circle"></i> <span class="btn-text ">Přidat záznam</span>
+                    </button>
+                    <button id="export-btn" class="btn btn-ghost btn-lg">
+                        <i class="ph ph-file-xls"></i>
+                        <span class="export-text-desktop">Exportovat do .xlsx</span>
+                    </button>
+                </div>
+
+                <div class="main-grid">
+                    <div class="records-section card">
+                        <div class="toolbar-header">
+                            <div class="search-wrapper">
+                                <input type="text" id="searchInput" class="search-input hidden-search"
+                                    placeholder="Hledat...">
+                                <button id="search-toggle-btn" class="btn-icon" title="Hledat"><i
+                                        class="ph ph-magnifying-glass"></i></button>
+                            </div>
+                            <button id="sort-toggle-btn" class="btn-icon" title="Seřadit" data-sort="desc">
+                                <i class="ph ph-sort-descending" id="sort-icon"></i>
+                            </button>
+
+                            <div class="relative-wrapper">
+                                <button id="filter-toggle-btn" class="btn-icon" title="Filtry">
+                                    <i class="ph ph-funnel"></i>
+                                    <span id="filter-indicator" class="hidden filter-indicator-dot"></span>
+                                </button>
+
+                                <div id="filter-dropdown" class="card-small filter-dropdown hidden">
+                                    <div class="dropdown-header">
+                                        <h4>Nastavení filtrů</h4>
+                                        <button id="close-filter-cross" class="btn-icon"><i
+                                                class="ph ph-x"></i></button>
+                                    </div>
+                                    <div class="input-wrapper mt-10">
+                                        <input type="text" id="monthFilter" placeholder="" onfocus="(this.type='month')"
+                                            onblur="if(!this.value) this.type='text'">
+                                        <label class="floating-label">Měsíc a rok</label>
+                                    </div>
+                                    <div class="input-wrapper mt-10">
+                                        <input type="text" id="exactDateFilter" placeholder=""
+                                            onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
+                                        <label class="floating-label">Konkrétní den</label>
+                                    </div>
+                                    <div class="input-wrapper mt-10">
+                                        <input type="text" id="activityFilter" placeholder="např. ostatní">
+                                        <label class="floating-label">Činnost</label>
+                                    </div>
+                                    <div class="input-wrapper mt-10">
+                                        <input type="text" id="orderFilter" placeholder=" ">
+                                        <label class="floating-label">Filtr zakázky</label>
+                                    </div>
+
+                                    <button id="clear-filter-btn" class="btn btn-ghost mt-15">
+                                        <!-- <i class="ph ph-x"></i> -->
+                                        Vymazat filtr</button>
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div id="records-list"></div>
+                    </div>
+
+                    <aside id="sidebar-stats" class="stats-sidebar">
+                        <div class="card" id="card-current-stats">
+                            <div class="dropdown-header">
+                                <h3><i class="ph ph-chart-pie-slice"></i> Aktuální přehled</h3>
+                                <button class="btn-icon mobile-only close-stats-mobile-btn"><i
+                                        class="ph ph-x"></i></button>
+                            </div>
+                            <div class="stat-row">
+                                <span class="text-secondary">Záznamů</span>
+                                <strong id="stat-count">0</strong>
+                            </div>
+                            <div class="stat-row">
+                                <span class="text-secondary">Odpracováno</span>
+                                <strong id="stat-hours" style="color: var(--text-primary);">0 h</strong>
+                            </div>
+                            <div class="stat-row">
+                                <span class="text-secondary">Výdělek</span>
+                                <strong id="stat-money" style="color: var(--accent-color);">0 Kč</strong>
+                            </div>
+                        </div>
+
+                        <div class="card" id="card-yearly-stats">
+                            <div class="dropdown-header">
+                                <h3><i class="ph ph-calendar-star"></i> Roční souhrny</h3>
+                                <button class="btn-icon mobile-only close-stats-mobile-btn"><i
+                                        class="ph ph-x"></i></button>
+                            </div>
+                            <div id="yearly-summary-list"></div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+            <div id="admin-dashboard" class="hidden">
+                <div class="dropdown-header admin-header-spacing">
+                    <h2><i class="ph ph-briefcase"></i> Přehled zaměstnanců</h2>
+                    <div class="relative-wrapper">
+                        <div id="admin-month-title" class="admin-month-title" title="Klikni pro změnu měsíce">
+                            <span>Měsíc Rok</span> <i class="ph ph-caret-down"></i>
+                        </div>
+                        <input type="month" id="admin-month-input" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+                    </div>
+
+                    <button id="open-manage-workers-btn" class="btn btn-accent">
+                        <i class="ph ph-users"></i>
+                        <span class="manage-workers-text">Správa zaměstnanců</span>
+                    </button>
+                </div>
+
+                <div id="admin-workers-list">
+                    <div class="empty-state">
+                        <i class="ph ph-users"></i>
+                        <p>Zatím nesleduješ žádné zaměstnance. Přidej si je přes Správu zaměstnanců nahoře.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="toast" class="toast hidden">Uloženo!</div>
+
+    <div id="add-modal" class="modal-overlay hidden">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-plus-circle"></i> Nový záznam</h3>
+                <button id="close-add-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+
+            <div class="input-wrapper mt-15">
+                <input type="text" id="dateInput" placeholder="" onfocus="(this.type='date')"
+                    onblur="if(!this.value) this.type='text'">
+                <label class="floating-label">Datum</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="number" id="hoursInput" placeholder="" step="0.5" min="0.25">
+                <label class="floating-label">Počet hodin</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="orderInput" placeholder=" ">
+                <label class="floating-label">Zakázka (nepovinné)</label>
+            </div>
+
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <input type="text" id="activityInput" placeholder="">
+                    <label class="floating-label">Činnost</label>
+                </div>
+                <div class="quick-tags-wrapper" id="quick-tags">
+                    <span class="badge" onclick="document.getElementById('activityInput').value='ostatní'; document.getElementById('activityInput').focus();">ostatní</span>
+                    <span class="badge" onclick="document.getElementById('activityInput').value='projekce'; document.getElementById('activityInput').focus();">projekce</span>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="descInput" placeholder="">
+                <label class="floating-label">Poznámka</label>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-add-btn" class="btn">Zrušit</button>
+                <button id="add-record-btn" class="btn btn-ghost">Uložit záznam</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay hidden">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-pencil-simple"></i> Upravit záznam</h3>
+                <button id="close-edit-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+
+            <div class="input-wrapper mt-15">
+                <input type="text" id="editDateInput" onfocus="(this.type='date')"
+                    onblur="if(!this.value) this.type='text'">
+                <label class="floating-label">Datum</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="number" id="editHoursInput" placeholder="" step="0.5" min="0.25">
+                <label class="floating-label">Počet hodin</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="editOrderInput" placeholder=" ">
+                <label class="floating-label">Zakázka (nepovinné)</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="editActivityInput" placeholder="">
+                <label class="floating-label">Činnost</label>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="editDescInput" placeholder="">
+                <label class="floating-label">Poznámka</label>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-edit-btn" class="btn">Zrušit</button>
+                <button id="save-edit-btn" class="btn btn-ghost">Uložit změny</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="modal-overlay hidden">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3 class="text-danger"><i class="ph ph-warning"></i> Smazat záznam?</h3>
+                <button id="close-delete-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <p class="text-secondary">Tato akce je nevratná.</p>
+            <div class="header-actions modal-actions">
+                <button id="close-delete-btn" class="btn">Zrušit</button>
+                <button id="confirm-delete-btn" class="btn btn-danger">Ano, smazat</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="profile-page-container" id="profile-page-container">
+            
+            <aside class="profile-sidebar" id="profile-sidebar">
+                <div class="profile-sidebar-header">
+                    <i class="ph ph-user-circle desktop-only-flex"></i>
+                    <h3 id="profile-sidebar-name" class="desktop-only-flex">Jméno</h3>
+                    
+                    <div class="mobile-only flex-center-gap" style="width: 100%; justify-content: space-between;">
+                        <div class="flex-center-gap">
+                            <i class="ph ph-user-circle" style="font-size: 2.5rem; color: var(--accent-color); margin: 0;"></i>
+                            <h3 id="mobile-profile-name" class="text-truncate" style="font-size: var(--fs-xl); margin: 0;">Jméno</h3>
+                        </div>
+                        <button id="close-profile-mobile-cross" class="btn-icon">
+                            <i class="ph ph-x" style="font-size: 1.8rem;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <nav class="profile-nav">
+                    <a href="#" class="profile-nav-item active" data-category="profile-sec" data-text="Profil & zabezpečení">
+                        <i class="ph ph-lock"></i> Profil & zabezpečení
+                        <i class="ph ph-caret-right mobile-only ms-auto text-secondary"></i>
+                    </a>
+                    <a href="#" class="profile-nav-item" data-category="appearance-sec" data-text="Vzhled">
+                        <i class="ph ph-palette"></i> Vzhled
+                        <i class="ph ph-caret-right mobile-only ms-auto text-secondary"></i>
+                    </a>
+                    <a href="#" class="profile-nav-item" data-category="admin-sec" data-text="Nastavení">
+                        <i class="ph ph-wrench"></i> Nastavení
+                        <i class="ph ph-caret-right mobile-only ms-auto text-secondary"></i>
+                    </a>
+                </nav>
+                
+                <button id="close-profile-page-btn" class="btn btn-ghost mt-auto desktop-only-flex"><i class="ph ph-arrow-left"></i> Zpět do aplikace</button>
+            </aside>
+    
+            <main class="profile-main-content" id="profile-main-content">
+                
+                <div class="mobile-only mobile-back-to-menu">
+                    <button id="mobile-back-to-menu-btn" class="btn-icon"><i class="ph ph-arrow-left"></i></button>
+                    <span id="mobile-category-title">Profil & zabezpečení</span>
+                </div>
+
+                <div class="profile-content-wrapper">
+                    <div id="cat-profile-sec" class="profile-category">
+                        <h1 class="category-title desktop-only-flex">Profil & zabezpečení</h1>
+                        <div class="card profile-card">
+                            <div class="section-header">
+                                <h2>Osobní údaje</h2>
+                                <p class="text-secondary">Základní informace o vašem účtu.</p>
+                            </div>
+                            <div class="profile-column-layout">
+                                <div class="input-wrapper">
+                                    <input type="text" id="edit-profile-name" placeholder=" ">
+                                    <label class="floating-label">Celé jméno</label>
+                                </div>
+                                <div class="input-wrapper">
+                                    <input type="email" id="edit-profile-email" placeholder=" ">
+                                    <label class="floating-label">E-mailová adresa</label>
+                                </div>
+                                <button id="save-personal-btn" class="btn btn-accent">Uložit změny</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card profile-card mt-40">
+                            <div class="section-header">
+                                <h2>Změna hesla</h2>
+                                <p class="text-secondary">Pro zvýšení bezpečnosti doporučujeme heslo občas měnit.</p>
+                            </div>
+                            <div class="profile-column-layout">
+                                <div class="password-wrapper input-wrapper">
+                                    <input type="password" id="edit-profile-pass" class="password-input" placeholder=" ">
+                                    <label class="floating-label">Nové heslo</label>
+                                    <button id="toggle-profile-pass-btn" class="btn-icon password-toggle-btn" type="button">
+                                        <i class="ph ph-eye" id="toggle-profile-pass-icon"></i>
+                                    </button>
+                                </div>
+                                <div class="password-wrapper input-wrapper">
+                                    <input type="password" id="edit-profile-pass-confirm" class="password-input" placeholder=" ">
+                                    <label class="floating-label">Potvrdit nové heslo</label>
+                                    <button id="toggle-profile-pass-confirm-btn" class="btn-icon password-toggle-btn" type="button">
+                                        <i class="ph ph-eye" id="toggle-profile-pass-confirm-icon"></i>
+                                    </button>
+                                </div>
+                                <button id="save-security-btn" class="btn btn-accent" disabled>Změnit heslo</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card profile-card mt-40" style="border-color: rgba(220, 53, 69, 0.3);">
+                            <div class="section-header" style="text-align: center;">
+                                <h2 class="text-danger">Smazání účtu</h2>
+                                <p class="text-secondary">Tato akce je trvalá. Smaže tvůj profil z databáze a znemožní ti přístup do aplikace.</p>
+                            </div>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button id="open-delete-account-btn" class="btn btn-danger">Trvale smazat můj účet</button>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div id="cat-appearance-sec" class="profile-category hidden">
+                        <h1 class="category-title desktop-only-flex">Vzhled</h1>
+                        <div class="card profile-card">
+                            <div class="section-header">
+                                <h2>Motiv a barvy</h2>
+                                <p class="text-secondary">Přizpůsobte si aplikaci tak, aby se vám v ní dobře pracovalo.</p>
+                            </div>
+                            <div class="profile-column-layout">
+                                <div class="appearance-setting-row">
+                                    <span class="text-secondary">Tmavý / Světlý režim</span>
+                                    <button id="profile-theme-toggle" class="btn btn-ghost">
+                                        <i class="ph ph-moon" id="profile-theme-icon"></i>
+                                        <span id="profile-theme-text">Přepnout režim</span>
+                                    </button>
+                                </div>
+                                <div class="appearance-setting-row mt-15">
+                                    <span class="text-secondary">Barevný akcent aplikace</span>
+                                    <div class="color-picker mt-10">
+                                        <div class="color-swatch" data-theme-name="modra" style="background-color: #445da4;"></div>
+                                        <div class="color-swatch" data-theme-name="oranzova" style="background-color: #c3581e;"></div>
+                                        <div class="color-swatch" data-theme-name="zelena" style="background-color: #00c083;"></div>
+                                        <div class="color-swatch" data-theme-name="fialova" style="background-color: #985caf;"></div>
+                                        <div class="color-swatch" data-theme-name="cervena" style="background-color: #e05666;"></div>
+                                        <div class="color-swatch" data-theme-name="invertovana" style="background-color: #242423;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div id="cat-admin-sec" class="profile-category hidden">
+                        <h1 class="category-title desktop-only-flex">Nastavení</h1>
+                        <div class="card profile-card">
+                            <div class="section-header">
+                                <h2>Pracovní nastavení</h2>
+                                <p class="text-secondary">Zde si nastavíte svou hodinovou sazbu.</p>
+                            </div>
+                            <div class="profile-column-layout">
+                                <div class="input-wrapper">
+                                    <input type="number" id="edit-profile-rate" placeholder=" ">
+                                    <label class="floating-label">Hodinová mzda (Kč/h)</label>
+                                </div>
+                                <button id="save-admin-btn" class="btn btn-accent">Uložit nastavení</button>
+                            </div>
+                        </div>
+                    </div>
+    
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="manage-workers-modal" class="modal-overlay hidden">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-users"></i> Správa zaměstnanců</h3>
+                <button id="close-manage-workers-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+
+            <p class="text-secondary" style="font-size: var(--fs-xs);">
+                Zaškrtni brigádníky, jejichž výkazy chceš sledovat na své nástěnce.
+            </p>
+
+            <div id="workers-checkbox-list" class="checkbox-list mt-15">
+                <div class="empty-state">
+                    <i class="ph ph-spinner-gap"></i>
+                    <p>Načítám seznam...</p>
+                </div>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-manage-workers-btn" class="btn">Zrušit</button>
+                <button id="save-manage-workers-btn" class="btn btn-accent">Uložit výběr</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="delete-account-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3 class="text-danger"><i class="ph ph-warning"></i> Smazat účet?</h3>
+                <button id="close-delete-account-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <p class="text-secondary">Opravdu chceš trvale smazat svůj účet a veškeré osobní údaje? Tato akce je
+                <strong>nevratná</strong>.</p>
+    
+            <div class="password-wrapper input-wrapper mt-10">
+                <input type="password" id="delete-account-password" class="password-input" placeholder=" ">
+                <label class="floating-label">Zadej své heslo pro potvrzení</label>
+                <button id="toggle-delete-account-pass-btn" class="btn-icon password-toggle-btn" type="button">
+                    <i class="ph ph-eye" id="toggle-delete-account-pass-icon"></i>
+                </button>
+            </div>
+    
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-delete-account-btn" class="btn">Zrušit</button>
+                <button id="confirm-delete-account-btn" class="btn btn-danger">Ano, smazat účet</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="export-choice-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-file-xls"></i> Typ exportu</h3>
+                <button id="close-export-choice-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <p class="text-secondary">Jak chceš data stáhnout? Můžeš použít formátovanou šablonu, nebo si stáhnout čistou tabulku bez formátování.</p>
+            <div class="header-actions modal-actions mt-15" style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+                <button id="export-plain-btn" class="btn btn-ghost">Čistý Excel</button>
+                <button id="export-template-btn" class="btn btn-accent">Do šablony</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="export-limit-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid">
+            <div class="dropdown-header">
+                <h3><i class="ph ph-info"></i> Informace k exportu</h3>
+                <button id="close-export-limit-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            <p class="text-secondary">Máš vyfiltrováno více než <strong>15 záznamů</strong>. Do šablony se jich bohužel více nevejde, takže se data automaticky stáhnou jako čistá tabulka bez formátování.</p>
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-export-limit-btn" class="btn">Zrušit</button>
+                <button id="confirm-export-limit-btn" class="btn btn-accent">Rozumím, stáhnout Excel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="onboarding-modal" class="modal-overlay hidden" style="z-index: 9999;">
+        <div class="modal-content modal-solid" style="text-align: center; gap: 20px;">
+            <i class="ph ph-hand-waving" style="font-size: 3rem; color: var(--accent-color);"></i>
+            <h2>Vítej v aplikaci!</h2>
+            <p class="onboarding-modal-p">
+                    Než začneš, nastav si prosím svou aktuální hodinovou mzdu. Tento údaj slouží pouze pro tvé statistiky. 
+                    <br>Pokud svou mzdu neznáš, můžeš pole ponechat na hodnotě <strong>0</strong>.
+                </p>
+    
+            <div class="input-wrapper mt-15">
+                <input type="number" id="onboarding-rate" placeholder=" " step="10">
+                <label class="floating-label">Hodinová mzda (Kč/h)</label>
+            </div>
+    
+            <button id="save-onboarding-btn" class="btn btn-accent w-100">Uložit a začít</button>
+        </div>
+    </div>
+
+    <div id="info-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid modal-wide">
+            <div class="dropdown-header">
+                <h2><i class="ph ph-info"></i> Jak to funguje?</h2>
+                <button id="close-info-cross" class="btn-icon"><i class="ph ph-x"></i></button>
+            </div>
+            
+            <div class="info-content">
+                <p class="text-secondary text-sm">Vítej v beta verzi aplikace <strong>Job Recorder</strong>! Tady máš rychlý přehled toho, jak systém správně používat:</p>
+                
+                <ul class="info-list">
+                    <li class="info-list-item">
+                        <span><strong>Zápis hodin:</strong> Zadej základní údaje jako datum, odpracovaný čas a činnost. Pokud pracuješ na konkrétním projektu, můžeš vyplnit i políčko <em>Zakázka</em>.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Chytré zadávání:</strong> Abychom ti ušetřili čas, po kliknutí do políčka data se ti automaticky předvyplní dnešní den. U vybraných kolonek můžeš navíc využít rychlé štítky, které najdeš pod políčky.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Hledání a filtrace:</strong> Hlavní lupa nahoře prohledává text poznámek, činností a názvy zakázek. Pokud potřebuješ detailnější filtr, rozklikni trychtýř – tam můžeš filtrovat konkrétní činnost, specifickou zakázku nebo měsíc.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Automatický export:</strong> Vyfiltruj si požadovaný měsíc a klikni na Export. Pokud máš 15 a méně záznamů a aspoň u jednoho je vyplněná zakázka, exportuje se speciální šablona pro praxe. Jinak se stáhne klasická firemní šablona. Nad 15 záznamů se automaticky stahuje čistý Excel.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Profil a úpravy:</strong> V nabídce "Upravit profil" si můžeš kdykoli změnit svou hodinovou sazbu, upravit přihlašovací heslo nebo si celou aplikaci kompletně obarvit a přepnout do tmavého režimu.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="header-actions modal-actions mt-15" style="flex-direction: column; align-items: center; gap: 10px;">
+                <button id="close-info-btn" class="btn btn-accent w-100">Rozumím, jdeme na to!</button>
+                <small class="text-secondary" style="font-size: 0.75rem;">Vytvořil <a href="https://jester2839.github.io/WebPortfolio/index.html" target="_blank" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">Jakub Nový</a> v roce 2026</small>
+            </div>
+        </div>
+    </div>
+
+    <div id="news-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content modal-solid modal-wide">
+            <div class="dropdown-header">
+                <h2><i class="ph ph-megaphone"></i> Co je nového v beta verzi?</h2>
+            </div>
+            
+            <div class="info-content">
+                <p class="text-secondary text-sm">Nasadili jsme velkou aktualizaci systému! Tady je přehled nových funkcí a vylepšení, které ti usnadní práci:</p>
+                
+                <ul class="info-list">
+                    <li class="info-list-item">
+                        <span><strong>Navýšení limitu šablon:</strong> Limit pro export do formátovaných firemních šablon jsme lehce zvedli. Nyní můžeš v rámci jednoho měsíce vyexportovat až <strong>15 záznamů</strong>.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Inteligentní střídání šablon:</strong> Pokud budeš exportovat data, kde je vyplněná aspoň jedna zakázka, aplikace automaticky rozpozná změnu a vygeneruje ti novou, rozšířenou <strong>šablonu pro praxe</strong>. V opačném případě využije původní klasický formát.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Chytré předvyplňování datumů:</strong> Už nemusíš zdlouhavě klikat v kalendáři. Při zápisu hodin ti systém po kliknutí sám nabídne dnešní den a v menu filtrů ti rovnou skočí aktuální měsíc.</span>
+                    </li>
+                    <li class="info-list-item">
+                        <span><strong>Podpora vývoje:</strong> Aplikace je stále v živém vývoji. Pokud narazíš na jakoukoli chybu nebo tě napadne zlepšení, můžeš <a href="https://jester2839.github.io/WebPortfolio/link.html">mě</a> nebo své nadřízené kdykoli kontaktovat.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="header-actions modal-actions mt-15">
+                <button id="close-news-btn" class="btn btn-accent w-100">Super, rozumím</button>
+            </div>
+        </div>
+    </div>
+    
+    <nav id="mobile-fullscreen-menu" class="mobile-menu-fullscreen mobile-only">
+        <div class="mobile-menu-top">
+            <div class="flex-center-gap">
+                <i class="ph ph-user-circle icon-xl-secondary"></i>
+                <div style="display: flex; flex-direction: column; align-items: flex-start; overflow: hidden;">
+                    <h2 class="mobile-user-name text-truncate" style="max-width: 200px;" id="mobile-user-name">Jméno
+                        Brigádníka</h2>
+                    <button id="open-profile-mobile-btn" class="btn-text-small mt-15" style="margin-top: 2px;"><i
+                            class="ph ph-pencil-simple"></i> Upravit profil</button>
+                </div>
+            </div>
+            <button id="close-mobile-menu-btn" class="btn-icon"><i class="ph ph-x icon-burger-size"></i></button>
+        </div>
+    
+        <div class="mobile-menu-links">
+            <button id="show-stats-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-chart-pie-slice"></i>
+                Aktuální přehled</button>
+            <button id="show-yearly-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-calendar-star"></i> Roční
+                souhrny</button>
+            <button id="open-info-mobile-btn" class="btn btn-ghost btn-mobile-menu"><i class="ph ph-info"></i> Jak to funguje</button>
+        </div>
+    
+        <div id="admin-menu-placeholder" class="admin-placeholder hidden">
+            <span>Další funkce připravujeme...</span>
+        </div>
+    
+        <div class="mobile-menu-bottom">
+            <button id="mobile-theme-toggle" class="btn-icon"><i class="ph ph-moon icon-menu-size"
+                    id="mobile-theme-icon"></i></button>
+            <button id="mobile-logout-btn" class="btn-icon text-danger"><i
+                    class="ph ph-sign-out icon-menu-size"></i></button>
+        </div>
+    </nav>
+    
+</body>
+
+</html>
