@@ -7,7 +7,7 @@
     <title>Job Recorder</title>
     <link rel="icon" type="image/svg+xml" href="source/favicon.svg">
 
-    <link rel="stylesheet" href="style.css?v=1.3">
+    <link rel="stylesheet" href="style.css?v=1.4">
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -501,14 +501,14 @@
                         <div class="card profile-card">
                             <div class="section-header">
                                 <h2>Pracovní nastavení</h2>
-                                <p class="text-secondary">Zde si nastavíte svou hodinovou sazbu.</p>
+                                <p class="text-secondary">Zde vidíte svou hodinovou sazbu.</p>
                             </div>
                             <div class="profile-column-layout">
                                 <div class="input-wrapper">
-                                    <input type="number" id="edit-profile-rate" placeholder=" ">
+                                    <input type="number" id="edit-profile-rate" placeholder=" " readonly>
                                     <label class="floating-label">Hodinová mzda (Kč/h)</label>
                                 </div>
-                                <button id="save-admin-btn" class="btn btn-accent">Uložit nastavení</button>
+                                <button id="save-admin-btn" class="btn btn-accent" style="display: none;">Uložit nastavení</button>
                             </div>
                         </div>
                     </div>

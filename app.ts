@@ -1473,10 +1473,9 @@ async function renderAdminDashboard() {
         for (const workerId of monitoredIds) {
             const workerDoc = await getDoc(doc(db, "users", workerId));
             const workerName = workerDoc.exists() ? (workerDoc.data().name || 'Neznámé jméno') : 'Smazaný uživatel';
-            const workerHourlyRateSource = adminData.workerRates?.[workerId];
-            const workerHourlyRate = workerHourlyRateSource != null
-                ? Number(workerHourlyRateSource)
-                : (workerDoc.exists() ? Number(workerDoc.data().hourlyRate ?? 200) : 200);
+            const workerHourlyRate = workerDoc.exists()
+                ? Number(workerDoc.data().hourlyRate ?? 200)
+                : 200;
             const formattedHourlyRate = `${workerHourlyRate.toLocaleString('cs-CZ')} Kč/h`;
 
             const recordsQuery = query(collection(db, "work_records"), where("userId", "==", workerId));
@@ -1566,16 +1565,7 @@ saveRateBtn?.addEventListener('click', async () => {
     }
 
     try {
-        const adminDocRef = doc(db, "users", window.currentEmployerId);
-        const adminDocSnap = await getDoc(adminDocRef);
-        const currentWorkerRates = adminDocSnap.exists() ? (adminDocSnap.data().workerRates || {}) : {};
-
-        await updateDoc(adminDocRef, {
-            workerRates: {
-                ...currentWorkerRates,
-                [activeRateWorkerId]: newRate
-            }
-        });
+        await updateDoc(doc(db, "users", activeRateWorkerId), { hourlyRate: newRate });
 
         showToast("Hodinová mzda byla uložena.", "success");
         closeRateModal();
