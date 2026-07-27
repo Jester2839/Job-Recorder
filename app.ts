@@ -2,6 +2,11 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile, updateEmail, updatePassword, deleteUser, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDoc, getDocs } from "firebase/firestore";
+import { currentUserRole, currentEmployerId, isFirstTimeUser, currentlyFilteredData, adminWorkerRecords, exportConfig, setCurrentUserRole, setCurrentEmployerId, setIsFirstTimeUser, setCurrentlyFilteredData, setAdminWorkerRecords, setExportConfig, clearAppState } from "./appState";
+
+// Ujištění pro TypeScript, že tyto proměnné existují globálně
+declare const ExcelJS: any;
+declare const saveAs: any;
 
 // SEM VLOŽ SVŮJ CONFIG Z FIREBASE
 const firebaseConfig = {
@@ -141,8 +146,8 @@ onAuthStateChanged(auth, async (user) => {
             }
 
             // Uložíme důležité proměnné globálně
-            window.currentUserRole = userData.role;
-            window.currentEmployerId = user.uid;
+            setCurrentUserRole(userData.role);
+            setCurrentEmployerId(user.uid);
 
             // 4. PŘEPNUTÍ DASHBOARDU PODLE ROLE
             if (userData.role === "admin") {
@@ -193,8 +198,7 @@ onAuthStateChanged(auth, async (user) => {
         const recordsList = document.getElementById('records-list');
         if (recordsList) recordsList.innerHTML = '';
         
-        window.currentUserRole = null;
-        window.currentEmployerId = null;
+        clearAppState();
         document.getElementById('stat-count').textContent = "0";
         document.getElementById('stat-hours').textContent = "0 h";
         document.getElementById('stat-money').textContent = "0 Kč";
@@ -311,7 +315,7 @@ document.getElementById('save-onboarding-btn').addEventListener('click', async (
         document.body.style.overflow = 'hidden';
         
         // Nastavíme si v paměti, že jde o nováčka
-        window.isFirstTimeUser = true;
+        setIsFirstTimeUser(true);
     } catch (e) { 
         showToast("Chyba při ukládání: " + e.message, "error"); 
     }
@@ -448,7 +452,7 @@ function renderRecords() {
         filtered = filtered.reverse();
     }
 
-    window.currentlyFilteredData = filtered;
+    setCurrentlyFilteredData(filtered);
 
     // --- OVLÁDÁNÍ BAREVNÉ TEČKY U FILTRU ---
     const filterIndicator = document.getElementById('filter-indicator');
@@ -762,7 +766,7 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
 
 // --- LOGIKA PRO ÚPRAVU ZÁZNAMŮ ---
 function openEditModal(id){
-    const record = window.currentlyFilteredData.find(r => r.id === id);
+    const record = currentlyFilteredData.find(r => r.id === id);
     if (!record) return;
 
     editingRecordId = id; // Zapamatujeme si ID
@@ -1357,7 +1361,7 @@ document.getElementById('open-manage-workers-btn')?.addEventListener('click', as
 
     try {
         // 1. Zjistíme, koho už admin sleduje (jeho aktuální seznam)
-        const adminDoc = await getDoc(doc(db, "users", window.currentEmployerId));
+        const adminDoc = await getDoc(doc(db, "users", currentEmployerId));
         const monitoredWorkers = adminDoc.data().monitoredWorkers || [];
 
         // 2. Stáhneme VŠECHNY uživatele z databáze
@@ -1410,7 +1414,7 @@ document.getElementById('save-manage-workers-btn').addEventListener('click', asy
 
     try {
         // Uložíme pole IDček k profilu admina v databázi
-        await updateDoc(doc(db, "users", window.currentEmployerId), {
+        await updateDoc(doc(db, "users", currentEmployerId), {
             monitoredWorkers: selectedIds
         });
         
@@ -1444,12 +1448,12 @@ document.getElementById('admin-month-title')?.addEventListener('click', () => {
 });
 
 async function renderAdminDashboard() {
-    if (!window.currentEmployerId) return;
+    if (!currentEmployerId) return;
 
     adminWorkersList.innerHTML = `<div class="empty-state"><i class="ph ph-spinner-gap"></i><p>Načítám data...</p></div>`;
 
     try {
-        const adminDoc = await getDoc(doc(db, "users", window.currentEmployerId));
+        const adminDoc = await getDoc(doc(db, "users", currentEmployerId));
         const adminData = adminDoc.exists() ? adminDoc.data() : {};
         const monitoredIds = adminData.monitoredWorkers || [];
 
@@ -1597,7 +1601,7 @@ adminWorkersList.addEventListener('click', async (e) => {
     if (adminExportBtn) {
         const workerId = adminExportBtn.getAttribute('data-worker-id');
         const workerName = adminExportBtn.getAttribute('data-worker-name');
-        const data = window.adminWorkerRecords ? window.adminWorkerRecords[workerId] : null;
+        const data = adminWorkerRecords ? adminWorkerRecords[workerId] : null;
 
         if (!data || data.length === 0) {
             showToast("Tento pracovník nemá tento měsíc žádné záznamy.", "warning");
@@ -1606,12 +1610,12 @@ adminWorkersList.addEventListener('click', async (e) => {
 
         // Nastavíme globální kontext exportu pro ADMINA
         const monthText = document.getElementById('admin-month-title').textContent; // Už nepřidáváme podtržítka
-        window.exportConfig = {
+        setExportConfig({
             data: data,
             workerId: workerId,
             workerName: workerName,
-            fileName: `${workerName} - ${monthText} - výkaz prací` // Krásný český název
-        };
+            fileName: `${workerName} - ${monthText} - výkaz prací`
+        });
 
         // Otevřeme správné okno podle počtu záznamů
         if (data.length > 15) {
@@ -1669,8 +1673,9 @@ adminWorkersList.addEventListener('click', async (e) => {
             records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
             
             // Pojistka globálního objektu a uložení dat pro export!
-            if (!window.adminWorkerRecords) window.adminWorkerRecords = {};
-            window.adminWorkerRecords[workerId] = records;
+            const updatedRecords = { ...adminWorkerRecords };
+            updatedRecords[workerId] = records;
+            setAdminWorkerRecords(updatedRecords);
 
             // Vygenerování pravého sloupce (Seznam výkazů)
             let recordsHTML = '';
@@ -1747,11 +1752,11 @@ const closeInfoModalLogic = () => {
     infoModal.classList.add('hidden');
     document.body.style.overflow = '';
     
-    // ZMĚNA TADY: Pokud to zavírá nováček, ukážeme mu teď Novinky
-    if (window.isFirstTimeUser) {
+    // Pokud to zavírá nováček, ukážeme mu teď Novinky
+    if (isFirstTimeUser) {
         document.getElementById('news-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-        window.isFirstTimeUser = false; // Zde už označení nováčka mažeme, viděl vše
+        setIsFirstTimeUser(false); // Zde už označení nováčka mažeme, viděl vše
     }
 };
 
@@ -1930,7 +1935,7 @@ async function exportToTemplateExcel(config) {
 
 // --- HLAVNÍ TLAČÍTKO EXPORT (Klasické pro Brigádníka na hlavní ploše) ---
 document.getElementById('export-btn').addEventListener('click', async () => {
-    const data = window.currentlyFilteredData;
+    const data = currentlyFilteredData;
     if (!data || data.length === 0) {
         showToast("Žádná data k exportu!", "error");
         return;
@@ -1948,12 +1953,12 @@ document.getElementById('export-btn').addEventListener('click', async () => {
     }
 
     // Nastavíme globální kontext exportu pro BRIGÁDNÍKA
-    window.exportConfig = {
+    setExportConfig({
         data: data,
         workerId: user.uid,
         workerName: user.displayName || "Brigádník",
-        fileName: `${monthText} - výkaz prací` // Výsledek: např. "květen 2026 - výkaz prací"
-    };
+        fileName: `${monthText} - výkaz prací` 
+    });
 
     if (data.length > 15) {
         exportLimitModal.classList.remove('hidden');
@@ -1963,18 +1968,19 @@ document.getElementById('export-btn').addEventListener('click', async () => {
 });
 
 // --- OBSLUHA TLAČÍTEK VE VÝBĚROVÉM OKNĚ (< 13 záznamů) ---
+// --- OBSLUHA TLAČÍTEK VE VÝBĚROVÉM OKNĚ (< 13 záznamů) ---
 document.getElementById('close-export-choice-cross').addEventListener('click', () => {
     exportChoiceModal.classList.add('hidden');
 });
 document.getElementById('export-plain-btn').addEventListener('click', async () => {
     exportChoiceModal.classList.add('hidden');
     // Vezme si data z dynamického configu!
-    await exportToPlainExcel(window.exportConfig); 
+    await exportToPlainExcel(exportConfig); 
 });
 document.getElementById('export-template-btn').addEventListener('click', async () => {
     exportChoiceModal.classList.add('hidden');
     // Vezme si data z dynamického configu!
-    await exportToTemplateExcel(window.exportConfig);
+    await exportToTemplateExcel(exportConfig);
 });
 // --- OBSLUHA TLAČÍTEK V UPOZORŇOVACÍM OKNĚ (> 13 záznamů) ---
 document.getElementById('close-export-limit-cross').addEventListener('click', () => {
@@ -1986,5 +1992,5 @@ document.getElementById('close-export-limit-btn').addEventListener('click', () =
 document.getElementById('confirm-export-limit-btn').addEventListener('click', async () => {
     exportLimitModal.classList.add('hidden');
     // Vezme si data z dynamického configu!
-    await exportToPlainExcel(window.exportConfig);
+    await exportToPlainExcel(exportConfig);
 });
