@@ -1,0 +1,24 @@
+# 1. Oprava pro stahování HTML (Vynucení, aby to byl web)
+AddType text/html .html .htm
+RemoveHandler .html .htm
+
+RewriteEngine On
+
+# 2. Vynucení HTTPS (Je lepší to mít hned na začátku)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 3. Skrytí index.html z URL (Udrží tě v podsložce)
+RewriteCond %{THE_REQUEST} /index\.html [NC]
+RewriteRule ^(.*)index\.html$ /JobRecorder/$1 [R=301,L]
+
+# 4. Ignorování existujících souborů (Ochrana proti pravidlům z nadřazené složky)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 5. Pravidlo pro Single Page Aplikace (React/Vue/Vite routování)
+# Všechno ostatní, co není reálný soubor, pošle potichu na index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [QSA,L]

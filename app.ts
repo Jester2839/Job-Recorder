@@ -1872,7 +1872,9 @@ async function exportToTemplateExcel(config) {
 
         // NOVÉ: Zjistíme, jakou šablonu budeme stahovat
         const hasOrder = data.some(r => r.order && r.order.trim() !== '');
-        const templatePath = hasOrder ? 'tamplates/sablona_praxe.xlsx' : 'tamplates/sablona.xlsx';
+        
+        // --- TADY JE TA OPRAVA (přidáno /JobRecorder/ na začátek) ---
+        const templatePath = hasOrder ? '/JobRecorder/tamplates/sablona_praxe.xlsx' : '/JobRecorder/tamplates/sablona.xlsx';
 
         const response = await fetch(templatePath);
         const arrayBuffer = await response.arrayBuffer();
@@ -1884,7 +1886,7 @@ async function exportToTemplateExcel(config) {
 
         if (hasOrder) {
             // LOGIKA PRO ŠABLONU PRAXE (S MÍSTEM PRO ZAKÁZKU)
-            worksheet.getCell('L17').value = Number(currentRate); // Hodinovka v nové šabloně
+            worksheet.getCell('L36').value = Number(currentRate); // Hodinovka v nové šabloně
             
             let currentRowIndex = 3; // Praxe začíná už na 3. řádku
             data.forEach(record => {
@@ -1903,7 +1905,7 @@ async function exportToTemplateExcel(config) {
             });
         } else {
             // LOGIKA PRO KLASICKOU ŠABLONU (Původní)
-            worksheet.getCell('K21').value = Number(currentRate);
+            worksheet.getCell('K36').value = Number(currentRate);
             
             let currentRowIndex = 3; // Klasická začíná na 4. řádku
             data.forEach(record => {

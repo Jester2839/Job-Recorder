@@ -1,2 +1,6 @@
 import { defineConfig } from "vite";
-export default defineConfig({ build: { target: "esnext" } });
+
+export default defineConfig({
+  base: './',
+  build: { target: "esnext" }
+})
