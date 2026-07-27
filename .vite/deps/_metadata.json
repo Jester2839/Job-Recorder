@@ -1,0 +1,31 @@
+{
+  "hash": "e5872c4a",
+  "configHash": "f441bac9",
+  "lockfileHash": "2c999a64",
+  "browserHash": "da5d5656",
+  "optimized": {
+    "firebase/app": {
+      "src": "../../node_modules/firebase/app/dist/esm/index.esm.js",
+      "file": "firebase_app.js",
+      "fileHash": "5be8648e",
+      "needsInterop": false
+    },
+    "firebase/auth": {
+      "src": "../../node_modules/firebase/auth/dist/esm/index.esm.js",
+      "file": "firebase_auth.js",
+      "fileHash": "13f75ddb",
+      "needsInterop": false
+    },
+    "firebase/firestore": {
+      "src": "../../node_modules/firebase/firestore/dist/esm/index.esm.js",
+      "file": "firebase_firestore.js",
+      "fileHash": "031d738e",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-5CMO42JT": {
+      "file": "chunk-5CMO42JT.js"
+    }
+  }
+}

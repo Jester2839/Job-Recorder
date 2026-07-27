@@ -1353,13 +1353,27 @@ input[type="number"]::-webkit-outer-spin-button {
     gap: 30px; /* Mezera mezi jménem a boxem statistik */
 }
 
+.admin-worker-name-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 30px 10px 0;
+    border-right: 1px solid var(--border-color);
+    min-width: 0;
+}
+
 .admin-worker-name {
-    flex: 0 1 auto; /* Trik: jméno si vezme jen tolik místa, kolik potřebuje text */
     font-size: var(--fs-xl);
     font-weight: bold;
     color: var(--text-primary);
-    padding: 10px 30px 10px 0px; 
-    border-right: 1px solid var(--border-color); /* Čára je teď nalepená přímo u jména */
+    white-space: nowrap;
+}
+
+.admin-worker-rate {
+    font-size: var(--fs-base);
+    font-weight: 600;
+    color: var(--text-secondary);
     white-space: nowrap;
 }
 

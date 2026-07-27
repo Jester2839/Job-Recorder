@@ -1472,6 +1472,8 @@ async function renderAdminDashboard() {
         for (const workerId of monitoredIds) {
             const workerDoc = await getDoc(doc(db, "users", workerId));
             const workerName = workerDoc.exists() ? (workerDoc.data().name || 'Neznámé jméno') : 'Smazaný uživatel';
+            const workerHourlyRate = workerDoc.exists() ? Number(workerDoc.data().hourlyRate ?? 200) : 200;
+            const formattedHourlyRate = `${workerHourlyRate.toLocaleString('cs-CZ')} Kč/h`;
 
             const recordsQuery = query(collection(db, "work_records"), where("userId", "==", workerId));
             const recordsSnapshot = await getDocs(recordsQuery);
@@ -1491,10 +1493,14 @@ async function renderAdminDashboard() {
             const card = document.createElement('div');
             card.className = 'admin-worker-card';
             card.setAttribute('data-worker-id', workerId);
+            card.setAttribute('data-worker-hourly-rate', String(workerHourlyRate));
             
             card.innerHTML = `
                 <div class="admin-card-collapsed">
-                    <div class="admin-worker-name">${workerName}</div>
+                    <div class="admin-worker-name-block">
+                        <div class="admin-worker-name">${workerName}</div>
+                        <div class="admin-worker-rate">${formattedHourlyRate}</div>
+                    </div>
                     <div class="admin-worker-stats">
                         <div class="admin-stat-block">
                             <span class="admin-stat-label">Záznamů:</span>
@@ -1570,6 +1576,8 @@ adminWorkersList.addEventListener('click', async (e) => {
 
     const workerId = card.getAttribute('data-worker-id');
     const workerName = card.querySelector('.admin-worker-name').textContent;
+    const workerHourlyRate = Number(card.getAttribute('data-worker-hourly-rate') ?? 200);
+    const workerHourlyRateText = `${workerHourlyRate.toLocaleString('cs-CZ')} Kč/h`;
     let expandedDiv = card.querySelector('.admin-card-expanded');
     
     // Pokud je otevřená poprvé, vygenerujeme obsah
@@ -1639,6 +1647,10 @@ adminWorkersList.addEventListener('click', async (e) => {
                         <div class="stat-row">
                             <span class="text-secondary">Odpracováno</span>
                             <strong class="text-accent">${totalHours} h</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span class="text-secondary">Hodinová mzda</span>
+                            <strong class="text-accent">${workerHourlyRateText}</strong>
                         </div>
                         <div class="stat-row">
                             <span class="text-secondary">Výdělek</span>
@@ -1823,9 +1835,9 @@ async function exportToTemplateExcel(config) {
             });
         } else {
             // LOGIKA PRO KLASICKOU ŠABLONU (Původní)
-            worksheet.getCell('K19').value = Number(currentRate);
+            worksheet.getCell('K21').value = Number(currentRate);
             
-            let currentRowIndex = 4; // Klasická začíná na 4. řádku
+            let currentRowIndex = 3; // Klasická začíná na 4. řádku
             data.forEach(record => {
                 const row = worksheet.getRow(currentRowIndex);
                 const dateParts = record.date.split('-');
