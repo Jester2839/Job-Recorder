@@ -1450,7 +1450,8 @@ async function renderAdminDashboard() {
 
     try {
         const adminDoc = await getDoc(doc(db, "users", window.currentEmployerId));
-        const monitoredIds = adminDoc.data().monitoredWorkers || [];
+        const adminData = adminDoc.exists() ? adminDoc.data() : {};
+        const monitoredIds = adminData.monitoredWorkers || [];
 
         if (monitoredIds.length === 0) {
             adminWorkersList.innerHTML = `
@@ -1472,7 +1473,10 @@ async function renderAdminDashboard() {
         for (const workerId of monitoredIds) {
             const workerDoc = await getDoc(doc(db, "users", workerId));
             const workerName = workerDoc.exists() ? (workerDoc.data().name || 'Neznámé jméno') : 'Smazaný uživatel';
-            const workerHourlyRate = workerDoc.exists() ? Number(workerDoc.data().hourlyRate ?? 200) : 200;
+            const workerHourlyRateSource = adminData.workerRates?.[workerId];
+            const workerHourlyRate = workerHourlyRateSource != null
+                ? Number(workerHourlyRateSource)
+                : (workerDoc.exists() ? Number(workerDoc.data().hourlyRate ?? 200) : 200);
             const formattedHourlyRate = `${workerHourlyRate.toLocaleString('cs-CZ')} Kč/h`;
 
             const recordsQuery = query(collection(db, "work_records"), where("userId", "==", workerId));
@@ -1525,9 +1529,78 @@ async function renderAdminDashboard() {
 }
 
 // --- ADMIN: ROZBALOVÁNÍ KARET (Lazy Loading + Grid Layout) ---
+const rateModal = document.getElementById('rate-modal');
+const rateEditInput = document.getElementById('rate-edit-input') as HTMLInputElement;
+const saveRateBtn = document.getElementById('save-rate-btn');
+const closeRateCross = document.getElementById('close-rate-cross');
+const closeRateBtn = document.getElementById('close-rate-btn');
+let activeRateWorkerId: string | null = null;
+
+function closeRateModal() {
+    rateModal?.classList.add('hidden');
+    document.body.style.overflow = '';
+    if (rateEditInput) rateEditInput.value = '';
+    activeRateWorkerId = null;
+}
+
+function openRateModal(workerId: string, currentRate: number) {
+    activeRateWorkerId = workerId;
+    if (rateEditInput) {
+        rateEditInput.value = String(currentRate);
+        rateEditInput.focus();
+    }
+    rateModal?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+closeRateCross?.addEventListener('click', closeRateModal);
+closeRateBtn?.addEventListener('click', closeRateModal);
+
+saveRateBtn?.addEventListener('click', async () => {
+    if (!activeRateWorkerId) return;
+
+    const newRate = Number((rateEditInput as HTMLInputElement).value);
+    if (!Number.isFinite(newRate) || newRate <= 0) {
+        showToast("Zadej platnou hodinovou mzdu.", "warning");
+        return;
+    }
+
+    try {
+        const adminDocRef = doc(db, "users", window.currentEmployerId);
+        const adminDocSnap = await getDoc(adminDocRef);
+        const currentWorkerRates = adminDocSnap.exists() ? (adminDocSnap.data().workerRates || {}) : {};
+
+        await updateDoc(adminDocRef, {
+            workerRates: {
+                ...currentWorkerRates,
+                [activeRateWorkerId]: newRate
+            }
+        });
+
+        showToast("Hodinová mzda byla uložena.", "success");
+        closeRateModal();
+        await renderAdminDashboard();
+    } catch (error) {
+        console.error("Chyba při ukládání hodinové mzdy:", error);
+        showToast("Nepodařilo se uložit hodinovou mzdu.", "error");
+    }
+});
+
 adminWorkersList.addEventListener('click', async (e) => {
     const card = (e.target as HTMLElement).closest('.admin-worker-card');
     if (!card) return;
+
+    const rateButton = (e.target as HTMLElement).closest('.rate-pill');
+    if (rateButton) {
+        e.preventDefault();
+        e.stopPropagation();
+        const workerId = card.getAttribute('data-worker-id');
+        const currentRate = Number(card.getAttribute('data-worker-hourly-rate') ?? 200);
+        if (workerId) {
+            openRateModal(workerId, currentRate);
+        }
+        return;
+    }
 
     // 1. Záchyt kliknutí na NOVÉ tlačítko Exportovat v admin panelu
     const adminExportBtn = (e.target as HTMLElement).closest('.admin-export-btn');
@@ -1650,7 +1723,7 @@ adminWorkersList.addEventListener('click', async (e) => {
                         </div>
                         <div class="stat-row">
                             <span class="text-secondary">Hodinová mzda</span>
-                            <strong class="text-accent">${workerHourlyRateText}</strong>
+                            <button type="button" class="rate-pill">${workerHourlyRateText}</button>
                         </div>
                         <div class="stat-row">
                             <span class="text-secondary">Výdělek</span>
