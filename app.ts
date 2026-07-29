@@ -1823,8 +1823,11 @@ async function exportToPlainExcel(config) {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Výkaz');
 
-    // NOVÉ: Zjistíme, jestli alespoň 1 záznam má zakázku
-    const hasOrder = data.some(r => r.order && r.order.trim() !== '');
+    // NOVÉ: Vytvoříme si kopii dat a seřadíme ji chronologicky (od nejstaršího po nejnovější)
+    const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Zjistíme, jestli alespoň 1 záznam má zakázku
+    const hasOrder = sortedData.some(r => r.order && r.order.trim() !== '');
 
     // Dynamické hlavičky
     if (hasOrder) {
@@ -1834,8 +1837,8 @@ async function exportToPlainExcel(config) {
     }
     worksheet.getRow(1).font = { bold: true };
 
-    // Data
-    data.forEach((record, index) => {
+    // Data - ZDE ZMĚNÍME data.forEach NA sortedData.forEach
+    sortedData.forEach((record, index) => {
         const dateParts = record.date.split('-');
         const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
         
@@ -1862,6 +1865,7 @@ async function exportToPlainExcel(config) {
     saveAs(blob, `${fileName} - prazdny.xlsx`);
     showToast("Exportováno do čistého Excelu.", "success");
 }
+
 // 2. Pomocná funkce pro export DO ŠABLONY
 async function exportToTemplateExcel(config) {
     const { data, workerId, workerName, fileName } = config;
@@ -1870,10 +1874,12 @@ async function exportToTemplateExcel(config) {
         const userDoc = await getDoc(doc(db, "users", workerId));
         const currentRate = userDoc.data()?.hourlyRate ?? 200;
 
-        // NOVÉ: Zjistíme, jakou šablonu budeme stahovat
-        const hasOrder = data.some(r => r.order && r.order.trim() !== '');
+        // NOVÉ: Vytvoříme si kopii dat a seřadíme ji chronologicky (od nejstaršího po nejnovější)
+        const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+        // Zjistíme, jakou šablonu budeme stahovat
+        const hasOrder = sortedData.some(r => r.order && r.order.trim() !== '');
         
-        // --- TADY JE TA OPRAVA (přidáno /JobRecorder/ na začátek) ---
         const templatePath = hasOrder ? './templates/sablona_praxe.xlsx' : './templates/sablona.xlsx';
 
         const response = await fetch(templatePath);
@@ -1886,19 +1892,20 @@ async function exportToTemplateExcel(config) {
 
         if (hasOrder) {
             // LOGIKA PRO ŠABLONU PRAXE (S MÍSTEM PRO ZAKÁZKU)
-            worksheet.getCell('L36').value = Number(currentRate); // Hodinovka v nové šabloně
+            worksheet.getCell('L36').value = Number(currentRate); 
             
-            let currentRowIndex = 3; // Praxe začíná už na 3. řádku
-            data.forEach(record => {
+            let currentRowIndex = 3; 
+            // ZDE ZMĚNÍME data.forEach NA sortedData.forEach
+            sortedData.forEach(record => {
                 const row = worksheet.getRow(currentRowIndex);
                 const dateParts = record.date.split('-');
                 const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
 
-                row.getCell(1).value = formattedDate;       // A: Datum
-                row.getCell(5).value = record.order || '';  // E: Zakázka
-                row.getCell(6).value = record.activity;     // F: Činnost
-                row.getCell(11).value = record.description; // K: Poznámka
-                row.getCell(12).value = Number(record.hours); // L: Hodiny
+                row.getCell(1).value = formattedDate;       
+                row.getCell(5).value = record.order || '';  
+                row.getCell(6).value = record.activity;     
+                row.getCell(11).value = record.description; 
+                row.getCell(12).value = Number(record.hours); 
 
                 row.commit();
                 currentRowIndex++;
@@ -1907,8 +1914,9 @@ async function exportToTemplateExcel(config) {
             // LOGIKA PRO KLASICKOU ŠABLONU (Původní)
             worksheet.getCell('K36').value = Number(currentRate);
             
-            let currentRowIndex = 3; // Klasická začíná na 4. řádku
-            data.forEach(record => {
+            let currentRowIndex = 3; 
+            // ZDE ZMĚNÍME data.forEach NA sortedData.forEach
+            sortedData.forEach(record => {
                 const row = worksheet.getRow(currentRowIndex);
                 const dateParts = record.date.split('-');
                 const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
