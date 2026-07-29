@@ -1874,7 +1874,7 @@ async function exportToTemplateExcel(config) {
         const hasOrder = data.some(r => r.order && r.order.trim() !== '');
         
         // --- TADY JE TA OPRAVA (přidáno /JobRecorder/ na začátek) ---
-        const templatePath = hasOrder ? '/tamplates/sablona_praxe.xlsx' : '/tamplates/sablona.xlsx';
+        const templatePath = hasOrder ? './templates/sablona_praxe.xlsx' : './templates/sablona.xlsx';
 
         const response = await fetch(templatePath);
         const arrayBuffer = await response.arrayBuffer();
