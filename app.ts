@@ -1618,7 +1618,7 @@ adminWorkersList.addEventListener('click', async (e) => {
         });
 
         // Otevřeme správné okno podle počtu záznamů
-        if (data.length > 15) {
+        if (data.length > 32) {
             document.getElementById('export-limit-modal').classList.remove('hidden');
         } else {
             document.getElementById('export-choice-modal').classList.remove('hidden');
@@ -1874,7 +1874,7 @@ async function exportToTemplateExcel(config) {
         const hasOrder = data.some(r => r.order && r.order.trim() !== '');
         
         // --- TADY JE TA OPRAVA (přidáno /JobRecorder/ na začátek) ---
-        const templatePath = hasOrder ? '/JobRecorder/tamplates/sablona_praxe.xlsx' : '/JobRecorder/tamplates/sablona.xlsx';
+        const templatePath = hasOrder ? '/tamplates/sablona_praxe.xlsx' : '/tamplates/sablona.xlsx';
 
         const response = await fetch(templatePath);
         const arrayBuffer = await response.arrayBuffer();
@@ -1962,14 +1962,13 @@ document.getElementById('export-btn').addEventListener('click', async () => {
         fileName: `${monthText} - výkaz prací` 
     });
 
-    if (data.length > 15) {
+    if (data.length > 32) {
         exportLimitModal.classList.remove('hidden');
     } else {
         exportChoiceModal.classList.remove('hidden');
     }
 });
 
-// --- OBSLUHA TLAČÍTEK VE VÝBĚROVÉM OKNĚ (< 13 záznamů) ---
 // --- OBSLUHA TLAČÍTEK VE VÝBĚROVÉM OKNĚ (< 13 záznamů) ---
 document.getElementById('close-export-choice-cross').addEventListener('click', () => {
     exportChoiceModal.classList.add('hidden');
